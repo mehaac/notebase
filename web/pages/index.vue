@@ -43,7 +43,6 @@ onMounted(async () => {
   }
 });
 
-// TODO: move templates importing out of the loop
 const listItemComponent = (itemType: string): Component | undefined => {
   return components.get(itemType);
 };
@@ -53,7 +52,7 @@ const listItemComponent = (itemType: string): Component | undefined => {
   <div>
     <input v-model="filter" type="search" placeholder="Query" />
 
-    <article v-for="item in activitiesStore.items">
+    <article v-for="item in activitiesStore.items" :key="item.id">
       <label>
         <input type="checkbox" name="done" checked />
         <NuxtLink :to="`/${item.id}`">
