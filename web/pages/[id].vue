@@ -5,6 +5,7 @@ import {
   useRoute,
 } from "#imports";
 import { computed } from "vue";
+import BaseItemComponent from "~/components/BaseItemComponent.vue";
 
 definePageMeta({
   middleware: ["auth"],
@@ -21,10 +22,15 @@ const item = computed(() =>
 
 <template>
   <div>
-    <h1>{{ item?.title }}</h1>
-    <ItemComponent
-      :item="item"
-      :is-list="false"
-    />
+  <template v-if="item">
+    <h1>{{ item.title }}</h1>
+    <BaseItemComponent
+        :item="item"
+        :is-list="false"
+      />
+    </template>
+    <template v-else>
+      <h1>Item not found</h1>
+    </template>
   </div>
 </template>
