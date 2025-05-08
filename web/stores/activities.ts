@@ -6,7 +6,7 @@ export const useActivitiesStore = defineStore("activitiesStore", () => {
   const items = shallowRef<Item[]>([]);
   const itemTypes = shallowRef<Set<ItemType>>(new Set());
   const item = shallowRef<Item | undefined>(undefined);
-  const query = ref("");
+  const query = shallowRef("");
 
   const load = async () => {
     let filter = query.value;

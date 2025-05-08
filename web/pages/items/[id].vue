@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import {
   definePageMeta,
-  ItemType,
   useActivitiesStore,
   useRoute,
-  type Item,
 } from "#imports";
-import { onMounted } from "vue";
+import { computed } from "vue";
+import BaseItemComponent from "~/components/BaseItemComponent.vue";
 
 definePageMeta({
   middleware: ["auth"],
@@ -14,20 +13,24 @@ definePageMeta({
 
 const route = useRoute();
 const activitiesStore = useActivitiesStore();
-let item: Item | undefined;
+const item = computed(() => 
+  activitiesStore.items.find((item) => item.id === route.params.id)
+);
 
-onMounted(async () => {
-  item = activitiesStore.items.find((item) => item.id === route.params.id);
-});
+
 </script>
 
 <template>
   <div>
-    <h1>{{ item?.title }}</h1>
-    <LazyDebt
-      v-if="item?.type == ItemType.Debt"
-      :item="item"
-      :is-list="false"
-    />
+  <template v-if="item">
+    <h1>{{ item.title }}</h1>
+    <BaseItemComponent
+        :item="item"
+        :is-list="false"
+      />
+    </template>
+    <template v-else>
+      <h1>Item not found</h1>
+    </template>
   </div>
 </template>

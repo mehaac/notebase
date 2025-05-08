@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useActivitiesStore, definePageMeta } from "#imports";
 import { onMounted } from "vue";
-import { ItemType } from "~/utils/types";
+import BaseItemComponent from "~/components/BaseItemComponent.vue";
 
 definePageMeta({
   middleware: ["auth"],
@@ -33,7 +33,7 @@ onMounted(async () => {
           </ULink>
         </template>
       </UCheckbox>
-      <LazyDebt v-if="item.type == ItemType.Debt" :item="item" is-list />
+      <BaseItemComponent :item="item" is-list />
     </UCard>
   </div>
 </template>
