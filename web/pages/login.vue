@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { pb } from "~/utils/pb";
-import { useTemplateRef, defineModel, onMounted } from "vue";
+import { useTemplateRef, onMounted } from "vue";
 import { navigateTo } from "#app";
 
 const isAuthorized = defineModel("isAuthorized", {

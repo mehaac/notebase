@@ -1,12 +1,7 @@
 <script setup lang="ts">
-import {
-  watchDebounced,
-  useActivitiesStore,
-  defineAsyncComponent,
-  definePageMeta,
-  type Component,
-} from "#imports";
+import { watchDebounced, useActivitiesStore, definePageMeta } from "#imports";
 import { ref, onMounted } from "vue";
+import { ItemType } from "~/utils/types";
 
 definePageMeta({
   middleware: ["auth"],
@@ -21,31 +16,12 @@ watchDebounced(
   async () => {
     await activitiesStore.load(filter.value);
   },
-  { debounce: 500 },
+  { debounce: 300 },
 );
-
-let components = new Map<string, Component>();
 
 onMounted(async () => {
   await activitiesStore.load(filter.value);
-  for (let t in activitiesStore.itemTypes) {
-    let componentName = t + "ListItem";
-    let component = defineAsyncComponent(async () => {
-      try {
-        let comp = await import(`../components/${componentName}.vue`);
-        return comp;
-      } catch (e) {
-        console.log("listItem component is not defined for", t);
-        return await import(`../components/emptyListItem.vue`);
-      }
-    });
-    components.set(t, component);
-  }
 });
-
-const listItemComponent = (itemType: string): Component | undefined => {
-  return components.get(itemType);
-};
 </script>
 
 <template>
@@ -59,7 +35,7 @@ const listItemComponent = (itemType: string): Component | undefined => {
           {{ item.title }}
         </NuxtLink>
       </label>
-      <component :is="listItemComponent(item.type)" :item="item" />
+      <Debt v-if="item.type == ItemType.Debt" :item="item" is-list />
     </article>
   </div>
 </template>

@@ -1,12 +1,12 @@
-import { pb } from "#imports";
-import type { Item } from "#imports";
+import { pb, type Item } from "#imports";
 import { defineStore } from "pinia";
+import type { ItemType } from "~/utils/types";
 
 export const useActivitiesStore = defineStore("activitiesStore", {
   state: () => ({
     items: [] as Item[],
     item: undefined as Item | undefined,
-    itemTypes: new Set<string>(),
+    itemTypes: new Set<ItemType>(),
   }),
   actions: {
     async load(filter: string) {
@@ -16,7 +16,7 @@ export const useActivitiesStore = defineStore("activitiesStore", {
       const result = await pb.collection("files").getFullList({
         filter: filter,
       });
-      this.items = result.map((item) => {
+      this.items = result.map((item): Item => {
         this.itemTypes.add(item.frontmatter.type);
         return {
           id: item.id,

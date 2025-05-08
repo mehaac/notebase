@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { definePageMeta, useActivitiesStore, useRoute } from "#imports";
+import {
+  definePageMeta,
+  ItemType,
+  useActivitiesStore,
+  useRoute,
+  type Item,
+} from "#imports";
 import { onMounted } from "vue";
 
 definePageMeta({
@@ -8,18 +14,16 @@ definePageMeta({
 
 const route = useRoute();
 const activitiesStore = useActivitiesStore();
+let item: Item | undefined;
 
 onMounted(async () => {
-  activitiesStore.setItem(route.params.id as string);
+  item = activitiesStore.items.find((item) => item.id === route.params.id);
 });
 </script>
 
 <template>
   <div>
-    <h1>{{ activitiesStore.item?.title }}</h1>
-    <Debt
-      v-if="activitiesStore.item?.type === 'debt'"
-      :item="activitiesStore.item"
-    />
+    <h1>{{ item?.title }}</h1>
+    <Debt v-if="item?.type == ItemType.Debt" :item="item" :is-list="false" />
   </div>
 </template>

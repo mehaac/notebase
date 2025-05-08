@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import type { Item, DebtFrontmatter } from "#imports";
 
-const props = defineProps<{ item: Item }>();
+const props = defineProps<{ item: Item; isList: boolean }>();
+
 props.item.frontmatter as DebtFrontmatter;
 </script>
 
 <template>
   <div>
-    <h2>debt, {{ props.item.frontmatter.currency }}</h2>
+    {{ props.item.frontmatter.currency }}
+    <div v-if="!props.isList">graph and trnsactions</div>
   </div>
 </template>

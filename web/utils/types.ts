@@ -3,10 +3,16 @@ export type Item = {
   title: string;
   content: string;
   completed: string;
-  type: string;
+  type: ItemType;
   frontmatter: any;
 };
 
 export type DebtFrontmatter = {
   currency: string;
 };
+
+export enum ItemType {
+  Track = "track",
+  Debt = "debt",
+  Task = "task",
+}
