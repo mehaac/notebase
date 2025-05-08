@@ -1,10 +1,21 @@
 <script setup lang="ts">
 import { navigateTo } from "#app";
-import { pb } from "#imports";
+import { pb, useActivitiesStore } from "#imports";
+
+const activitiesStore = useActivitiesStore();
 
 const onLogout = async () => {
   pb.authStore.clear();
-  await navigateTo("/login");
+  await navigateTo({ name: "login" });
+};
+
+const queries = {
+  debt: "frontmatter.type = 'debt'",
+  track: "frontmatter.type = 'track'",
+};
+
+const setQuery = (query: string) => {
+  activitiesStore.query = query;
 };
 </script>
 <template>
@@ -16,6 +27,12 @@ const onLogout = async () => {
         </li>
       </ul>
       <ul>
+        <li>
+          <a @click="setQuery(queries.debt)">Debt</a>
+        </li>
+        <li>
+          <a @click="setQuery(queries.track)">Track</a>
+        </li>
         <li v-if="pb.authStore.isValid">
           <a href="#" :onclick="onLogout">Logout</a>
         </li>

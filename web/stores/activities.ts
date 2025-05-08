@@ -1,13 +1,15 @@
-import { ref, pb, type Item } from "#imports";
+import { pb, type Item, shallowRef, ref, watchDebounced } from "#imports";
 import { defineStore } from "pinia";
 import type { ItemType } from "~/utils/types";
 
 export const useActivitiesStore = defineStore("activitiesStore", () => {
-  const items = ref<Item[]>([]);
-  const item = ref<Item | undefined>(undefined);
-  const itemTypes = ref<Set<ItemType>>(new Set());
+  const items = shallowRef<Item[]>([]);
+  const itemTypes = shallowRef<Set<ItemType>>(new Set());
+  const item = shallowRef<Item | undefined>(undefined);
+  const query = ref("");
 
-  const load = async (filter: string) => {
+  const load = async () => {
+    let filter = query.value;
     if (filter.length === 0) {
       filter = "path ~ 'inbox/activities/%'";
     }
@@ -27,5 +29,13 @@ export const useActivitiesStore = defineStore("activitiesStore", () => {
     });
   };
 
-  return { items, item, itemTypes, load };
+  watchDebounced(
+    query,
+    async () => {
+      await load();
+    },
+    { debounce: 300 },
+  );
+
+  return { items, item, itemTypes, load, query };
 });

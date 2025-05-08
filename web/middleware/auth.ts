@@ -3,6 +3,6 @@ import { pb } from "~/utils/pb";
 
 export default defineNuxtRouteMiddleware((to, from) => {
   if (!pb.authStore.isValid) {
-    return navigateTo("/login");
+    return navigateTo({ name: "login" });
   }
 });

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { watchDebounced, useActivitiesStore, definePageMeta } from "#imports";
-import { ref, onMounted } from "vue";
+import { useActivitiesStore, definePageMeta } from "#imports";
+import { onMounted } from "vue";
 import { ItemType } from "~/utils/types";
 
 definePageMeta({
@@ -9,24 +9,14 @@ definePageMeta({
 
 const activitiesStore = useActivitiesStore();
 
-const filter = ref("");
-
-watchDebounced(
-  filter,
-  async () => {
-    await activitiesStore.load(filter.value);
-  },
-  { debounce: 300 },
-);
-
 onMounted(async () => {
-  await activitiesStore.load(filter.value);
+  await activitiesStore.load();
 });
 </script>
 
 <template>
   <div>
-    <input v-model="filter" type="search" placeholder="Query" />
+    <input v-model="activitiesStore.query" type="search" placeholder="Query" />
 
     <article v-for="item in activitiesStore.items" :key="item.id">
       <label>
@@ -35,7 +25,7 @@ onMounted(async () => {
           {{ item.title }}
         </NuxtLink>
       </label>
-      <Debt v-if="item.type == ItemType.Debt" :item="item" is-list />
+      <LazyDebt v-if="item.type == ItemType.Debt" :item="item" is-list />
     </article>
   </div>
 </template>

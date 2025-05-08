@@ -24,6 +24,10 @@ onMounted(async () => {
 <template>
   <div>
     <h1>{{ item?.title }}</h1>
-    <Debt v-if="item?.type == ItemType.Debt" :item="item" :is-list="false" />
+    <LazyDebt
+      v-if="item?.type == ItemType.Debt"
+      :item="item"
+      :is-list="false"
+    />
   </div>
 </template>

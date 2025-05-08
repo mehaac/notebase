@@ -28,7 +28,7 @@ const onSubmit = async (e: Event) => {
       .authWithPassword(emailValue, passwordValue);
     setAuthorized(true);
     if (pb.authStore.isValid) {
-      await navigateTo("/");
+      await navigateTo({ name: "index" });
     }
   } catch (error) {
     console.error(error);
@@ -37,7 +37,7 @@ const onSubmit = async (e: Event) => {
 
 const onLogout = async () => {
   setAuthorized(false);
-  await navigateTo("/login");
+  await navigateTo({ name: "login" });
 };
 
 onMounted(() => {
