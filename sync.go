@@ -25,9 +25,15 @@ func syncCmd(app *pocketbase.PocketBase) *cobra.Command {
 		Use:   "sync",
 		Short: "Scan notes directory and load markdown files into the files table",
 		Run: func(cmd *cobra.Command, args []string) {
-			syncJob(app)
+			root, _ := cmd.Flags().GetString("root")
+			syncJob(app, root)
 		},
 	}
+}
+
+type NotebaseConfig struct {
+	ClearOnStartup bool     `yaml:"clear_on_startup"`
+	Exclude        []string `yaml:"exclude"`
 }
 
 // syncJob loads markdown files into an SQLite database and synchronizes
@@ -42,17 +48,22 @@ func syncCmd(app *pocketbase.PocketBase) *cobra.Command {
 //   - all the parsing is done in parallel in goroutines
 //   - after parsing the results are sent to the saving process
 //     which also works in parallel in goroutine in batches
-func syncJob(app *pocketbase.PocketBase) {
-
-	// Load settings
-	clearOnStartup := getSetting(app, "clear_on_startup")
-	root := getSetting(app, "root")
-	exclude := getSetting(app, "exclude")
+func syncJob(app *pocketbase.PocketBase, root string) {
+	data, err := os.ReadFile(path.Join(root, ".notebase.yml"))
+	if err != nil {
+		app.Logger().Error("error reading config", "error", err)
+		return
+	}
+	config := NotebaseConfig{}
+	err = yaml.Unmarshal(data, &config)
+	if err != nil {
+		app.Logger().Error("error parsing config", "error", err)
+		return
+	}
 
 	startTime := time.Now()
 
-	// TODO: probably need to add boolean settings
-	if clearOnStartup == "true" {
+	if config.ClearOnStartup {
 		_, err := app.DB().NewQuery("DELETE FROM files").Execute()
 		if err != nil {
 			app.Logger().Error("unable to clear files table", err)
@@ -60,9 +71,8 @@ func syncJob(app *pocketbase.PocketBase) {
 		}
 	}
 
-	excludePatterns := strings.Split(exclude, ",")
-	patterns := make([]glob.Glob, 0, len(excludePatterns))
-	for _, pattern := range excludePatterns {
+	patterns := make([]glob.Glob, 0, len(config.Exclude))
+	for _, pattern := range config.Exclude {
 		g, err := glob.Compile(pattern)
 		if err != nil {
 			app.Logger().Error("Invalid glob pattern", "pattern", pattern, "error", err)
@@ -86,7 +96,7 @@ func syncJob(app *pocketbase.PocketBase) {
 	var saveWg sync.WaitGroup
 
 	numWorkers := runtime.NumCPU()
-	app.Logger().Info("Starting parser workers", "count", numWorkers)
+	app.Logger().Debug("Starting parser workers", "count", numWorkers)
 	for i := 0; i < numWorkers; i++ {
 		parseWg.Add(1)
 		go func() {
@@ -146,7 +156,7 @@ func syncJob(app *pocketbase.PocketBase) {
 	}()
 
 	// Walk directory and send files to workers
-	app.Logger().Info("Walking directory", "root", root)
+	app.Logger().Debug("Walking directory", "root", root)
 
 	err = filepath.Walk(root, func(walkPath string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -195,7 +205,7 @@ func syncJob(app *pocketbase.PocketBase) {
 			app.Logger().Error("error parsing file", "path", relPath, "error", err)
 			return e.Next()
 		}
-		app.Logger().Info("hashes", "old", hash, "new", f.Hash)
+		app.Logger().Debug("hashes", "old", hash, "new", f.Hash)
 		if hash == f.Hash {
 			return e.Next()
 		}

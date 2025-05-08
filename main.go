@@ -20,7 +20,8 @@ func main() {
 
 		initCaldavRoutes(app, se)
 
-		go syncJob(app)
+		root, _ := app.RootCmd.Flags().GetString("root")
+		go syncJob(app, root)
 
 		return se.Next()
 	})
@@ -32,6 +33,7 @@ func main() {
 		Dir:         "./migrations",
 	})
 
+	app.RootCmd.PersistentFlags().String("root", "", "a path to notes root, which has .notebase.yml")
 	app.RootCmd.AddCommand(syncCmd(app))
 
 	if err := app.Start(); err != nil {
