@@ -1,7 +1,7 @@
 <template>
   <UContainer>
-    <Nav />
-    <Settings />
+    <AppNav />
+    <AppSettings />
     <slot />
   </UContainer>
 </template>

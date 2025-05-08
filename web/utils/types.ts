@@ -7,8 +7,22 @@ export type Item = {
   frontmatter: object
 }
 
+export type DebtTransaction = {
+  amount: number
+  created: string
+  comment: string
+}
+
 export type DebtFrontmatter = {
   currency: string
+  transactions: DebtTransaction[]
+}
+
+export type TrackFrontmatter = {
+  season: number
+  episode: number
+  url: string
+  next_episode: string
 }
 
 export enum ItemType {

@@ -9,15 +9,23 @@ definePageMeta({
 
 const route = useRoute()
 const activitiesStore = useActivitiesStore()
-const item = computed(() =>
-  activitiesStore.items.find(item => item.id === route.params.id),
-)
+const item = computed(() => {
+  if (activitiesStore.items.length === 0) {
+    // TODO: find out how to handle async here
+    activitiesStore.load()
+  }
+  return activitiesStore.items.find(item => item.id === route.params.id)
+})
 </script>
 
 <template>
   <div>
+    <ULink to="/">back</ULink>
+
     <template v-if="item">
-      <h1>{{ item.title }}</h1>
+      <h1 class="text-2xl font-bold mb-5">
+        {{ item.title }}
+      </h1>
       <LazyBaseItem
         :item="item"
         :is-list="false"

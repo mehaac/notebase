@@ -69,12 +69,13 @@ onMounted(async () => {
           <ULink :to="{ name: 'items-id', params: { id: item.id } }">
             {{ item.title }}
           </ULink>
-          <LazyBaseItem
-            :item="item"
-            is-list
-          />
         </template>
       </UCheckbox>
+      <LazyBaseItem
+        :item="item"
+        is-list
+        class="ml-6"
+      />
     </UCard>
   </div>
 </template>
