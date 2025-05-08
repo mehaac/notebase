@@ -922,36 +922,6 @@ func init() {
 					},
 					{
 						"hidden": false,
-						"id": "json1874629670",
-						"maxSize": 0,
-						"name": "tags",
-						"presentable": false,
-						"required": false,
-						"system": false,
-						"type": "json"
-					},
-					{
-						"hidden": false,
-						"id": "json3514999064",
-						"maxSize": 0,
-						"name": "links",
-						"presentable": false,
-						"required": false,
-						"system": false,
-						"type": "json"
-					},
-					{
-						"hidden": false,
-						"id": "json3447874133",
-						"maxSize": 0,
-						"name": "todos",
-						"presentable": false,
-						"required": false,
-						"system": false,
-						"type": "json"
-					},
-					{
-						"hidden": false,
 						"id": "json2128251450",
 						"maxSize": 0,
 						"name": "frontmatter",
@@ -967,6 +937,20 @@ func init() {
 						"max": 5000000,
 						"min": 0,
 						"name": "content",
+						"pattern": "",
+						"presentable": false,
+						"primaryKey": false,
+						"required": false,
+						"system": false,
+						"type": "text"
+					},
+					{
+						"autogeneratePattern": "",
+						"hidden": false,
+						"id": "text3518522040",
+						"max": 0,
+						"min": 0,
+						"name": "hash",
 						"pattern": "",
 						"presentable": false,
 						"primaryKey": false,
@@ -1034,16 +1018,6 @@ func init() {
 					},
 					{
 						"hidden": false,
-						"id": "_clone_fIsR",
-						"maxSize": 0,
-						"name": "tags",
-						"presentable": false,
-						"required": false,
-						"system": false,
-						"type": "json"
-					},
-					{
-						"hidden": false,
 						"id": "json3742343818",
 						"maxSize": 1,
 						"name": "due",
@@ -1055,7 +1029,7 @@ func init() {
 					{
 						"autogeneratePattern": "",
 						"hidden": false,
-						"id": "_clone_Nq58",
+						"id": "_clone_MCtG",
 						"max": 5000000,
 						"min": 0,
 						"name": "content",
@@ -1074,7 +1048,7 @@ func init() {
 				"system": false,
 				"type": "view",
 				"updateRule": null,
-				"viewQuery": "SELECT\n  id,\n  json(frontmatter)->'summary' as summary,\n  tags,\n  json(frontmatter)->'due' as due,\n  content\nFROM files\nWHERE path LIKE 'todo/tasks/%'",
+				"viewQuery": "SELECT\n  id,\n  json(frontmatter)->'summary' as summary,\n  json(frontmatter)->'due' as due,\n  content\nFROM files\nWHERE path LIKE 'todo/tasks/%'",
 				"viewRule": null
 			}
 		]`
