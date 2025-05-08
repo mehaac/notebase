@@ -23,18 +23,8 @@ export default defineNuxtConfig({
     },
   },
 
-  app: {
-    head: {
-      link: [
-        {
-          rel: "stylesheet",
-          href: "https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css",
-        },
-      ],
-    },
-  },
-
-  modules: ["@vueuse/nuxt", "@pinia/nuxt"],
+  modules: ["@vueuse/nuxt", "@pinia/nuxt", "@nuxt/ui"],
+  css: ["~/assets/css/main.css"],
 
   nitro: {
     output: {

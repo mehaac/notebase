@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { navigateTo } from "#app";
-import { pb, ref, useActivitiesStore } from "#imports";
+import { pb, ref, useActivitiesStore, useOverlay } from "#imports";
 import { useSettingsStore } from "~/stores/settings";
+import type { NavigationMenuItem } from "@nuxt/ui";
+import { LazySettings } from "#components";
 
 const activitiesStore = useActivitiesStore();
 
@@ -19,30 +21,39 @@ const setQuery = (query: string) => {
   activitiesStore.query = query;
 };
 
+const overlay = useOverlay();
+
+const settingsModal = overlay.create(LazySettings);
+
 const settingsStore = useSettingsStore();
+
+const items = ref<NavigationMenuItem[]>([
+  {
+    label: "Notebase",
+  },
+  {
+    label: "Settings",
+    onSelect: (e) => {
+      settingsModal.open();
+    },
+  },
+  {
+    label: "Debt",
+    onClick: () => setQuery(queries.debt),
+  },
+  {
+    label: "Track",
+    onClick: () => setQuery(queries.track),
+  },
+  {
+    label: pb.authStore.isValid ? "Logout" : "Login",
+    onClick: pb.authStore.isValid
+      ? onLogout
+      : () => navigateTo({ name: "login" }),
+  },
+]);
 </script>
 
 <template>
-  <nav>
-    <ul>
-      <li>
-        <strong><NuxtLink to="/">Notebase</NuxtLink></strong>
-      </li>
-    </ul>
-    <ul>
-      <li>
-        <a @click="settingsStore.toggleDialog">Settings</a>
-      </li>
-      <!-- <li>
-        <a @click="setQuery(queries.debt)">Debt</a>
-      </li>
-      <li>
-        <a @click="setQuery(queries.track)">Track</a>
-      </li> -->
-      <li v-if="pb.authStore.isValid">
-        <a href="#" :onclick="onLogout">Logout</a>
-      </li>
-      <li v-else><NuxtLink to="/login">Login</NuxtLink></li>
-    </ul>
-  </nav>
+  <UNavigationMenu :items="items" class="w-full justify-center" />
 </template>

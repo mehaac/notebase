@@ -1,7 +1,7 @@
 <template>
-  <main class="container">
+  <UContainer>
     <Nav />
     <Settings />
     <slot />
-  </main>
+  </UContainer>
 </template>
