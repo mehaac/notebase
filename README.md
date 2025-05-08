@@ -10,6 +10,34 @@ There are several key points, why I develop this project:
 
 I document some of my decisions regarding this project in [docs/adrs](./docs/adrs).
 
-# Contributing
+## Development
+
+You are going to need Go (whichever version is provided in `go.mod`) and Node/pnpm.
+
+There is an `example/` directory with a bunch of notes and a config file.
+
+```
+go run . --root=./example/notes serve
+```
+
+If you feel ambitious after thoroughly inspecting the source code, you can do `go run . --root=/abs/path/to/your/vault serve` and try it on the real data. :)
+
+And if you do, don't forget to add `.notebase.yml` to your root. You can check out my current config in [/examples/biozz_notebase_config.yml](./examples/biozz_notebase_config.yml).
+
+`serve` command also starts a background `sync` job. `serve` will created `pb_data` directory, which should not be checked into the VCS and is meant to be disposable. That means taht if there is any error or migration conflict you delete `pb_data` and run the server again.
+
+Follow PocketBase instructions to create an account.
+
+Then you can run frontend separately (assuming you installed dependencies):
+
+```
+pnpm dev
+```
+
+### Zed users
+
+If you are using Zed editor, you can use `Backend` and `Frontend` tasks available in `.zed/tasks.json`.
+
+## Contributing
 
 I might be interested in some contributions, but because it is an experimental project, I would prefer discussions and maybe code-reviews of the non-optimal or non-conventional parts of the codebase.

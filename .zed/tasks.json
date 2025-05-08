@@ -1,7 +1,7 @@
 [
   {
     "label": "Backend",
-    "command": "go run . serve",
+    "command": "go run . --root=./example/notes serve",
     "use_new_terminal": false,
     "allow_concurrent_runs": false,
     "reveal": "always",
