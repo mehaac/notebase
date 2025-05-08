@@ -1,6 +1,11 @@
-import { pb, type Item, shallowRef, ref, watchDebounced } from "#imports";
+import {
+  pb,
+  type Item,
+  type ItemType,
+  shallowRef,
+  watchDebounced,
+} from "#imports";
 import { defineStore } from "pinia";
-import type { ItemType } from "~/utils/types";
 
 export const useActivitiesStore = defineStore("activitiesStore", () => {
   const items = shallowRef<Item[]>([]);

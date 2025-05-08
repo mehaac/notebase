@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { navigateTo } from "#app";
-import { pb, ref, useActivitiesStore, useOverlay } from "#imports";
-import { useSettingsStore } from "~/stores/settings";
+import {
+  pb,
+  ref,
+  useActivitiesStore,
+  useOverlay,
+  useSettingsStore,
+} from "#imports";
 import type { NavigationMenuItem } from "@nuxt/ui";
 import { LazySettings } from "#components";
 

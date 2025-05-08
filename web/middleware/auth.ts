@@ -1,5 +1,5 @@
 import { defineNuxtRouteMiddleware, navigateTo } from "#app";
-import { pb } from "~/utils/pb";
+import { pb } from "#imports";
 
 export default defineNuxtRouteMiddleware((to, from) => {
   if (!pb.authStore.isValid) {

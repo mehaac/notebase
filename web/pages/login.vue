@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-import { pb } from "~/utils/pb";
 import { onMounted, reactive } from "vue";
 import { navigateTo } from "#app";
-import { useToast } from "#imports";
+import { useToast, pb } from "#imports";
 
 const state = reactive({
   email: "",
@@ -42,7 +41,11 @@ const onSubmit = async (e: Event) => {
       await navigateTo({ name: "index" });
     }
   } catch (error) {
-    console.error(error);
+    toast.add({
+      title: "Error",
+      description: `${error}`,
+      color: "error",
+    });
   }
 };
 
