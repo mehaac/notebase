@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { pb } from "~/utils/pb";
-import { useTemplateRef, onMounted } from "vue";
+import { onMounted } from "vue";
 import { navigateTo } from "#app";
 
 const isAuthorized = defineModel("isAuthorized", {
@@ -15,17 +15,34 @@ function setAuthorized(value: boolean) {
   isAuthorized.value = value;
 }
 
-const email = useTemplateRef("email");
-const password = useTemplateRef("password");
+const validateEmail = (email: FormDataEntryValue | null): email is string => {
+  if (!email || typeof email !== "string") return false;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+
+const validatePassword = (password: FormDataEntryValue | null): password is string => {
+  if (!password || typeof password !== "string") return false;
+  return password.length >= 8;
+};
 
 const onSubmit = async (e: Event) => {
-  const emailValue = email.value?.value;
-  const passwordValue = password.value?.value;
-  if (!emailValue || !passwordValue) return;
+  const formData = new FormData(e.target as HTMLFormElement);
+  const email = formData.get("email")
+  const password = formData.get("password")
+
+  if (!validateEmail(email)) {
+    console.error("Invalid email");
+    return;
+  }
+
+  if (!validatePassword(password)) {
+    console.error("Invalid password");
+    return;
+  }
   try {
     await pb
       .collection("_superusers")
-      .authWithPassword(emailValue, passwordValue);
+      .authWithPassword(email, password);
     setAuthorized(true);
     if (pb.authStore.isValid) {
       await navigateTo({ name: "index" });
@@ -51,7 +68,7 @@ onMounted(() => {
   <div class="grid">
     <div></div>
     <div v-if="!isAuthorized">
-      <form @submit.prevent="onSubmit">
+      <form @submit.prevent=" (e) => onSubmit(e)" ref="form">
         <fieldset>
           <label>
             Email
@@ -59,7 +76,6 @@ onMounted(() => {
               name="email"
               placeholder="Email"
               autocomplete="email"
-              ref="email"
             />
           </label>
           <label>
@@ -69,7 +85,6 @@ onMounted(() => {
               name="password"
               placeholder="Password"
               autocomplete="current-password"
-              ref="password"
             />
           </label>
         </fieldset>
