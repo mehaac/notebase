@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useActivitiesStore, definePageMeta } from "#imports";
 import { onMounted } from "vue";
-import { ItemType } from "~/utils/types";
+import BaseItemComponent from "~/components/BaseItemComponent.vue";
 
 definePageMeta({
   middleware: ["auth"],
@@ -25,7 +25,7 @@ onMounted(async () => {
           {{ item.title }}
         </NuxtLink>
       </label>
-      <LazyDebt v-if="item.type == ItemType.Debt" :item="item" is-list />
+      <BaseItemComponent :item="item" is-list />
     </article>
   </div>
 </template>
