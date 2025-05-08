@@ -11,6 +11,12 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   ssr: false,
 
+  runtimeConfig: {
+    public: {
+      apiBase: "http://127.0.0.1:8090", // NUXT_PUBLIC_API_BASE=/ in production
+    },
+  },
+
   router: {
     options: {
       hashMode: true,
