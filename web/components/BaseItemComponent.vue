@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { resolveComponent } from "vue";
-import type { Item } from "~/utils/types";
+import { type Item } from "#imports";
+import { resolveDynamicComponent } from "vue";
 
 const { item, isList } = defineProps<{ item: Item; isList: boolean }>();
 
-const itemComponent = resolveComponent(item.frontmatter.type);
+const itemComponent = resolveDynamicComponent(item.frontmatter.type);
 </script>
 
 <template>
