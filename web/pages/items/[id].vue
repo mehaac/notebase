@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { definePageMeta, useActivitiesStore, useRoute } from '#imports'
-import { BaseItemComponent } from '#components'
+import { LazyBaseItem } from '#components'
 
 definePageMeta({
   middleware: ['auth'],
@@ -18,7 +18,7 @@ const item = computed(() =>
   <div>
     <template v-if="item">
       <h1>{{ item.title }}</h1>
-      <BaseItemComponent
+      <LazyBaseItem
         :item="item"
         :is-list="false"
       />

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useActivitiesStore, definePageMeta } from '#imports'
-import { BaseItemComponent } from '#components'
+import { LazyBaseItem } from '#components'
 
 definePageMeta({
   middleware: ['auth'],
@@ -69,7 +69,7 @@ onMounted(async () => {
           <ULink :to="{ name: 'items-id', params: { id: item.id } }">
             {{ item.title }}
           </ULink>
-          <BaseItemComponent
+          <LazyBaseItem
             :item="item"
             is-list
           />

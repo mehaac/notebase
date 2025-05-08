@@ -4,7 +4,7 @@ import type { Item } from '#imports'
 
 const { item, isList } = defineProps<{ item: Item, isList: boolean }>()
 
-const itemComponent = resolveDynamicComponent(item.frontmatter.type)
+const itemComponent = resolveDynamicComponent(item.type)
 </script>
 
 <template>
