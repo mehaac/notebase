@@ -1,6 +1,6 @@
-import { defineNuxtPlugin } from "#app";
-import { Debt } from "#components";
+import { defineNuxtPlugin } from '#app'
+import { AppDebt } from '#components'
 
 export default defineNuxtPlugin((nuxtApp) => {
-  nuxtApp.vueApp.component("debt", Debt);
-});
+  nuxtApp.vueApp.component('debt', AppDebt)
+})

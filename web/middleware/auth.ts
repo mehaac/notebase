@@ -1,8 +1,8 @@
-import { defineNuxtRouteMiddleware, navigateTo } from "#app";
-import { pb } from "#imports";
+import { defineNuxtRouteMiddleware, navigateTo } from '#app'
+import { pb } from '#imports'
 
-export default defineNuxtRouteMiddleware((to, from) => {
+export default defineNuxtRouteMiddleware(() => {
   if (!pb.authStore.isValid) {
-    return navigateTo({ name: "login" });
+    return navigateTo({ name: 'login' })
   }
-});
+})

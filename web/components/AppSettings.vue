@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { useSettingsStore } from "#imports";
+import { useSettingsStore } from '#imports'
 
-const settingsStore = useSettingsStore();
+const settingsStore = useSettingsStore()
 </script>
+
 <template>
   <UModal :v-if="settingsStore.dialog">
     <template #content>
@@ -12,7 +13,7 @@ const settingsStore = useSettingsStore();
             aria-label="Close"
             rel="prev"
             @click="settingsStore.toggleDialog"
-          ></button>
+          />
           <p>
             <strong>Settings</strong>
           </p>
@@ -25,9 +26,12 @@ const settingsStore = useSettingsStore();
               name="text"
               placeholder="Text"
               aria-label="Text"
-            />
+            >
             <label>
-              <input name="terms" type="checkbox" />
+              <input
+                name="terms"
+                type="checkbox"
+              >
             </label>
           </fieldset>
         </form>
