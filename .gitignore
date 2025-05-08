@@ -1,2 +1,5 @@
 .DS_Store
 pb_data/
+.vscode
+.zed
+.cursor
