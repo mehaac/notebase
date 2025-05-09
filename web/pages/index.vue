@@ -15,48 +15,7 @@ onMounted(async () => {
 
 <template>
   <div>
-    <UInput
-      v-model="activitiesStore.query"
-      icon="i-lucide-search"
-      size="xl"
-      variant="outline"
-      placeholder="Query"
-      class="w-full mb-2"
-    />
-
-    <UButtonGroup class="mr-2">
-      <UBadge
-        color="neutral"
-        variant="outline"
-        size="lg"
-        label="path"
-      >
-        <UCheckbox />
-        path
-      </UBadge>
-      <UInput
-        color="neutral"
-        variant="outline"
-        placeholder="inbox/activities/%"
-      />
-    </UButtonGroup>
-
-    <UButtonGroup>
-      <UBadge
-        color="neutral"
-        variant="outline"
-        size="lg"
-        label="type"
-      >
-        <UCheckbox />
-        type
-      </UBadge>
-      <UInput
-        color="neutral"
-        variant="outline"
-        placeholder="debt"
-      />
-    </UButtonGroup>
+    <AppFilters />
     <UCard
       v-for="item in activitiesStore.items"
       :key="item.id"

@@ -17,3 +17,17 @@ export const toggleItem = async (id: string) => {
   })
   console.log(record)
 }
+
+export const addDebtTransaction = async (id: string, amount: number, comment: string) => {
+  const item = await getItem(id)
+  const transaction = {
+    amount: amount,
+    date: (new Date()).toISOString(),
+    comment: comment,
+  }
+  item.frontmatter.transactions.push(transaction)
+  const record = await pb.collection('files').update(item.id, {
+    frontmatter: item.frontmatter,
+  })
+  console.log(record)
+}

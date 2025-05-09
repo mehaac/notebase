@@ -8,7 +8,7 @@ import {
   transformItem,
 } from '#imports'
 
-export const useActivitiesStore = defineStore('activitiesStore', () => {
+export const useActivitiesStore = defineStore('activities', () => {
   const items = shallowRef<Item[]>([])
   const itemTypes = shallowRef<Set<ItemType>>(new Set())
   const item = shallowRef<Item | undefined>(undefined)

@@ -23,7 +23,7 @@ export default defineNuxtConfig({
       theme: {
         default: 'material-theme-palenight',
       },
-      langs: [`js`, `ts`, `yaml`, `markdown`],
+      langs: ['js', 'ts', 'yaml', 'markdown', 'json'],
     },
   },
   runtimeConfig: {
