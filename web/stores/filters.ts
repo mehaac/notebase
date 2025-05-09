@@ -1,25 +1,50 @@
 import { defineStore } from 'pinia'
-import { shallowRef, watch } from 'vue'
+import { useStorage, watchDebounced } from '@vueuse/core'
+import { useActivitiesStore } from '#imports'
 
 export const useFiltersStore = defineStore('filters', () => {
-  const query = shallowRef('')
-  const pathFilter = shallowRef('')
-  const typeFilter = shallowRef('')
-  const pathFilterEnabled = shallowRef(false)
-  const typeFilterEnabled = shallowRef(false)
+  const query = useStorage('query', '', localStorage)
+  const pathFilter = useStorage('path-filter', '', localStorage)
+  const typeFilter = useStorage('type-filter', '', localStorage)
+  const pathFilterEnabled = useStorage('path-filter-enabled', false, localStorage)
+  const typeFilterEnabled = useStorage('type-filter-enabled', false, localStorage)
+
+  const activitiesStore = useActivitiesStore()
 
   const buildQuery = () => {
-    let filter = query.value
-    if (pathFilterEnabled.value && pathFilter.value.length > 0) {
-      filter += ` && path ~ '${pathFilter.value}'`
-    }
+    const filterParts: string[] = []
     if (typeFilterEnabled.value && typeFilter.value.length > 0) {
-      filter += ` && frontmatter.type = '${typeFilter.value}'`
+      filterParts.push(`frontmatter.type = '${typeFilter.value}'`)
     }
-    console.log(filter)
-    return filter
+    if (pathFilterEnabled.value && pathFilter.value.length > 0) {
+      filterParts.push(`path ~ '${pathFilter.value}'`)
+    }
+    if (query.value.length > 0) {
+      filterParts.push(query.value)
+    }
+    return filterParts.join(' && ')
   }
-  watch(query, buildQuery)
 
-  return { query, pathFilter, typeFilter, pathFilterEnabled, typeFilterEnabled, buildQuery }
+  watchDebounced(
+    [
+      query,
+      pathFilter,
+      typeFilter,
+      pathFilterEnabled,
+      typeFilterEnabled,
+    ],
+    async () => {
+      await activitiesStore.load()
+    },
+    { debounce: 300 },
+  )
+
+  return {
+    query,
+    pathFilter,
+    typeFilter,
+    pathFilterEnabled,
+    typeFilterEnabled,
+    buildQuery,
+  }
 })

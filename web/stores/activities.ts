@@ -4,37 +4,25 @@ import {
   type Item,
   type ItemType,
   shallowRef,
-  watchDebounced,
   transformItem,
+  useFiltersStore,
 } from '#imports'
 
 export const useActivitiesStore = defineStore('activities', () => {
   const items = shallowRef<Item[]>([])
   const itemTypes = shallowRef<Set<ItemType>>(new Set())
   const item = shallowRef<Item | undefined>(undefined)
-  const query = shallowRef('')
+  const filtersStore = useFiltersStore()
 
   const load = async () => {
-    let filter = query.value
-    if (filter.length === 0) {
-      filter = 'path ~ \'inbox/activities/%\''
-    }
-    const result = await pb.collection('files').getFullList({
-      filter: filter,
+    const resultList = await pb.collection('files').getList(1, 20, {
+      filter: filtersStore.buildQuery(),
     })
-    items.value = result.map((item) => {
+    items.value = resultList.items.map((item) => {
       itemTypes.value.add(item.frontmatter.type)
       return transformItem(item)
     })
   }
 
-  watchDebounced(
-    query,
-    async () => {
-      await load()
-    },
-    { debounce: 300 },
-  )
-
-  return { items, item, itemTypes, load, query }
+  return { items, item, itemTypes, load }
 })
