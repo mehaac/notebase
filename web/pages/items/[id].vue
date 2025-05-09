@@ -1,8 +1,16 @@
 <script setup lang="ts">
-import { onMounted, shallowRef } from 'vue'
-import { marked } from 'marked'
-import { definePageMeta, getItem, transformItem, useActivitiesStore, useRoute, type Item } from '#imports'
+import { onMounted, shallowRef, ref } from 'vue'
+import {
+  definePageMeta,
+  getItem,
+  transformItem,
+  useActivitiesStore,
+  useRoute,
+  type Item,
+  useMarkdownParser,
+} from '#imports'
 import { BaseItem } from '#components'
+import type { MDCParserResult } from '@nuxtjs/mdc'
 
 definePageMeta({
   middleware: ['auth'],
@@ -10,6 +18,9 @@ definePageMeta({
 
 const route = useRoute()
 const activitiesStore = useActivitiesStore()
+const parseMd = useMarkdownParser()
+const contentAst = ref<MDCParserResult | null>(null)
+const frontmatterAst = ref<MDCParserResult | null>(null)
 const item = shallowRef<Item>()
 const error = shallowRef<string>()
 
@@ -34,6 +45,9 @@ onMounted(async () => {
   }
   item.value = itemToFind
   isLoading.value = false
+
+  contentAst.value = await parseMd(item.value!.content)
+  frontmatterAst.value = await parseMd('```json\n' + JSON.stringify(item.value!.frontmatter, null, 2) + '\n```')
 })
 </script>
 
@@ -66,9 +80,13 @@ onMounted(async () => {
         />
 
         <template #content>
-          <div class="font-mono whitespace-pre">
-            {{ item.frontmatter }}
-          </div>
+          <Suspense>
+            <MDCRenderer
+              v-if="frontmatterAst?.body"
+              :body="frontmatterAst.body"
+              :data="frontmatterAst.data"
+            />
+          </Suspense>
         </template>
       </UCollapsible>
       <UCollapsible
@@ -87,10 +105,14 @@ onMounted(async () => {
         />
 
         <template #content>
-          <div
-            class="prose dark:prose-invert"
-            v-html="marked(item.content)"
-          />
+          <Suspense>
+            <MDCRenderer
+              v-if="contentAst?.body"
+              :body="contentAst.body"
+              :data="contentAst.data"
+              class="prose dark:prose-invert"
+            />
+          </Suspense>
         </template>
       </UCollapsible>
     </template>
