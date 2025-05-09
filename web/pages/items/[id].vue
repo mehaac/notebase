@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, shallowRef } from 'vue'
+import { marked } from 'marked'
 import { definePageMeta, getItem, transformItem, useActivitiesStore, useRoute, type Item } from '#imports'
 import { BaseItem } from '#components'
 
@@ -50,6 +51,48 @@ onMounted(async () => {
         :item="item"
         :is-list="false"
       />
+      <hr class="my-4">
+      <UCollapsible>
+        <UButton
+          class="group"
+          label="Frontmatter"
+          color="neutral"
+          variant="subtle"
+          trailing-icon="i-lucide-chevron-down"
+          :ui="{
+            trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200',
+          }"
+          block
+        />
+
+        <template #content>
+          <div class="font-mono whitespace-pre">
+            {{ item.frontmatter }}
+          </div>
+        </template>
+      </UCollapsible>
+      <UCollapsible
+        class="mt-4"
+      >
+        <UButton
+          class="group"
+          label="Content"
+          color="neutral"
+          variant="subtle"
+          trailing-icon="i-lucide-chevron-down"
+          :ui="{
+            trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200',
+          }"
+          block
+        />
+
+        <template #content>
+          <div
+            class="prose dark:prose-invert"
+            v-html="marked(item.content)"
+          />
+        </template>
+      </UCollapsible>
     </template>
     <template v-else-if="error">
       <h1>{{ error }}</h1>
