@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, shallowRef, ref } from 'vue'
+import type { MDCParserResult } from '@nuxtjs/mdc'
 import {
   definePageMeta,
   getItem,
@@ -10,7 +11,6 @@ import {
   useMarkdownParser,
 } from '#imports'
 import { BaseItem } from '#components'
-import type { MDCParserResult } from '@nuxtjs/mdc'
 
 definePageMeta({
   middleware: ['auth'],

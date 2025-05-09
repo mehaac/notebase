@@ -12,7 +12,7 @@ export function transformItem(item: RecordModel): Item {
     id: item.id,
     title: item.frontmatter.title || item.frontmatter.summary,
     content: item.content,
-    completed: item.done,
+    done: !!item.frontmatter.completed,
     type: item.frontmatter.type,
     frontmatter: item.frontmatter,
   }

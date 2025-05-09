@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useActivitiesStore, definePageMeta } from '#imports'
-import { LazyBaseItem } from '#components'
 
 definePageMeta({
   middleware: ['auth'],
@@ -58,24 +57,12 @@ onMounted(async () => {
         placeholder="debt"
       />
     </UButtonGroup>
-
     <UCard
       v-for="item in activitiesStore.items"
       :key="item.id"
       class="mt-4"
     >
-      <UCheckbox>
-        <template #label>
-          <ULink :to="{ name: 'items-id', params: { id: item.id } }">
-            {{ item.title }}
-          </ULink>
-        </template>
-      </UCheckbox>
-      <LazyBaseItem
-        :item="item"
-        is-list
-        class="ml-6"
-      />
+      <LazyListItem :item="item" />
     </UCard>
   </div>
 </template>

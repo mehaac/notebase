@@ -195,6 +195,12 @@ func syncJob(app *pocketbase.PocketBase, root string) {
 	elapsedTime := time.Since(startTime)
 	app.Logger().Info("Initial sync complete", "elapsed", elapsedTime.String())
 
+	app.OnRecordUpdate("files").BindFunc(func(e *core.RecordEvent) error {
+		newYaml := jsonToYaml(e.Record.GetString("frontmatter"))
+		newContent := "---\n" + newYaml + "---" + e.Record.GetString("content")
+		e.Record.Set("hash", fmt.Sprintf("%x", md5.Sum([]byte(newContent))))
+		return e.Next()
+	})
 	app.OnRecordAfterUpdateSuccess("files").BindFunc(func(e *core.RecordEvent) error {
 		relPath := e.Record.GetString("path")
 		absPath := path.Join(root, relPath)
@@ -517,7 +523,7 @@ func updateFile(app *pocketbase.PocketBase, data File) error {
 	}
 	curHash := fileRec.GetString("hash")
 	if curHash == data.Hash {
-		app.Logger().Info("File hash unchanged, skipping update", "path", data.RelPath)
+		app.Logger().Debug("File hash unchanged, skipping update", "path", data.RelPath)
 		return nil
 	}
 	fillFileRecFromData(fileRec, data)
