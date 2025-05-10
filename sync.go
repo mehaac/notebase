@@ -280,6 +280,9 @@ func saveToDisk(path string, content string, frontmatterRaw string) error {
 }
 
 func jsonToYaml(jsonRaw string) string {
+	if jsonRaw == "" {
+		return ""
+	}
 	var yamlData yaml.MapSlice
 	err := yaml.Unmarshal([]byte(jsonRaw), &yamlData)
 	if err != nil {
@@ -490,6 +493,10 @@ func handleFSNotifyEvent(app *pocketbase.PocketBase, event string, rootPath stri
 		}
 
 		if event == "CREATE" {
+			if data.Slug == "Untitled" {
+				// thi is probably a placeholder file, created by Obsidian, ignore it
+				return
+			}
 			if err := createFile(app, data); err != nil {
 				app.Logger().Error("unable to create file", err)
 			}
