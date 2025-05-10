@@ -26,7 +26,8 @@ func syncCmd(app *pocketbase.PocketBase) *cobra.Command {
 		Short: "Scan notes directory and load markdown files into the files table",
 		Run: func(cmd *cobra.Command, args []string) {
 			root, _ := cmd.Flags().GetString("root")
-			syncJob(app, root)
+			restartCh := make(chan struct{})
+			syncJobManager(restartCh, app, root)
 		},
 	}
 }
@@ -48,7 +49,7 @@ type NotebaseConfig struct {
 //   - all the parsing is done in parallel in goroutines
 //   - after parsing the results are sent to the saving process
 //     which also works in parallel in goroutine in batches
-func syncJob(app *pocketbase.PocketBase, root string) {
+func syncJob(app *pocketbase.PocketBase, root string, stopCh <-chan struct{}, doneCh chan<- struct{}) {
 	data, err := os.ReadFile(path.Join(root, ".notebase.yml"))
 	if err != nil {
 		app.Logger().Error("error reading config", "error", err)
@@ -229,7 +230,25 @@ func syncJob(app *pocketbase.PocketBase, root string) {
 		return e.Next()
 	})
 
-	select {}
+	// Endless loop required to keep running and restart the job
+	for {
+		select {
+		case <-stopCh:
+			doneCh <- struct{}{}
+			return
+		}
+	}
+}
+
+func syncJobManager(restartCh <-chan struct{}, app *pocketbase.PocketBase, root string) {
+	for {
+		stopCh := make(chan struct{})
+		doneCh := make(chan struct{})
+		go syncJob(app, root, stopCh, doneCh)
+		<-restartCh
+		close(stopCh)
+		<-doneCh
+	}
 }
 
 func saveToDisk(path string, content string, frontmatterRaw string) error {
