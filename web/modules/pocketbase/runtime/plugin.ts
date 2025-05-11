@@ -9,10 +9,10 @@ interface PocketbaseConfig {
 export default defineNuxtPlugin((_nuxtApp) => {
   const config = useRuntimeConfig()
   
-  // Get URL from config with type safety
-  const pbConfig = config.pocketbase as PocketbaseConfig | undefined
-  const pbPublicConfig = config.public.pocketbase as PocketbaseConfig | undefined
-  const url = pbConfig?.url || pbPublicConfig?.url || (config.public as any).apiBase
+  // Prioritize apiBase for URL configuration
+  const url = (config.public as any).apiBase || 
+              (config.public.pocketbase as PocketbaseConfig | undefined)?.url || 
+              (config.pocketbase as PocketbaseConfig | undefined)?.url
   
   if (!url) {
     console.error('PocketBase: No URL provided in configuration')

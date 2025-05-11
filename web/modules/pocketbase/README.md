@@ -12,25 +12,28 @@ export default defineNuxtConfig({
     '~/modules/pocketbase'
   ],
   
-  // Configure with module options
-  pocketbase: {
-    url: 'http://your-pocketbase-url'
+  // Configure using the common apiBase (recommended)
+  runtimeConfig: {
+    public: {
+      apiBase: 'http://your-pocketbase-url'
+    }
   },
   
-  // Or use runtime config
-  runtimeConfig: {
-    pocketbase: {
-      url: 'http://your-pocketbase-url'
-    },
-    public: {
-      // To make URL available on client-side
-      pocketbase: {
-        url: 'http://your-pocketbase-url'
-      }
-    }
+  // Optional: Configure with module-specific options
+  pocketbase: {
+    // The URL will automatically use apiBase if not specified
+    type: 'pb'
   }
 })
 ```
+
+## URL Resolution Priority
+
+The module looks for the PocketBase URL in the following order:
+
+1. `runtimeConfig.public.apiBase` (recommended)
+2. `runtimeConfig.public.pocketbase.url`
+3. `runtimeConfig.pocketbase.url`
 
 ## Usage
 

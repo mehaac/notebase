@@ -3,7 +3,7 @@ import { defineNuxtModule, createResolver, addPlugin, addImportsDir } from 'nuxt
 import { defu } from 'defu'
 
 export interface PocketbaseModuleOptions {
-  url: string
+  url?: string
   type?: 'mock' | 'pb'
 }
 
@@ -22,18 +22,26 @@ export default defineNuxtModule<PocketbaseModuleOptions>({
   setup(options, nuxt) {
     const { resolve } = createResolver(import.meta.url)
 
+    // Get apiBase from config if url is not provided
+    const apiBase = (nuxt.options.runtimeConfig.public as any)?.apiBase
+    if (!options.url && apiBase) {
+      options.url = apiBase
+    }
+
+    // Configure runtime config
     nuxt.options.runtimeConfig.pocketbase = defu(
       nuxt.options.runtimeConfig.pocketbase || {},
       options as Record<string, any>
     )
     
+    // Make sure url is also available in public config
     nuxt.options.runtimeConfig.public.pocketbase = defu(
       nuxt.options.runtimeConfig.public.pocketbase || {},
       { url: options.url }
     )
 
+    // Register plugin and composables
     addPlugin(resolve('./runtime/plugin'))
-    
     addImportsDir(resolve('./runtime/composables'))
   }
 }) 
