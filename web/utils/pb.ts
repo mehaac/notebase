@@ -1,10 +1,8 @@
-import PocketBase, { type RecordModel } from 'pocketbase'
-import { useRuntimeConfig } from '#app'
+import type { RecordModel } from 'pocketbase'
+
 import type { Item } from '#imports'
 
-const config = useRuntimeConfig()
 
-export const pb = new PocketBase(config.public.apiBase)
 
 // TODO: fix type assertion with validation library
 export function transformItem(item: RecordModel): Item {
