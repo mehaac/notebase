@@ -5,6 +5,7 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/ui',
     '@nuxtjs/mdc',
+    '~/modules/pocketbase',
   ],
   ssr: false,
   imports: {
@@ -41,4 +42,7 @@ export default defineNuxtConfig({
       formatters: true,
     },
   },
+  pocketbase: {
+    url: 'http://127.0.0.1:8090',
+  }
 })

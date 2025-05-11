@@ -8,7 +8,7 @@ import {
   useRoute,
   type Item,
   useMarkdownParser,
-  useNuxtApp,
+  usePocketBaseClient,
 } from '#imports'
 import { BaseItem } from '#components'
 
@@ -17,7 +17,7 @@ import { BaseItem } from '#components'
 definePageMeta({
   middleware: ['auth'],
 })
-const { $pb } = useNuxtApp()
+const pb = usePocketBaseClient()
 const route = useRoute()
 const activitiesStore = useActivitiesStore()
 const parseMd = useMarkdownParser()
@@ -37,7 +37,7 @@ onMounted(async () => {
   let itemToFind = activitiesStore.items.find(item => item.id === route.params.id)
   if (!itemToFind) {
     try {
-      const result = await $pb.getItem(route.params.id)
+      const result = await pb.getItem(route.params.id)
       itemToFind = transformItem(result)
     }
     catch (e) {

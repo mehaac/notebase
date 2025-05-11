@@ -1,14 +1,14 @@
 <script lang="ts" setup>
 import { onMounted, reactive } from 'vue'
-import { navigateTo, useNuxtApp } from '#app'
-import { useToast } from '#imports'
+import { navigateTo } from '#app'
+import { usePocketBaseClient, useToast } from '#imports'
 
 const state = reactive({
   email: '',
   password: '',
 })
 
-const { $pb } = useNuxtApp()
+const pb = usePocketBaseClient()
 
 const isAuthorized = defineModel('isAuthorized', {
   type: Boolean,
@@ -17,7 +17,7 @@ const isAuthorized = defineModel('isAuthorized', {
 
 function setAuthorized(value: boolean) {
   if (!value) {
-    $pb.client.authStore.clear()
+    pb.client.authStore.clear()
   }
   isAuthorized.value = value
 }
@@ -35,11 +35,11 @@ const onSubmit = async () => {
   }
 
   try {
-    await $pb.client
+    await pb.client
       .collection('_superusers')
       .authWithPassword(state.email, state.password)
     setAuthorized(true)
-    if ($pb.client.authStore.isValid) {
+    if (pb.client.authStore.isValid) {
       await navigateTo({ name: 'index' })
     }
   }
@@ -53,7 +53,7 @@ const onSubmit = async () => {
 }
 
 onMounted(() => {
-  if ($pb.client.authStore.isValid) {
+  if (pb.client.authStore.isValid) {
     setAuthorized(true)
   }
 })
