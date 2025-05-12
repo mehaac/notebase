@@ -4,6 +4,7 @@ import type { BaseClient } from '../../types/types'
 import tasks from '~/assets/mock/tasks.json'
 import debts from '~/assets/mock/debts.json'
 import tracks from '~/assets/mock/tracks.json'
+import withContent from '~/assets/mock/withContent.json'
 
 const createDefaultReturn = () => {
   const defaultReturn: RecordModel = {
@@ -24,14 +25,21 @@ export function useMockClient(): BaseClient {
   const defaultReturn = createDefaultReturn()
   const localItems = useLocalItems()
   if (localItems.value.length === 0) {
-    const items = [...tasks, ...debts, ...tracks].map((item) => {
+    const items = [...tasks, ...debts, ...tracks, ...withContent].map((item) => {
       const defaults = createDefaultReturn()
-      const { content: _, ...rest } = item
+      const { content, ...rest } = item
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const type = (item as any)?.type ?? 'base'
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const title = (item as any)?.title ?? 'Mock Item'
       return {
         ...defaults,
-        content: item.content,
-        path: `${item.type}/${defaults.id}.md`,
-        frontmatter: rest,
+        content: content ?? '',
+        path: `${type}/${defaults.id}.md`,
+        frontmatter: {
+          ...rest,
+          title,
+        },
       }
     })
     localItems.value = items
@@ -75,6 +83,5 @@ export function useMockClient(): BaseClient {
         meta: {},
       }
     },
-
   }
 }
