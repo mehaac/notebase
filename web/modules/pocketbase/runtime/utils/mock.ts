@@ -28,17 +28,17 @@ export function useMockClient(): BaseClient {
     const items = [...tasks, ...debts, ...tracks, ...withContent].map((item) => {
       const defaults = createDefaultReturn()
       const { content, ...rest } = item
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const type = (item as any)?.type ?? 'base'
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const title = (item as any)?.title ?? 'Mock Item'
+      const type = (item as { type?: string })?.type ?? 'base'
+
+      if (!('title' in rest) && !('summary' in rest)) {
+        (rest as { title?: string }).title = 'Mock Item'
+      }
       return {
         ...defaults,
         content: content ?? '',
         path: `${type}/${defaults.id}.md`,
         frontmatter: {
           ...rest,
-          title,
         },
       }
     })
