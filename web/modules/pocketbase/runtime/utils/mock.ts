@@ -50,10 +50,25 @@ export function useMockClient(): BaseClient {
       return localItems.value.find(item => item.id === id) || defaultReturn
     },
     toggleItem: async (id: string) => {
-      return localItems.value.find(item => item.id === id) || defaultReturn
+      const item = localItems.value.find(item => item.id === id)
+      if (item && item.frontmatter.completed) {
+        item.frontmatter.completed = ''
+      }
+      else if (item) {
+        item.frontmatter.completed = new Date().toISOString()
+      }
+      return item || defaultReturn
     },
-    addDebtTransaction: async (id: string, _amount: number, _comment: string) => {
-      return localItems.value.find(item => item.id === id) || defaultReturn
+    addDebtTransaction: async (id: string, amount: number, comment: string) => {
+      const item = localItems.value.find(item => item.id === id)
+      if (item) {
+        item.frontmatter.transactions.push({
+          amount,
+          comment,
+          date: new Date().toISOString(),
+        })
+      }
+      return item || defaultReturn
     },
     getList: async (page: number, pageSize: number, _filter: string) => {
       const filteredItems = localItems.value.filter(() => true)
