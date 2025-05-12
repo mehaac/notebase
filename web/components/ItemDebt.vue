@@ -1,7 +1,8 @@
 <script setup lang="ts" generic="T extends Item & { frontmatter: DebtFrontmatter }">
 import type { TableColumn } from '@nuxt/ui'
-import { type Item, type DebtFrontmatter, h, ref, computed, reactive } from '#imports'
+import { type Item, h, ref, computed, reactive } from '#imports'
 import { UButton } from '#components'
+import type { DebtFrontmatter } from '#pocketbase-imports'
 
 const { item, isList } = defineProps<{ item: T, isList?: boolean }>()
 

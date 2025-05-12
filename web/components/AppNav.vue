@@ -2,12 +2,17 @@
 import type { NavigationMenuItem } from '@nuxt/ui'
 import { navigateTo } from '#app'
 import {
-  pb,
   ref,
+  useClient,
+  useUser,
 } from '#imports'
 
+const pb = useClient()
+const user = useUser()
+
 const onLogout = async () => {
-  pb.authStore.clear()
+  await pb.clearAuth()
+  user.value.isAuthenticated = false
   await navigateTo({ name: 'login' })
 }
 
@@ -20,10 +25,7 @@ const items = ref<NavigationMenuItem[]>([
   ],
   [
     {
-      label: pb.authStore.isValid ? 'Logout' : 'Login',
-      onClick: pb.authStore.isValid
-        ? onLogout
-        : () => navigateTo({ name: 'login' }),
+      slot: 'login' as const,
     },
   ],
 ])
@@ -33,5 +35,11 @@ const items = ref<NavigationMenuItem[]>([
   <UNavigationMenu
     :items="items"
     class="w-full justify-center"
-  />
+  >
+    <template #login-label>
+      <div @click="onLogout">
+        {{ user.isAuthenticated ? 'Logout' : 'Login' }}
+      </div>
+    </template>
+  </UNavigationMenu>
 </template>

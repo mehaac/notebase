@@ -1,21 +1,23 @@
 <script lang="ts" setup>
 import { onMounted, reactive } from 'vue'
 import { navigateTo } from '#app'
-import { useToast, pb } from '#imports'
+import { useClient, useToast } from '#imports'
 
 const state = reactive({
   email: '',
   password: '',
 })
 
+const pb = useClient()
+
 const isAuthorized = defineModel('isAuthorized', {
   type: Boolean,
   default: false,
 })
 
-function setAuthorized(value: boolean) {
+async function setAuthorized(value: boolean) {
   if (!value) {
-    pb.authStore.clear()
+    await pb.clearAuth()
   }
   isAuthorized.value = value
 }
@@ -33,11 +35,9 @@ const onSubmit = async () => {
   }
 
   try {
-    await pb
-      .collection('_superusers')
-      .authWithPassword(state.email, state.password)
+    await pb.authenticatedUser({ email: state.email, password: state.password })
     setAuthorized(true)
-    if (pb.authStore.isValid) {
+    if (await pb.isAuthenticated()) {
       await navigateTo({ name: 'index' })
     }
   }
@@ -50,8 +50,8 @@ const onSubmit = async () => {
   }
 }
 
-onMounted(() => {
-  if (pb.authStore.isValid) {
+onMounted(async () => {
+  if (await pb.isAuthenticated()) {
     setAuthorized(true)
   }
 })
