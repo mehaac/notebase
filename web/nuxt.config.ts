@@ -5,6 +5,7 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/ui',
     '@nuxtjs/mdc',
+    '~/modules/pocketbase/module',
   ],
   ssr: false,
   imports: {
