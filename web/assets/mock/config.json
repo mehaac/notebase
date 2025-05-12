@@ -1,0 +1,18 @@
+{
+  "settings": {
+    "clear_on_startup": true,
+    "exclude": [
+      ".git/**",
+      "templates/**",
+      ".DS_Store",
+      ".trash/**",
+      "attachments/**",
+      ".obsidian/**"
+    ]
+  },
+  "types": [
+    "track",
+    "debt",
+    "task"
+  ]
+} 

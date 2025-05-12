@@ -1,0 +1,53 @@
+[
+  {
+   
+    "aliases": null,
+    "tags": ["debt", "personal"],
+    "created": "2023-09-20T10:14:05",
+    "modified": "2023-10-05T12:06:09",
+    "type": "debt",
+    "currency": "USD",
+    "transactions": [
+      {
+        "amount": 1500,
+        "comment": "Initial loan",
+        "created": "2023-09-20T10:14:05"
+      },
+      {
+        "amount": -500,
+        "comment": "First payment",
+        "created": "2023-10-01T15:30:22"
+      }
+    ],
+    "summary": "Personal loan",
+    "content": "\n"
+  },
+  {
+   
+    "aliases": null,
+    "tags": ["debt", "business"],
+    "created": "2023-08-15T16:24:35",
+    "modified": "2023-10-10T09:16:19",
+    "type": "debt",
+    "currency": "EUR",
+    "transactions": [
+      {
+        "amount": 5000,
+        "comment": "Investment",
+        "created": "2023-08-15T16:24:35"
+      },
+      {
+        "amount": -1000,
+        "comment": "First return",
+        "created": "2023-09-15T14:20:05"
+      },
+      {
+        "amount": -1000,
+        "comment": "Second return",
+        "created": "2023-10-10T09:16:19"
+      }
+    ],
+    "summary": "Business investment",
+    "content": "\n"
+  }
+] 
