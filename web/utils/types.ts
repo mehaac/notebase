@@ -1,4 +1,4 @@
-import type { Frontmatter, ItemType } from '~/modules/pocketbase/types/types'
+import type { Frontmatter, ItemType } from '#pocketbase-imports'
 
 export type Item = {
   id: string
