@@ -60,15 +60,15 @@ The module auto-imports these composables for easier use:
 or use #pocketbase-imports
 ```vue
 <script setup>
-import { usePocketBaseClient } from '#pocketbase-imports'
+import { useClient } from '#pocketbase-imports'
 
-const pbClient = usePocketBaseClient()
+const pbClient = useClient()
 const item = await pbClient.getItem('item_id')
 await pbClient.toggleItem('item_id')
 </script>
 ```
 
-## Custom Helpers
+## Methods
 
 ```ts 
 /**
