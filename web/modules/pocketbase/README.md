@@ -9,7 +9,7 @@ Add the module to your `nuxt.config.ts`:
 ```ts
 export default defineNuxtConfig({
   modules: [
-    '~/modules/pocketbase'
+    '~/modules/pocketbase/module'
   ],
   
   // Configure using the common apiBase (recommended)
