@@ -1,8 +1,8 @@
 import type { ListResult, RecordAuthResponse, RecordModel } from 'pocketbase'
-import type { createMockClient } from '../runtime/utils/mock'
+import type { useMockClient } from '../runtime/utils/mock'
 import type { createPocketBaseClient } from '../runtime/utils/pb'
 
-export type MockClient = ReturnType<typeof createMockClient>
+export type MockClient = ReturnType<typeof useMockClient>
 
 export type PocketbaseClient = ReturnType<typeof createPocketBaseClient>
 

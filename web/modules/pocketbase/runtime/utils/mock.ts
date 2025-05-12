@@ -1,4 +1,5 @@
 import type { RecordModel } from 'pocketbase'
+import { useLocalStorage } from '@vueuse/core'
 import type { BaseClient } from '../../types/types'
 import tasks from '~/assets/mock/tasks.json'
 import debts from '~/assets/mock/debts.json'
@@ -17,32 +18,37 @@ const createDefaultReturn = () => {
   return defaultReturn
 }
 
-export function createMockClient(): BaseClient {
-  const defaultReturn = createDefaultReturn()
+const useLocalItems = () => useLocalStorage<RecordModel[]>('items', [])
 
-  const items = [...tasks, ...debts, ...tracks].map((item) => {
-    const defaults = createDefaultReturn()
-    const { content: _, ...rest } = item
-    return {
-      ...defaults,
-      content: item.content,
-      path: `${item.type}/${defaults.id}.md`,
-      frontmatter: rest,
-    }
-  })
+export function useMockClient(): BaseClient {
+  const defaultReturn = createDefaultReturn()
+  const localItems = useLocalItems()
+  if (localItems.value.length === 0) {
+    const items = [...tasks, ...debts, ...tracks].map((item) => {
+      const defaults = createDefaultReturn()
+      const { content: _, ...rest } = item
+      return {
+        ...defaults,
+        content: item.content,
+        path: `${item.type}/${defaults.id}.md`,
+        frontmatter: rest,
+      }
+    })
+    localItems.value = items
+  }
 
   return {
     getItem: async (id: string) => {
-      return items.find(item => item.id === id) || defaultReturn
+      return localItems.value.find(item => item.id === id) || defaultReturn
     },
     toggleItem: async (id: string) => {
-      return items.find(item => item.id === id) || defaultReturn
+      return localItems.value.find(item => item.id === id) || defaultReturn
     },
     addDebtTransaction: async (id: string, _amount: number, _comment: string) => {
-      return items.find(item => item.id === id) || defaultReturn
+      return localItems.value.find(item => item.id === id) || defaultReturn
     },
     getList: async (page: number, pageSize: number, _filter: string) => {
-      const filteredItems = items.filter(() => true)
+      const filteredItems = localItems.value.filter(() => true)
       const start = (page - 1) * pageSize
       const end = start + pageSize
       const paginatedItems = filteredItems.slice(start, end)

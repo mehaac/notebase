@@ -1,5 +1,5 @@
 import type { BaseClient } from '../types/types'
-import { createMockClient } from './utils/mock'
+import { useMockClient } from './utils/mock'
 import { createPocketBaseClient } from './utils/pb'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
 
@@ -14,7 +14,7 @@ export default defineNuxtPlugin((_nuxtApp) => {
       client = createPocketBaseClient(config.public.apiBase)
       break
     case 'mock':
-      client = createMockClient()
+      client = useMockClient()
       break
     default:
       console.error('Invalid pocketbase type, using pb client')
