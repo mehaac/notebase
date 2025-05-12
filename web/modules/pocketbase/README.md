@@ -26,6 +26,11 @@ export default defineNuxtConfig({
   }
 })
 ```
+### .env
+
+```
+NUXT_PUBLIC_POCKETBASE_TYPE=pb or mock
+```
 
 ## Usage
 
@@ -48,11 +53,6 @@ await $client.toggleItem('item_id')
 </script>
 ```
 
-### .env
-
-```
-NUXT_PUBLIC_POCKETBASE_TYPE=pb or mock
-```
 
 ### Using the Composables (Recommended)
 
