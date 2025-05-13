@@ -1,12 +1,10 @@
 import { defineStore } from 'pinia'
 import {
-  type Item,
   shallowRef,
-  transformItem,
   useFiltersStore,
   useClient,
 } from '#imports'
-import type { ItemType } from '#pocketbase-imports'
+import type { Item, ItemType } from '#pocketbase-imports'
 
 export const useActivitiesStore = defineStore('activities', () => {
   const pb = useClient()
@@ -18,11 +16,7 @@ export const useActivitiesStore = defineStore('activities', () => {
 
   const load = async () => {
     const resultList = await pb.getList(1, 20, filtersStore.buildQuery())
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    items.value = resultList.items.map((item: any) => {
-      itemTypes.value.add(item.frontmatter.type)
-      return transformItem(item)
-    })
+    items.value = resultList.items
   }
 
   return { items, item, itemTypes, load }

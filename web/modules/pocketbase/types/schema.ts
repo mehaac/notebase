@@ -26,6 +26,18 @@ export const baseFrontmatterSchema = z.looseObject({
   tags: z.array(z.string()).nullish(),
 })
 
+export const debtFrontmatterSchema = baseFrontmatterSchema.extend({
+  currency: z.string(),
+  transactions: z.array(debtTransactionSchema),
+})
+
+export const trackFrontmatterSchema = baseFrontmatterSchema.extend({
+  season: z.number(),
+  episode: z.number(),
+  next_episode: z.string(),
+  url: z.string(),
+})
+
 export const frontmatterSchema = baseFrontmatterSchema.extend({
   currency: z.string().nullish(),
   transactions: z.array(debtTransactionSchema).nullish(),
@@ -40,9 +52,12 @@ export const frontmatterSchema = baseFrontmatterSchema.extend({
   rating: z.string().nullish(),
 })
 
+export type Frontmatter = z.infer<typeof frontmatterSchema>
+
+export type DebtFrontmatter = z.infer<typeof debtFrontmatterSchema>
 export type DebtTransaction = z.infer<typeof debtTransactionSchema>
 
-export type Frontmatter = z.infer<typeof frontmatterSchema>
+export type TrackFrontmatter = z.infer<typeof trackFrontmatterSchema>
 
 export function transformItem(item: RecordModel): Item {
   const frontmatter = frontmatterSchema.parse(item.frontmatter ? item.frontmatter : {})

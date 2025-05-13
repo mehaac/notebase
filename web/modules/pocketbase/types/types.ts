@@ -1,5 +1,5 @@
 import type { ListResult, RecordAuthResponse, RecordModel } from 'pocketbase'
-import type { Frontmatter, ItemType } from './schema'
+import type { Frontmatter, ItemType, DebtFrontmatter, DebtTransaction, TrackFrontmatter } from './schema'
 
 export type Item = {
   id: string
@@ -10,7 +10,6 @@ export type Item = {
   frontmatter: Frontmatter
 }
 
-export type { ItemType, Frontmatter }
 /**
  * Base client interface for database operations
  * Provides methods for CRUD operations on items and user authentication
@@ -66,4 +65,12 @@ export interface BaseClient {
    * @returns Promise resolving to paginated list result
    */
   getList: (page: number, pageSize: number, filter: string) => Promise<ListResult<Item>>
+}
+
+export type {
+  ItemType,
+  Frontmatter,
+  DebtFrontmatter,
+  DebtTransaction,
+  TrackFrontmatter,
 }
