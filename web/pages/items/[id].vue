@@ -3,14 +3,13 @@ import { onMounted, shallowRef, ref } from 'vue'
 import type { MDCParserResult } from '@nuxtjs/mdc'
 import {
   definePageMeta,
-  transformItem,
   useActivitiesStore,
   useRoute,
-  type Item,
   useMarkdownParser,
   useClient,
 } from '#imports'
 import { BaseItem } from '#components'
+import type { Item } from '#pocketbase-imports'
 
 definePageMeta({
   middleware: ['auth'],
@@ -32,11 +31,10 @@ onMounted(async () => {
     return
   }
   isLoading.value = true
-  let itemToFind = activitiesStore.items.find(item => item.id === route.params.id)
+  let itemToFind = activitiesStore.items.find((item: Item) => item.id === route.params.id)
   if (!itemToFind) {
     try {
-      const result = await pb.getItem(route.params.id)
-      itemToFind = transformItem(result)
+      itemToFind = await pb.getItem(route.params.id)
     }
     catch (e) {
       console.error(e)
