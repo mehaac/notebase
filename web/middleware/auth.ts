@@ -1,8 +1,12 @@
 import { defineNuxtRouteMiddleware, navigateTo } from '#app'
-import { pb } from '#imports'
+import { useClient, useUser } from '#imports'
 
-export default defineNuxtRouteMiddleware(() => {
-  if (!pb.authStore.isValid) {
+export default defineNuxtRouteMiddleware(async () => {
+  const pb = useClient()
+  const user = useUser()
+  user.value.isAuthenticated = await pb.isAuthenticated()
+
+  if (!user.value.isAuthenticated) {
     return navigateTo({ name: 'login' })
   }
 })

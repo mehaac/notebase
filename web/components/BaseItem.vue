@@ -1,10 +1,10 @@
-<script lang="ts" setup generic="T extends Item">
+<script lang="ts" setup>
 import { resolveDynamicComponent } from 'vue'
-import type { Item } from '#imports'
+import type { ItemRecord } from '#pocketbase-imports'
 
-const { item, isList } = defineProps<{ item: T, isList: boolean }>()
+const { item, isList } = defineProps<{ item: ItemRecord, isList: boolean }>()
 
-const itemComponent = resolveDynamicComponent('item-' + item.type)
+const itemComponent = resolveDynamicComponent('item-' + (item.frontmatter?.type ?? 'none'))
 </script>
 
 <template>

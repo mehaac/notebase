@@ -1,27 +1,22 @@
 import { defineStore } from 'pinia'
 import {
-  pb,
-  type Item,
-  type ItemType,
   shallowRef,
-  transformItem,
   useFiltersStore,
+  useClient,
 } from '#imports'
+import type { ItemRecord, ItemType } from '#pocketbase-imports'
 
 export const useActivitiesStore = defineStore('activities', () => {
-  const items = shallowRef<Item[]>([])
+  const pb = useClient()
+
+  const items = shallowRef<ItemRecord[]>([])
   const itemTypes = shallowRef<Set<ItemType>>(new Set())
-  const item = shallowRef<Item | undefined>(undefined)
+  const item = shallowRef<ItemRecord | undefined>(undefined)
   const filtersStore = useFiltersStore()
 
   const load = async () => {
-    const resultList = await pb.collection('files').getList(1, 20, {
-      filter: filtersStore.buildQuery(),
-    })
-    items.value = resultList.items.map((item) => {
-      itemTypes.value.add(item.frontmatter.type)
-      return transformItem(item)
-    })
+    const resultList = await pb.getList(1, 20, filtersStore.buildQuery())
+    items.value = resultList.items
   }
 
   return { items, item, itemTypes, load }
