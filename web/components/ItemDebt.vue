@@ -1,8 +1,8 @@
-<script setup lang="ts" generic="T extends Item & { frontmatter: DebtFrontmatter }">
+<script setup lang="ts" generic="T extends ItemRecord & { frontmatter: DebtFrontmatter }">
 import type { TableColumn } from '@nuxt/ui'
 import { h, ref, computed, reactive } from '#imports'
 import { UButton } from '#components'
-import type { Item, DebtFrontmatter } from '#pocketbase-imports'
+import type { ItemRecord, DebtFrontmatter } from '#pocketbase-imports'
 
 const { item, isList } = defineProps<{ item: T, isList?: boolean }>()
 

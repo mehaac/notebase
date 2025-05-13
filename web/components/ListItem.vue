@@ -1,13 +1,13 @@
-<script setup lang="ts" generic="T extends Item">
+<script setup lang="ts" generic="T extends ItemRecord">
 import { useClient, ref, useActivitiesStore, computed } from '#imports'
 import { LazyBaseItem } from '#components'
-import type { Item } from '#pocketbase-imports'
+import type { ItemRecord } from '#pocketbase-imports'
 
 const { item } = defineProps<{ item: T }>()
 
 const pb = useClient()
 const activitiesStore = useActivitiesStore()
-const isChecked = computed(() => item.done)
+const isChecked = computed(() => Boolean(item.frontmatter?.completed))
 const loading = ref(false)
 // TODO: fix this must be handled by state machine that awaits for responce
 async function toggleItem() {
@@ -16,7 +16,7 @@ async function toggleItem() {
     const result = await pb.toggleItem(item.id)
     if (result) {
       activitiesStore.items = activitiesStore
-        .items.map(item => item.id === result.id ? result : item)
+        .items.map((item: ItemRecord) => item.id === result.id ? result : item)
     }
   }
   catch (err) {
@@ -35,7 +35,7 @@ async function toggleItem() {
   >
     <template #label>
       <ULink :to="{ name: 'items-id', params: { id: item.id } }">
-        {{ item.title }}
+        {{ item.frontmatter?.title ?? item.frontmatter?.summary ?? 'None' }}
       </ULink>
     </template>
   </UCheckbox>

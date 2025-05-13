@@ -9,7 +9,7 @@ import {
   useClient,
 } from '#imports'
 import { BaseItem } from '#components'
-import type { Item } from '#pocketbase-imports'
+import type { ItemRecord } from '#pocketbase-imports'
 
 definePageMeta({
   middleware: ['auth'],
@@ -20,7 +20,7 @@ const activitiesStore = useActivitiesStore()
 const parseMd = useMarkdownParser()
 const contentAst = ref<MDCParserResult | null>(null)
 const frontmatterAst = ref<MDCParserResult | null>(null)
-const item = shallowRef<Item>()
+const item = shallowRef<ItemRecord>()
 const error = shallowRef<string>()
 
 const isLoading = shallowRef(false)
@@ -31,7 +31,7 @@ onMounted(async () => {
     return
   }
   isLoading.value = true
-  let itemToFind = activitiesStore.items.find((item: Item) => item.id === route.params.id)
+  let itemToFind = activitiesStore.items.find(item => item.id === route.params.id)
   if (!itemToFind) {
     try {
       itemToFind = await pb.getItem(route.params.id)
@@ -57,7 +57,7 @@ onMounted(async () => {
     </template>
     <template v-else-if="item">
       <h1 class="text-2xl font-bold mb-5">
-        {{ item.title }}
+        {{ item.frontmatter?.title ?? item.frontmatter?.summary ?? 'None' }}
       </h1>
       <BaseItem
         :item="item"

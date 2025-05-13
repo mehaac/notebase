@@ -4,14 +4,14 @@ import {
   useFiltersStore,
   useClient,
 } from '#imports'
-import type { Item, ItemType } from '#pocketbase-imports'
+import type { ItemRecord, ItemType } from '#pocketbase-imports'
 
 export const useActivitiesStore = defineStore('activities', () => {
   const pb = useClient()
 
-  const items = shallowRef<Item[]>([])
+  const items = shallowRef<ItemRecord[]>([])
   const itemTypes = shallowRef<Set<ItemType>>(new Set())
-  const item = shallowRef<Item | undefined>(undefined)
+  const item = shallowRef<ItemRecord | undefined>(undefined)
   const filtersStore = useFiltersStore()
 
   const load = async () => {
