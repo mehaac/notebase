@@ -76,7 +76,7 @@ export function useMockClient(): BaseClient {
         throw new Error('Item not found')
       }
       const frontmatter = item.frontmatter
-      if (frontmatter && 'transactions' in frontmatter && frontmatter.transactions) {
+      if (frontmatter && 'transactions' in frontmatter && frontmatter.transactions && Array.isArray(frontmatter.transactions)) {
         frontmatter.transactions.push({
           amount,
           comment,
