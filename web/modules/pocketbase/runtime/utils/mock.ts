@@ -1,6 +1,7 @@
 import type { RecordModel } from 'pocketbase'
 import { useLocalStorage } from '@vueuse/core'
-import type { BaseClient } from '../../types/types'
+import type { BaseClient, Item } from '../../types/types'
+import { frontmatterSchema, itemTypes } from '../../types/schema'
 import tasks from '~/assets/mock/tasks.json'
 import debts from '~/assets/mock/debts.json'
 import tracks from '~/assets/mock/tracks.json'
@@ -19,7 +20,7 @@ const createDefaultReturn = () => {
   return defaultReturn
 }
 
-const useLocalItems = () => useLocalStorage<RecordModel[]>('items', [])
+const useLocalItems = () => useLocalStorage<Item[]>('items', [])
 
 export function useMockClient(): BaseClient {
   const defaultReturn = createDefaultReturn()
@@ -28,29 +29,34 @@ export function useMockClient(): BaseClient {
     const items = [...tasks, ...debts, ...tracks, ...withContent].map((item) => {
       const defaults = createDefaultReturn()
       const { content, ...rest } = item
-      const type = (item as { type?: string })?.type ?? 'base'
+      const frontmatter = frontmatterSchema.parse(rest)
 
-      if (!('title' in rest) && !('summary' in rest)) {
-        (rest as { title?: string }).title = 'Mock Item'
-      }
-      return {
-        ...defaults,
+      const _item: Item = {
+        id: defaults.id,
+        title: frontmatter.title ?? 'Mock Item',
         content: content ?? '',
-        path: `${type}/${defaults.id}.md`,
-        frontmatter: {
-          ...rest,
-        },
+        done: Math.random() > 0.5 ? true : false,
+        type: frontmatter.type ?? itemTypes.none,
+        frontmatter,
       }
+      return _item
     })
     localItems.value = items
   }
 
   return {
     getItem: async (id: string) => {
-      return localItems.value.find(item => item.id === id) || defaultReturn
+      const item = localItems.value.find(item => item.id === id)
+      if (!item) {
+        throw new Error('Item not found')
+      }
+      return item
     },
     toggleItem: async (id: string) => {
       const item = localItems.value.find(item => item.id === id)
+      if (!item) {
+        throw new Error('Item not found')
+      }
       if (item && item.frontmatter.completed) {
         item.frontmatter.completed = ''
       }
@@ -61,11 +67,14 @@ export function useMockClient(): BaseClient {
     },
     addDebtTransaction: async (id: string, amount: number, comment: string) => {
       const item = localItems.value.find(item => item.id === id)
-      if (item) {
+      if (!item) {
+        throw new Error('Item not found')
+      }
+      if (item.frontmatter.transactions) {
         item.frontmatter.transactions.push({
           amount,
           comment,
-          date: new Date().toISOString(),
+          created: new Date().toISOString(),
         })
       }
       return item || defaultReturn
