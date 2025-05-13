@@ -1,6 +1,6 @@
 <script lang="ts" setup generic="T extends Item">
 import { resolveDynamicComponent } from 'vue'
-import type { Item } from '#imports'
+import type { Item } from '#pocketbase-imports'
 
 const { item, isList } = defineProps<{ item: T, isList: boolean }>()
 
