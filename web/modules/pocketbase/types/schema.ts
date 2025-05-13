@@ -1,6 +1,4 @@
 import { z } from 'zod'
-import type { RecordModel } from 'pocketbase'
-import type { Item } from './types'
 
 export const itemTypes = {
   track: 'track',
@@ -20,7 +18,7 @@ export const debtTransactionSchema = z.object({
 export const baseFrontmatterSchema = z.looseObject({
   title: z.string().nullish(),
   summary: z.string().nullish(),
-  type: z.enum(Object.values(itemTypes)).default(itemTypes.none),
+  type: z.enum(Object.values(itemTypes)).nullish(),
   completed: z.string().nullish(),
   aliases: z.string().nullish(),
   tags: z.array(z.string()).nullish(),
@@ -52,23 +50,22 @@ export const frontmatterSchema = baseFrontmatterSchema.extend({
   rating: z.string().nullish(),
 })
 
+export const recordSchema = z.object({
+  id: z.string(),
+  content: z.string(),
+  created: z.string(),
+  hash: z.string(),
+  path: z.string(),
+  slug: z.string(),
+  updated: z.string(),
+  frontmatter: z.union([frontmatterSchema, z.string().transform(() => ({} as Record<string, unknown>))]),
+})
+
+export type ItemRecord = z.infer<typeof recordSchema>
+
 export type Frontmatter = z.infer<typeof frontmatterSchema>
 
 export type DebtFrontmatter = z.infer<typeof debtFrontmatterSchema>
 export type DebtTransaction = z.infer<typeof debtTransactionSchema>
 
 export type TrackFrontmatter = z.infer<typeof trackFrontmatterSchema>
-
-export function transformItem(item: RecordModel): Item {
-  const frontmatter = frontmatterSchema.parse(item.frontmatter ? item.frontmatter : {})
-  const title = frontmatter.title ?? frontmatter.summary ?? 'None'
-  const type = frontmatter.type ?? itemTypes.none
-  return {
-    id: item.id,
-    title,
-    content: item.content,
-    done: Boolean(frontmatter.completed),
-    type,
-    frontmatter,
-  }
-}

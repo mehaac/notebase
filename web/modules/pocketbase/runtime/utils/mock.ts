@@ -1,7 +1,7 @@
-import type { RecordModel } from 'pocketbase'
 import { useLocalStorage } from '@vueuse/core'
-import type { BaseClient, Item } from '../../types/types'
-import { frontmatterSchema, itemTypes } from '../../types/schema'
+import type { RecordModel } from 'pocketbase'
+import type { BaseClient } from '../../types/types'
+import { frontmatterSchema, type ItemRecord } from '../../types/schema'
 import tasks from '~/assets/mock/tasks.json'
 import debts from '~/assets/mock/debts.json'
 import tracks from '~/assets/mock/tracks.json'
@@ -20,7 +20,7 @@ const createDefaultReturn = () => {
   return defaultReturn
 }
 
-const useLocalItems = () => useLocalStorage<Item[]>('items', [])
+const useLocalItems = () => useLocalStorage<ItemRecord[]>('items', [])
 
 export function useMockClient(): BaseClient {
   const defaultReturn = createDefaultReturn()
@@ -29,15 +29,16 @@ export function useMockClient(): BaseClient {
     const items = [...tasks, ...debts, ...tracks, ...withContent].map((item) => {
       const defaults = createDefaultReturn()
       const { content, ...rest } = item
-      const frontmatter = frontmatterSchema.parse(rest)
 
-      const _item: Item = {
+      const _item: ItemRecord = {
         id: defaults.id,
-        title: frontmatter.title ?? 'Mock Item',
         content: content ?? '',
-        done: Math.random() > 0.5 ? true : false,
-        type: frontmatter.type ?? itemTypes.none,
-        frontmatter,
+        frontmatter: frontmatterSchema.parse(rest),
+        created: new Date().toISOString(),
+        hash: crypto.randomUUID().toString(),
+        path: '',
+        slug: '',
+        updated: new Date().toISOString(),
       }
       return _item
     })
@@ -57,11 +58,15 @@ export function useMockClient(): BaseClient {
       if (!item) {
         throw new Error('Item not found')
       }
-      if (item && item.frontmatter.completed) {
-        item.frontmatter.completed = ''
+      let frontmatter = item.frontmatter
+      if (frontmatter && 'completed' in frontmatter && frontmatter.completed) {
+        frontmatter.completed = ''
       }
-      else if (item) {
-        item.frontmatter.completed = new Date().toISOString()
+      else {
+        frontmatter = {
+          ...frontmatter,
+          completed: new Date().toISOString(),
+        }
       }
       return item || defaultReturn
     },
@@ -70,8 +75,9 @@ export function useMockClient(): BaseClient {
       if (!item) {
         throw new Error('Item not found')
       }
-      if (item.frontmatter.transactions) {
-        item.frontmatter.transactions.push({
+      const frontmatter = item.frontmatter
+      if (frontmatter && 'transactions' in frontmatter && frontmatter.transactions) {
+        frontmatter.transactions.push({
           amount,
           comment,
           created: new Date().toISOString(),

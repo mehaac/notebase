@@ -1,28 +1,32 @@
 import PocketBase from 'pocketbase'
 import type { BaseClient } from '../../types/types'
-import { frontmatterSchema, transformItem } from '../../types/schema'
+import { frontmatterSchema, recordSchema } from '../../types/schema'
 
 export function createPocketBaseClient(url: string): BaseClient {
   const pb = new PocketBase(url)
 
   const getItem = async (id: string) => {
     const item = await pb.collection('files').getOne(id)
-    return transformItem(item)
+    const parsed = recordSchema.parse(item)
+    return parsed
   }
 
   const toggleItem = async (id: string) => {
     const item = await getItem(id)
-    const frontmatter = item.frontmatter
-    if (frontmatter.completed) {
+    let frontmatter = item.frontmatter
+    if (frontmatter && 'completed' in frontmatter && frontmatter.completed) {
       frontmatter.completed = ''
     }
     else {
-      frontmatter.completed = new Date().toISOString()
+      frontmatter = {
+        ...frontmatter,
+        completed: new Date().toISOString(),
+      }
     }
     const res = await pb.collection('files').update(item.id, {
       frontmatter,
     })
-    return transformItem(res)
+    return recordSchema.parse(res)
   }
 
   const addDebtTransaction = async (id: string, amount: number, comment: string) => {
@@ -39,7 +43,7 @@ export function createPocketBaseClient(url: string): BaseClient {
     const res = await pb.collection('files').update(item.id, {
       frontmatter,
     })
-    return transformItem(res)
+    return recordSchema.parse(res)
   }
   const isAuthenticated = async () => {
     return pb.authStore.isValid
@@ -59,7 +63,7 @@ export function createPocketBaseClient(url: string): BaseClient {
     })
     return {
       ...rest,
-      items: items.map(transformItem),
+      items: recordSchema.array().parse(items),
     }
   }
 

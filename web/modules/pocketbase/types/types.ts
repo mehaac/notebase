@@ -1,14 +1,5 @@
 import type { ListResult, RecordAuthResponse, RecordModel } from 'pocketbase'
-import type { Frontmatter, ItemType, DebtFrontmatter, DebtTransaction, TrackFrontmatter } from './schema'
-
-export type Item = {
-  id: string
-  title: string
-  content: string
-  done: boolean
-  type: ItemType
-  frontmatter: Frontmatter
-}
+import type { Frontmatter, ItemType, DebtFrontmatter, DebtTransaction, TrackFrontmatter, ItemRecord } from './schema'
 
 /**
  * Base client interface for database operations
@@ -20,14 +11,14 @@ export interface BaseClient {
    * @param id - The unique identifier of the item to retrieve
    * @returns Promise resolving to the item record
    */
-  getItem: (id: string) => Promise<Item>
+  getItem: (id: string) => Promise<ItemRecord>
 
   /**
    * Toggles the completion status of an item
    * @param id - The unique identifier of the item to toggle
    * @returns Promise resolving to the updated item record
    */
-  toggleItem: (id: string) => Promise<Item>
+  toggleItem: (id: string) => Promise<ItemRecord>
 
   /**
    * Adds a new debt transaction to an existing debt item
@@ -36,7 +27,7 @@ export interface BaseClient {
    * @param comment - Optional description of the transaction
    * @returns Promise resolving to the updated debt record
    */
-  addDebtTransaction: (id: string, amount: number, comment: string) => Promise<Item>
+  addDebtTransaction: (id: string, amount: number, comment: string) => Promise<ItemRecord>
 
   /**
    * Checks if the current client has valid authentication
@@ -64,7 +55,7 @@ export interface BaseClient {
    * @param filter - Optional filter query string
    * @returns Promise resolving to paginated list result
    */
-  getList: (page: number, pageSize: number, filter: string) => Promise<ListResult<Item>>
+  getList: (page: number, pageSize: number, filter: string) => Promise<ListResult<ItemRecord>>
 }
 
 export type {
@@ -73,4 +64,5 @@ export type {
   DebtFrontmatter,
   DebtTransaction,
   TrackFrontmatter,
+  ItemRecord,
 }
