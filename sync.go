@@ -7,7 +7,6 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
-	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -90,28 +89,24 @@ func syncJob(app *pocketbase.PocketBase, root string, stopCh <-chan struct{}, do
 
 	go setupFileWatcher(app, fsnotifyWatcher, root)
 
-	filesChan := make(chan string, 100)
-	resultsChan := make(chan File, 100)
+	filesChan := make(chan string, 200)
+	resultsChan := make(chan File, 200)
 
 	var parseWg sync.WaitGroup
 	var saveWg sync.WaitGroup
 
-	numWorkers := runtime.NumCPU()
-	app.Logger().Debug("Starting parser workers", "count", numWorkers)
-	for i := 0; i < numWorkers; i++ {
-		parseWg.Add(1)
-		go func() {
-			defer parseWg.Done()
-			for path := range filesChan {
-				data, err := parse(app, root, path)
-				if err != nil {
-					app.Logger().Error("error parsing file", "path", path, "error", err)
-					continue
-				}
-				resultsChan <- data
+	parseWg.Add(1)
+	go func() {
+		defer parseWg.Done()
+		for path := range filesChan {
+			data, err := parse(app, root, path)
+			if err != nil {
+				app.Logger().Error("error parsing file", "path", path, "error", err)
+				continue
 			}
-		}()
-	}
+			resultsChan <- data
+		}
+	}()
 
 	const batchSize = 500
 	saveWg.Add(1)
@@ -124,20 +119,21 @@ func syncJob(app *pocketbase.PocketBase, root string, stopCh <-chan struct{}, do
 				return
 			}
 
-			err := app.RunInTransaction(func(txApp core.App) error {
-				for _, data := range batch {
-					filesCol, err := txApp.FindCollectionByNameOrId("files")
-					if err != nil {
-						return err
-					}
-					fileRec := core.NewRecord(filesCol)
-					fillFileRecFromData(fileRec, data)
-					if err := txApp.Save(fileRec); err != nil {
-						return err
-					}
+			// TODO: implement batch saving as multiple values when pocketbase implements it
+			for _, data := range batch {
+				filesCol, err := app.FindCollectionByNameOrId("files")
+				if err != nil {
+					app.Logger().Error("error finding files collection", "error", err)
+					continue
 				}
-				return nil
-			})
+
+				fileRec := core.NewRecord(filesCol)
+				fillFileRecFromData(fileRec, data)
+				if err := app.Save(fileRec); err != nil {
+					app.Logger().Error("error saving file record", "error", err)
+					continue
+				}
+			}
 
 			if err != nil {
 				app.Logger().Error("error saving batch", "error", err)
