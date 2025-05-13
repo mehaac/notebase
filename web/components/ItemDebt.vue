@@ -1,24 +1,17 @@
 <script setup lang="ts" generic="T extends Item & { frontmatter: DebtFrontmatter }">
 import type { TableColumn } from '@nuxt/ui'
-import { type Item, h, ref, computed, reactive } from '#imports'
+import { h, ref, computed, reactive } from '#imports'
 import { UButton } from '#components'
-import type { DebtFrontmatter } from '#pocketbase-imports'
+import type { Item, DebtFrontmatter } from '#pocketbase-imports'
 
 const { item, isList } = defineProps<{ item: T, isList?: boolean }>()
 
-type Transaction = {
-  id: string
-  amount: number
-  comment?: string
+function clamp(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(value, max))
 }
 
-const total = ref(0)
-const returned = ref(0)
-const left = computed(() => {
-  return total.value - returned.value
-})
 const progress = computed(() => {
-  return Math.round((returned.value / total.value) * 100)
+  return Math.round((clamp(returned.value, 0, total.value) / total.value) * 100)
 })
 
 const formatCurrency = (amount: number) => {
@@ -28,21 +21,32 @@ const formatCurrency = (amount: number) => {
   }).format(amount)
 }
 
-const transactions = ref<Transaction[]>(item.frontmatter.transactions.map((tx) => {
-  if (tx.amount > 0) {
-    total.value += tx.amount
-  }
-  else {
-    returned.value += Math.abs(tx.amount)
-  }
-  return {
-    id: tx.created,
-    amount: tx.amount,
-    comment: tx.comment,
-  }
-}))
+const total = computed(() => {
+  return item.frontmatter.transactions.reduce((acc, tx) => {
+    return acc + tx.amount
+  }, 0)
+})
 
-const columns: TableColumn<Transaction>[] = [
+const returned = computed(() => {
+  return item.frontmatter.transactions.reduce((acc, tx) => {
+    return acc + Math.abs(tx.amount)
+  }, 0)
+})
+const left = computed(() => {
+  return total.value - returned.value
+})
+
+const transactions = computed(() => {
+  return item.frontmatter.transactions.map((tx) => {
+    return {
+      id: `${tx.created}-${tx.amount}-${tx.comment ?? 'None'}`,
+      amount: tx.amount,
+      comment: tx.comment,
+    }
+  })
+})
+
+const columns: TableColumn<{ id: string, amount: number, comment: string | null | undefined }>[] = [
   {
     accessorKey: 'id',
     header: ({ column }) => {
@@ -84,7 +88,7 @@ const columns: TableColumn<Transaction>[] = [
     accessorKey: 'comment',
     header: 'Comment',
     cell: ({ row }) => {
-      return row.getValue('comment') || '-'
+      return row.getValue('comment') ?? '-'
     },
   },
 ]
