@@ -1,6 +1,6 @@
 # PocketBase Module for Nuxt 3
 
-A simple Nuxt module for integrating PocketBase with your Nuxt 3 application.
+A simple Nuxt module for integrating PocketBase with your Nuxt 3 application. Provides both PocketBase and mock client implementations.
 
 ## Setup
 
@@ -21,12 +21,13 @@ export default defineNuxtConfig({
   
   // Optional: Configure with module-specific options
   pocketbase: {
-    // The URL will automatically use apiBase if not specified
-    type: 'pb' | 'mock'
+    // Client type: 'pb' (default) or 'mock'
+    type: 'pb'
   }
 })
 ```
-### .env
+
+### .env Configuration
 
 ```
 NUXT_PUBLIC_POCKETBASE_TYPE=pb or mock
@@ -38,39 +39,35 @@ NUXT_PUBLIC_POCKETBASE_TYPE=pb or mock
 
 The module provides one injected service:
 
-1. `$client` - The PicketBase or Mock client with custom helpers
-
 ```js
 <script setup>
 const { $client } = useNuxtApp()
 
-// Using the raw PocketBase client
+// Using the raw client
 const records = await $client.getList(1, 10, filter)
 
-// Using the extended client with custom helpers
+// Using specific methods
 const item = await $client.getItem('item_id')
 await $client.toggleItem('item_id')
 </script>
 ```
 
-
 ### Using the Composables (Recommended)
 
-The module auto-imports these composables for easier use:
-or use #pocketbase-imports
+explicitly import
+
 ```vue
 <script setup>
 import { useClient } from '#pocketbase-imports'
 
 const pbClient = useClient()
 const item = await pbClient.getItem('item_id')
-await pbClient.toggleItem('item_id')
 </script>
 ```
 
-## Methods
+## Available Client Methods
 
-```ts 
+```ts
 /**
  * Base client interface for database operations
  * Provides methods for CRUD operations on items and user authentication
@@ -81,14 +78,14 @@ export interface BaseClient {
    * @param id - The unique identifier of the item to retrieve
    * @returns Promise resolving to the item record
    */
-  getItem: (id: string) => Promise<RecordModel>
+  getItem: (id: string) => Promise<ItemRecord>
 
   /**
    * Toggles the completion status of an item
    * @param id - The unique identifier of the item to toggle
    * @returns Promise resolving to the updated item record
    */
-  toggleItem: (id: string) => Promise<RecordModel>
+  toggleItem: (id: string) => Promise<ItemRecord>
 
   /**
    * Adds a new debt transaction to an existing debt item
@@ -97,7 +94,7 @@ export interface BaseClient {
    * @param comment - Optional description of the transaction
    * @returns Promise resolving to the updated debt record
    */
-  addDebtTransaction: (id: string, amount: number, comment: string) => Promise<RecordModel>
+  addDebtTransaction: (id: string, amount: number, comment: string) => Promise<ItemRecord>
 
   /**
    * Checks if the current client has valid authentication
@@ -125,6 +122,6 @@ export interface BaseClient {
    * @param filter - Optional filter query string
    * @returns Promise resolving to paginated list result
    */
-  getList: (page: number, pageSize: number, filter: string) => Promise<ListResult<RecordModel>>
+  getList: (page: number, pageSize: number, filter: string) => Promise<ListResult<ItemRecord>>
 }
 ```
