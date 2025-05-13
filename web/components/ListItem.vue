@@ -1,26 +1,38 @@
 <script setup lang="ts" generic="T extends Item">
-import { ref, watch, type Item, useClient } from '#imports'
+import { useClient, ref, useActivitiesStore, computed } from '#imports'
 import { LazyBaseItem } from '#components'
+import type { Item } from '#pocketbase-imports'
 
 const { item } = defineProps<{ item: T }>()
 
 const pb = useClient()
-const checked = ref(item.done)
-
-watch(checked, (value) => {
-  if (!value) {
-    pb.toggleItem(item.id)
-    return
+const activitiesStore = useActivitiesStore()
+const isChecked = computed(() => item.done)
+const loading = ref(false)
+// TODO: fix this must be handled by state machine that awaits for responce
+async function toggleItem() {
+  loading.value = true
+  try {
+    const result = await pb.toggleItem(item.id)
+    if (result) {
+      activitiesStore.items = activitiesStore
+        .items.map(item => item.id === result.id ? result : item)
+    }
   }
-  // TODO: add precheck state with timeout
-  // ex. setTimeout(() => toggleItem(item.id), 1000)
-  // but also handle the intermeditate stat of the checkbox
-  pb.toggleItem(item.id)
-})
+  catch (err) {
+    console.log('error', err)
+  }
+  loading.value = false
+}
 </script>
 
 <template>
-  <UCheckbox v-model="checked">
+  <UCheckbox
+    :loading="loading"
+    :disabled="loading"
+    :model-value="isChecked"
+    @change="() => toggleItem()"
+  >
     <template #label>
       <ULink :to="{ name: 'items-id', params: { id: item.id } }">
         {{ item.title }}
