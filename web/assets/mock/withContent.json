@@ -1,0 +1,7 @@
+[
+  {
+    "aliases": null,
+    "tags": null,
+    "content": "# index\n\n```dataviewjs\ndv.pages().where(p => p.file.name !== this.file.name)\n```\n\n```js\ndv.pages().where(p => p.file.name !== this.file.name)\n```\n\n```ts\nexport default function useMarkdownParser() {\n  let parser: Awaited<ReturnType<typeof createMarkdownParser>>\n\n  const parse = async (markdown: string) => {\n    if (!parser) {\n      parser = await createMarkdownParser({\n      })\n    }\n    return parser(markdown)\n  }\n\n  return parse\n}\n```"
+  }
+]

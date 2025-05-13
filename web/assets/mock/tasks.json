@@ -1,0 +1,52 @@
+[
+  {
+   
+    "aliases": null,
+    "tags": ["task", "work"],
+    "created": "2023-10-12T09:35:22",
+    "modified": "2023-10-14T11:42:31",
+    "summary": "Prepare project presentation",
+    "type": "task",
+    "due": "2023-10-20T14:00:00",
+    "status": "in-progress",
+    "priority": "high",
+    "content": "\n"
+  },
+  {
+    "aliases": null,
+    "tags": ["task", "personal"],
+    "created": "2023-10-10T18:22:45",
+    "modified": "2023-10-11T10:15:07",
+    "summary": "Buy groceries",
+    "type": "task",
+    "due": "2023-10-15T20:00:00",
+    "status": "pending",
+    "priority": "medium",
+    "content": "\n"
+  },
+  {
+   
+    "aliases": null,
+    "tags": ["task", "development"],
+    "created": "2023-09-28T14:12:36",
+    "modified": "2023-10-12T16:38:21",
+    "summary": "Fix application bugs",
+    "type": "task",
+    "due": "2023-10-18T18:00:00",
+    "status": "in-progress",
+    "priority": "high",
+    "content": "\n"
+  },
+  {
+    "aliases": null,
+    "tags": ["task", "health"],
+    "created": "2023-10-05T06:45:12",
+    "modified": "2023-10-13T08:20:15",
+    "summary": "Doctor appointment",
+    "type": "task",
+    "due": "2023-10-25T10:30:00",
+    "status": "scheduled",
+    "priority": "high",
+    "content": "\n"
+  }
+] 

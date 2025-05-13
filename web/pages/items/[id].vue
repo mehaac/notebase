@@ -3,25 +3,24 @@ import { onMounted, shallowRef, ref } from 'vue'
 import type { MDCParserResult } from '@nuxtjs/mdc'
 import {
   definePageMeta,
-  getItem,
-  transformItem,
   useActivitiesStore,
   useRoute,
-  type Item,
   useMarkdownParser,
+  useClient,
 } from '#imports'
 import { BaseItem } from '#components'
+import type { ItemRecord } from '#pocketbase-imports'
 
 definePageMeta({
   middleware: ['auth'],
 })
-
+const pb = useClient()
 const route = useRoute()
 const activitiesStore = useActivitiesStore()
 const parseMd = useMarkdownParser()
 const contentAst = ref<MDCParserResult | null>(null)
 const frontmatterAst = ref<MDCParserResult | null>(null)
-const item = shallowRef<Item>()
+const item = shallowRef<ItemRecord>()
 const error = shallowRef<string>()
 
 const isLoading = shallowRef(false)
@@ -35,8 +34,7 @@ onMounted(async () => {
   let itemToFind = activitiesStore.items.find(item => item.id === route.params.id)
   if (!itemToFind) {
     try {
-      const result = await getItem(route.params.id)
-      itemToFind = transformItem(result)
+      itemToFind = await pb.getItem(route.params.id)
     }
     catch (e) {
       console.error(e)
@@ -59,7 +57,7 @@ onMounted(async () => {
     </template>
     <template v-else-if="item">
       <h1 class="text-2xl font-bold mb-5">
-        {{ item.title }}
+        {{ item.frontmatter?.title ?? item.frontmatter?.summary ?? 'None' }}
       </h1>
       <BaseItem
         :item="item"
