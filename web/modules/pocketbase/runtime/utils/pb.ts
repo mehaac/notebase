@@ -1,37 +1,45 @@
 import PocketBase from 'pocketbase'
 import type { BaseClient } from '../../types/types'
+import { frontmatterSchema, transformItem } from '../../types/schema'
 
 export function createPocketBaseClient(url: string): BaseClient {
   const pb = new PocketBase(url)
 
-  const getItem = (id: string) => {
-    return pb.collection('files').getOne(id)
+  const getItem = async (id: string) => {
+    const item = await pb.collection('files').getOne(id)
+    return transformItem(item)
   }
 
   const toggleItem = async (id: string) => {
     const item = await getItem(id)
-    if (item.frontmatter.completed) {
-      item.frontmatter.completed = ''
+    const frontmatter = item.frontmatter
+    if (frontmatter.completed) {
+      frontmatter.completed = ''
     }
     else {
-      item.frontmatter.completed = new Date().toISOString()
+      frontmatter.completed = new Date().toISOString()
     }
-    return pb.collection('files').update(item.id, {
-      frontmatter: item.frontmatter,
+    const res = await pb.collection('files').update(item.id, {
+      frontmatter,
     })
+    return transformItem(res)
   }
 
   const addDebtTransaction = async (id: string, amount: number, comment: string) => {
     const item = await getItem(id)
+
+    const frontmatter = frontmatterSchema.parse(item.frontmatter ? item.frontmatter : {})
+
     const transaction = {
       amount,
-      date: new Date().toISOString(),
+      created: new Date().toISOString(),
       comment,
     }
-    item.frontmatter.transactions.push(transaction)
-    return pb.collection('files').update(item.id, {
-      frontmatter: item.frontmatter,
+    frontmatter.transactions?.push(transaction)
+    const res = await pb.collection('files').update(item.id, {
+      frontmatter,
     })
+    return transformItem(res)
   }
   const isAuthenticated = async () => {
     return pb.authStore.isValid
@@ -46,9 +54,13 @@ export function createPocketBaseClient(url: string): BaseClient {
   }
 
   const getList = async (page: number, pageSize: number, filter: string) => {
-    return pb.collection('files').getList(page, pageSize, {
+    const { items, ...rest } = await pb.collection('files').getList(page, pageSize, {
       filter,
     })
+    return {
+      ...rest,
+      items: items.map(transformItem),
+    }
   }
 
   return {

@@ -1,5 +1,16 @@
 import type { ListResult, RecordAuthResponse, RecordModel } from 'pocketbase'
+import type { Frontmatter, ItemType } from './schema'
 
+export type Item = {
+  id: string
+  title: string
+  content: string
+  done: boolean
+  type: ItemType
+  frontmatter: Frontmatter
+}
+
+export type { ItemType, Frontmatter }
 /**
  * Base client interface for database operations
  * Provides methods for CRUD operations on items and user authentication
@@ -10,14 +21,14 @@ export interface BaseClient {
    * @param id - The unique identifier of the item to retrieve
    * @returns Promise resolving to the item record
    */
-  getItem: (id: string) => Promise<RecordModel>
+  getItem: (id: string) => Promise<Item>
 
   /**
    * Toggles the completion status of an item
    * @param id - The unique identifier of the item to toggle
    * @returns Promise resolving to the updated item record
    */
-  toggleItem: (id: string) => Promise<RecordModel>
+  toggleItem: (id: string) => Promise<Item>
 
   /**
    * Adds a new debt transaction to an existing debt item
@@ -26,7 +37,7 @@ export interface BaseClient {
    * @param comment - Optional description of the transaction
    * @returns Promise resolving to the updated debt record
    */
-  addDebtTransaction: (id: string, amount: number, comment: string) => Promise<RecordModel>
+  addDebtTransaction: (id: string, amount: number, comment: string) => Promise<Item>
 
   /**
    * Checks if the current client has valid authentication
@@ -54,40 +65,5 @@ export interface BaseClient {
    * @param filter - Optional filter query string
    * @returns Promise resolving to paginated list result
    */
-  getList: (page: number, pageSize: number, filter: string) => Promise<ListResult<RecordModel>>
-}
-
-export type Frontmatter =
-  | DebtFrontmatter
-  | TrackFrontmatter
-  | TaskFrontmatter
-
-export type DebtTransaction = {
-  amount: number
-  created: string
-  comment: string
-}
-
-export type DebtFrontmatter = {
-  currency: string
-  transactions: DebtTransaction[]
-}
-
-export type TrackFrontmatter = {
-  season: number
-  episode: number
-  url: string
-  next_episode: string
-}
-
-export type TaskFrontmatter = {
-  due: string
-  status: string
-  priority: string
-}
-
-export enum ItemType {
-  Track = 'track',
-  Debt = 'debt',
-  Task = 'task',
+  getList: (page: number, pageSize: number, filter: string) => Promise<ListResult<Item>>
 }
