@@ -192,40 +192,6 @@ func syncJob(app *pocketbase.PocketBase, root string, stopCh <-chan struct{}, do
 	elapsedTime := time.Since(startTime)
 	app.Logger().Info("Initial sync complete", "elapsed", elapsedTime.String())
 
-	app.OnRecordUpdate("files").BindFunc(func(e *core.RecordEvent) error {
-		newYaml := jsonToYaml(e.Record.GetString("frontmatter"))
-		newContent := "---\n" + newYaml + "---" + e.Record.GetString("content")
-		e.Record.Set("hash", fmt.Sprintf("%x", md5.Sum([]byte(newContent))))
-		return e.Next()
-	})
-	app.OnRecordAfterUpdateSuccess("files").BindFunc(func(e *core.RecordEvent) error {
-		relPath := e.Record.GetString("path")
-		absPath := path.Join(root, relPath)
-		hash := e.Record.GetString("hash")
-
-		f, err := parse(app, root, absPath)
-		if err != nil {
-			app.Logger().Error("error parsing file", "path", relPath, "error", err)
-			return e.Next()
-		}
-		app.Logger().Debug("hashes", "old", hash, "new", f.Hash)
-		if hash == f.Hash {
-			return e.Next()
-		}
-		err = saveToDisk(
-			absPath,
-			e.Record.GetString("content"),
-			e.Record.GetString("frontmatter"),
-		)
-		if err != nil {
-			app.Logger().Error("Error saving file to disk", "error", err)
-			return e.Next()
-		}
-		app.Logger().Info("File saved to disk", "path", relPath)
-
-		return e.Next()
-	})
-
 	// Endless loop required to keep running and restart the job
 	for {
 		select {
