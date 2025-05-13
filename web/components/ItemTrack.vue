@@ -1,6 +1,5 @@
 <script setup lang="ts" generic="T extends Item & { frontmatter: TrackFrontmatter }">
-import type { TrackFrontmatter } from '#pocketbase-imports'
-import type { Item } from '#imports'
+import type { Item, TrackFrontmatter } from '#pocketbase-imports'
 
 const { item } = defineProps<{ item: T, isList?: boolean }>()
 </script>
