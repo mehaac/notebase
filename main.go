@@ -15,27 +15,18 @@ import (
 func main() {
 	app := pocketbase.New()
 
-	syncRestartCh := make(chan struct{})
-
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		se.Router.GET("/{path...}", apis.Static(os.DirFS("./pb_public"), false))
 
-		se.Router.GET("/sync/restart", func(e *core.RequestEvent) error {
-			isSuperuser := e.HasSuperuserAuth()
-			if !isSuperuser {
-				return e.UnauthorizedError("only superusers are allowe", nil)
-			}
-			syncRestartCh <- struct{}{}
-			return nil
-		})
-		// TODO: sync pause, start, status
-		// TODO: sync logs via realtime events
+		root, _ := app.RootCmd.Flags().GetString("root")
+		fsHandler := NewFSHandler(app, root)
+		syncHandler := NewSyncHandler(app, root)
+
+		fsHandler.Routes(se)
+		syncHandler.Routes(se)
+		go syncHandler.JobManager()
 
 		initCaldavRoutes(app, se)
-
-		root, _ := app.RootCmd.Flags().GetString("root")
-
-		go syncJobManager(syncRestartCh, app, root)
 
 		return se.Next()
 	})
@@ -48,7 +39,7 @@ func main() {
 	})
 
 	app.RootCmd.PersistentFlags().String("root", "", "a path to notes root, which has .notebase.yml")
-	app.RootCmd.AddCommand(syncCmd(app))
+	// app.RootCmd.AddCommand(syncHandler.SyncCmd())
 
 	if err := app.Start(); err != nil {
 		log.Fatal(err)

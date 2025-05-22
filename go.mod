@@ -3,11 +3,11 @@ module github.com/biozz/wow/notebase
 go 1.24.1
 
 require (
-	github.com/fsnotify/fsnotify v1.7.0
 	github.com/gobwas/glob v0.2.3
 	github.com/goccy/go-yaml v1.17.1
 	github.com/pocketbase/pocketbase v0.27.1
 	github.com/spf13/cobra v1.9.1
+	github.com/syncthing/notify v0.0.0-20250207082249-f0fa8f99c2bc
 )
 
 require (
@@ -35,7 +35,7 @@ require (
 	golang.org/x/net v0.39.0 // indirect
 	golang.org/x/oauth2 v0.29.0 // indirect
 	golang.org/x/sync v0.13.0 // indirect
-	golang.org/x/sys v0.32.0 // indirect
+	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.24.0 // indirect
 	modernc.org/libc v1.62.1 // indirect
 	modernc.org/mathutil v1.7.1 // indirect

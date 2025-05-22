@@ -14,44 +14,13 @@ const { item } = defineProps<{ item: T, isList?: boolean }>()
         external
       >{{ item.frontmatter.url }}</ULink>
     </p>
-    <UButtonGroup class="mr-2">
-      <UButton
-        color="warning"
-        variant="subtle"
-        icon="material-symbols:remove"
-      />
-      <UInput
-        color="neutral"
-        variant="outline"
-        placeholder="Season"
-        type="number"
-        class="w-24"
-      />
-
-      <UButton
-        color="success"
-        variant="subtle"
-        icon="material-symbols:add"
-      />
-    </UButtonGroup>
-    <UButtonGroup>
-      <UButton
-        color="warning"
-        variant="subtle"
-        icon="material-symbols:remove"
-      />
-      <UInput
-        color="neutral"
-        placeholder="Episode"
-        type="number"
-        class="w-24"
-      />
-
-      <UButton
-        color="success"
-        variant="subtle"
-        icon="material-symbols:add"
-      />
-    </UButtonGroup>
+    <TrackIncrement
+      :item="item"
+      incr-key="season"
+    />
+    <TrackIncrement
+      :item="item"
+      incr-key="episode"
+    />
   </div>
 </template>

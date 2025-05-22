@@ -945,20 +945,6 @@ func init() {
 						"type": "text"
 					},
 					{
-						"autogeneratePattern": "",
-						"hidden": false,
-						"id": "text3518522040",
-						"max": 0,
-						"min": 0,
-						"name": "hash",
-						"pattern": "",
-						"presentable": false,
-						"primaryKey": false,
-						"required": false,
-						"system": false,
-						"type": "text"
-					},
-					{
 						"hidden": false,
 						"id": "autodate2990389176",
 						"name": "created",
@@ -1029,7 +1015,7 @@ func init() {
 					{
 						"autogeneratePattern": "",
 						"hidden": false,
-						"id": "_clone_MCtG",
+						"id": "_clone_8uc4",
 						"max": 5000000,
 						"min": 0,
 						"name": "content",

@@ -1,8 +1,7 @@
 package main
 
 import (
-	"crypto/md5"
-	"fmt"
+	"io/fs"
 	"os"
 	"path"
 	"path/filepath"
@@ -11,24 +10,51 @@ import (
 	"sync"
 	"time"
 
-	"github.com/fsnotify/fsnotify"
 	"github.com/gobwas/glob"
 	"github.com/goccy/go-yaml"
 	"github.com/pocketbase/pocketbase"
+	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/spf13/cobra"
+	"github.com/syncthing/notify"
 )
 
-func syncCmd(app *pocketbase.PocketBase) *cobra.Command {
+type SyncHandler struct {
+	app       *pocketbase.PocketBase
+	root      string
+	controlCh chan bool
+}
+
+func NewSyncHandler(app *pocketbase.PocketBase, root string) *SyncHandler {
+	return &SyncHandler{
+		app:  app,
+		root: root,
+		// It is buffered to send a start signal in the beginning
+		controlCh: make(chan bool, 1),
+	}
+}
+
+func (h *SyncHandler) SyncCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "sync",
 		Short: "Scan notes directory and load markdown files into the files table",
 		Run: func(cmd *cobra.Command, args []string) {
-			root, _ := cmd.Flags().GetString("root")
-			restartCh := make(chan struct{})
-			syncJobManager(restartCh, app, root)
+			go h.JobManager()
 		},
 	}
+}
+
+func (h *SyncHandler) Routes(se *core.ServeEvent) {
+	syncGroup := se.Router.Group("/sync")
+	syncGroup.Bind(apis.RequireSuperuserAuth())
+	syncGroup.GET("/start", func(e *core.RequestEvent) error {
+		h.controlCh <- true
+		return nil
+	})
+	syncGroup.GET("/stop", func(e *core.RequestEvent) error {
+		h.controlCh <- false
+		return nil
+	})
 }
 
 type NotebaseConfig struct {
@@ -48,25 +74,29 @@ type NotebaseConfig struct {
 //   - all the parsing is done in parallel in goroutines
 //   - after parsing the results are sent to the saving process
 //     which also works in parallel in goroutine in batches
-func syncJob(app *pocketbase.PocketBase, root string, stopCh <-chan struct{}, doneCh chan<- struct{}) {
-	data, err := os.ReadFile(path.Join(root, ".notebase.yml"))
+func (h *SyncHandler) job(stopCh <-chan struct{}, doneCh chan<- struct{}) {
+	data, err := os.ReadFile(path.Join(h.root, ".notebase.yml"))
 	if err != nil {
-		app.Logger().Error("error reading config", "error", err)
+		h.app.Logger().Error("error reading config", "error", err)
 		return
 	}
 	config := NotebaseConfig{}
 	err = yaml.Unmarshal(data, &config)
 	if err != nil {
-		app.Logger().Error("error parsing config", "error", err)
+		h.app.Logger().Error("error parsing config", "error", err)
 		return
 	}
 
 	startTime := time.Now()
 
 	if config.ClearOnStartup {
-		_, err := app.DB().NewQuery("DELETE FROM files").Execute()
+		// TODO: add metrics to find out if it works
+		// app.DB().NewQuery("PRAGMA synchronous = OFF").Execute()
+		// app.DB().NewQuery("PRAGMA journal_mode = MEMORY").Execute()
+
+		_, err := h.app.DB().NewQuery("DELETE FROM files").Execute()
 		if err != nil {
-			app.Logger().Error("unable to clear files table", err)
+			h.app.Logger().Error("unable to clear files table", err)
 			return
 		}
 	}
@@ -75,19 +105,19 @@ func syncJob(app *pocketbase.PocketBase, root string, stopCh <-chan struct{}, do
 	for _, pattern := range config.Exclude {
 		g, err := glob.Compile(pattern)
 		if err != nil {
-			app.Logger().Error("Invalid glob pattern", "pattern", pattern, "error", err)
+			h.app.Logger().Error("Invalid glob pattern", "pattern", pattern, "error", err)
 			continue
 		}
 		patterns = append(patterns, g)
 	}
 
-	fsnotifyWatcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		app.Logger().Error("error creating fsnotify watcher", "error", err)
-		return
+	fileChanges := make(chan notify.EventInfo, 1)
+	watchPath := path.Join(h.root, "/...")
+	if err := notify.Watch(watchPath, fileChanges, notify.All); err != nil {
+		h.app.Logger().Error("error watching files", "error", err)
 	}
-
-	go setupFileWatcher(app, fsnotifyWatcher, root)
+	defer notify.Stop(fileChanges)
+	go h.fileWatcher(fileChanges, patterns)
 
 	filesChan := make(chan string, 200)
 	resultsChan := make(chan File, 200)
@@ -95,20 +125,25 @@ func syncJob(app *pocketbase.PocketBase, root string, stopCh <-chan struct{}, do
 	var parseWg sync.WaitGroup
 	var saveWg sync.WaitGroup
 
-	parseWg.Add(1)
-	go func() {
-		defer parseWg.Done()
-		for path := range filesChan {
-			data, err := parse(app, root, path)
-			if err != nil {
-				app.Logger().Error("error parsing file", "path", path, "error", err)
-				continue
+	// TODO: move to config
+	numWorkers := 5
+	for i := 0; i < numWorkers; i++ {
+		parseWg.Add(1)
+		go func() {
+			defer parseWg.Done()
+			for wp := range filesChan {
+				data, err := parse(h.root, wp)
+				if err != nil {
+					h.app.Logger().Error("error parsing file", "path", wp, "error", err)
+					continue
+				}
+				resultsChan <- data
 			}
-			resultsChan <- data
-		}
-	}()
+		}()
+	}
 
-	const batchSize = 500
+	// TODO: move to config
+	const batchSize = 200
 	saveWg.Add(1)
 	go func() {
 		defer saveWg.Done()
@@ -119,24 +154,21 @@ func syncJob(app *pocketbase.PocketBase, root string, stopCh <-chan struct{}, do
 				return
 			}
 
-			// TODO: implement batch saving as multiple values when pocketbase implements it
-			for _, data := range batch {
-				filesCol, err := app.FindCollectionByNameOrId("files")
-				if err != nil {
-					app.Logger().Error("error finding files collection", "error", err)
-					continue
+			filesCol, _ := h.app.FindCollectionByNameOrId("files")
+			err := h.app.RunInTransaction(func(txApp core.App) error {
+				for _, data := range batch {
+					fileRec := core.NewRecord(filesCol)
+					fillFileRecFromData(fileRec, data)
+					// SaveNoValidate probably speeds things up a bit
+					if err := txApp.SaveNoValidate(fileRec); err != nil {
+						return err
+					}
 				}
-
-				fileRec := core.NewRecord(filesCol)
-				fillFileRecFromData(fileRec, data)
-				if err := app.Save(fileRec); err != nil {
-					app.Logger().Error("error saving file record", "error", err)
-					continue
-				}
-			}
+				return nil
+			})
 
 			if err != nil {
-				app.Logger().Error("error saving batch", "error", err)
+				h.app.Logger().Error("error saving batch", "error", err)
 				return
 			}
 			// Clear batch but reuse the underlying array
@@ -152,24 +184,16 @@ func syncJob(app *pocketbase.PocketBase, root string, stopCh <-chan struct{}, do
 		processBatch()
 	}()
 
-	// Walk directory and send files to workers
-	app.Logger().Debug("Walking directory", "root", root)
-
-	err = filepath.Walk(root, func(walkPath string, info os.FileInfo, err error) error {
+	err = filepath.WalkDir(h.root, func(walkPath string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
-		if isExcluded(patterns, walkPath) {
-			if info.IsDir() {
-				return filepath.SkipDir
-			}
-			return nil
-		}
+		p, _ := filepath.Rel(h.root, walkPath)
 
-		if info.IsDir() {
-			if err = fsnotifyWatcher.Add(walkPath); err != nil {
-				return err
+		if isExcluded(patterns, p) {
+			if d.IsDir() {
+				return filepath.SkipDir
 			}
 			return nil
 		}
@@ -181,7 +205,7 @@ func syncJob(app *pocketbase.PocketBase, root string, stopCh <-chan struct{}, do
 	})
 
 	if err != nil {
-		app.Logger().Error("unable to walk files", err)
+		h.app.Logger().Error("unable to walk files", err)
 	}
 
 	close(filesChan)
@@ -190,7 +214,7 @@ func syncJob(app *pocketbase.PocketBase, root string, stopCh <-chan struct{}, do
 	saveWg.Wait()
 
 	elapsedTime := time.Since(startTime)
-	app.Logger().Info("Initial sync complete", "elapsed", elapsedTime.String())
+	h.app.Logger().Info("Initial sync complete", "elapsed", elapsedTime.String())
 
 	// Endless loop required to keep running and restart the job
 	for {
@@ -202,152 +226,63 @@ func syncJob(app *pocketbase.PocketBase, root string, stopCh <-chan struct{}, do
 	}
 }
 
-func syncJobManager(restartCh <-chan struct{}, app *pocketbase.PocketBase, root string) {
-	for {
-		stopCh := make(chan struct{})
-		doneCh := make(chan struct{})
-		go syncJob(app, root, stopCh, doneCh)
-		<-restartCh
-		close(stopCh)
-		<-doneCh
-	}
-}
+func (h *SyncHandler) JobManager() {
+	var internalStopCh chan struct{}
+	var doneCh chan struct{}
 
-func saveToDisk(path string, content string, frontmatterRaw string) error {
-	dir := filepath.Dir(path)
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return err
-	}
+	h.controlCh <- true
 
-	file, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	newYaml := jsonToYaml(frontmatterRaw)
-
-	if newYaml == "" {
-		return fmt.Errorf("error converting JSON to YAML")
-	}
-	if _, err := file.WriteString("---\n" + newYaml + "---"); err != nil {
-		return err
-	}
-
-	if _, err := file.WriteString(content); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func jsonToYaml(jsonRaw string) string {
-	if jsonRaw == "" {
-		return ""
-	}
-	var yamlData yaml.MapSlice
-	err := yaml.Unmarshal([]byte(jsonRaw), &yamlData)
-	if err != nil {
-		fmt.Println(err)
-		return ""
-	}
-	yamlBytes, err := yaml.Marshal(yamlData)
-	if err != nil {
-		fmt.Println(err)
-		return ""
-	}
-	return string(yamlBytes)
-}
-
-func debounce[T any](input <-chan T, duration time.Duration) <-chan T {
-	out := make(chan T)
-	go func() {
-		defer close(out)
-		var (
-			timer     *time.Timer
-			lastEvent T
-		)
-
-		// Helper function to reset/stop the timer safely.
-		resetTimer := func() {
-			if timer == nil {
-				timer = time.NewTimer(duration)
-			} else {
-				if !timer.Stop() {
-					// Drain the channel if needed.
-					select {
-					case <-timer.C:
-					default:
-					}
-				}
-				timer.Reset(duration)
-			}
-		}
-
-		for {
-			var timerC <-chan time.Time
-			if timer != nil {
-				timerC = timer.C
-			}
-			select {
-			// Read a new event from the watcher.
-			case event, ok := <-input:
-				if !ok {
-					return // Input closed
-				}
-				lastEvent = event
-				resetTimer()
-			// The debounce period finished; send out the last event.
-			case <-timerC:
-				out <- lastEvent
-				// After emitting the event, nil the timer so a new one will be created upon a new event.
-				timer = nil
-			}
-		}
-	}()
-	return out
-}
-
-func setupFileWatcher(app *pocketbase.PocketBase, watcher *fsnotify.Watcher, root string) {
-	// debouncedWatcherEvents := debounce(watcher.Events, 200*time.Millisecond)
 	for {
 		select {
-		case event, ok := <-watcher.Events:
+		case cmd, ok := <-h.controlCh:
 			if !ok {
+				// Channel closed, stop sync job if running and return
+				if internalStopCh != nil {
+					close(internalStopCh)
+					<-doneCh
+				}
 				return
 			}
-			if filepath.Ext(event.Name) != ".md" {
-				continue
-			}
-			if event.Op.Has(fsnotify.Chmod) {
-				continue
-			}
-			if event.Op&fsnotify.Create == fsnotify.Create {
-				fi, err := os.Stat(event.Name)
-				if err == nil && fi.IsDir() {
-					if err := watcher.Add(event.Name); err != nil {
-						app.Logger().Error("error watching new directory", "error", err)
-					}
+
+			if cmd {
+				if internalStopCh == nil {
+					internalStopCh = make(chan struct{})
+					doneCh = make(chan struct{})
+					go h.job(internalStopCh, doneCh)
+				}
+			} else {
+				if internalStopCh != nil {
+					close(internalStopCh)
+					<-doneCh
+					internalStopCh = nil
+					doneCh = nil
 				}
 			}
-			app.Logger().Info("fsnotify event", "op", event.Op.String(), "path", event.Name)
-			handleFSNotifyEvent(app, event.Op.String(), root, event.Name)
-		case err, ok := <-watcher.Errors:
-			if !ok {
-				return
-			}
-			app.Logger().Error("fsnotify error", "error", err)
 		}
 	}
 }
 
-func isExcluded(patterns []glob.Glob, path string) bool {
-	for _, pattern := range patterns {
-		if pattern.Match(path) {
-			return true
+func (h *SyncHandler) fileWatcher(watcher chan notify.EventInfo, patterns []glob.Glob) {
+	for {
+		select {
+		case ei := <-watcher:
+			relPath, _ := filepath.Rel(h.root, ei.Path())
+			if isExcluded(patterns, relPath) {
+				continue
+			}
+			h.app.Logger().Info("file watcher event", "event", ei.Event().String(), "path", ei.Path())
+			if filepath.Ext(ei.Path()) != ".md" {
+				continue
+			}
+			if ei.Event() == notify.Create {
+				fstat, _ := os.Stat(ei.Path())
+				if fstat.IsDir() {
+					continue
+				}
+			}
+			h.handleFSNotifyEvent(ei)
 		}
 	}
-	return false
 }
 
 type File struct {
@@ -359,14 +294,13 @@ type File struct {
 	Slug            string
 	Links           []string
 	Tags            []string
-	Hash            string
 }
 
 var (
 	linkRegex = regexp.MustCompile(`\[\[(\S*)\]\]`)
 )
 
-func parse(app *pocketbase.PocketBase, rootPath string, curPath string) (File, error) {
+func parse(rootPath string, curPath string) (File, error) {
 	relPath, _ := filepath.Rel(rootPath, curPath)
 	fileName := filepath.Base(relPath)
 	slug := strings.TrimSuffix(fileName, filepath.Ext(fileName))
@@ -384,7 +318,6 @@ func parse(app *pocketbase.PocketBase, rootPath string, curPath string) (File, e
 		FrontMatter: yaml.MapSlice{},
 		Links:       []string{},
 		Tags:        []string{},
-		Hash:        fmt.Sprintf("%x", md5.Sum(content)),
 	}
 
 	// Extract frontmatter
@@ -394,7 +327,6 @@ func parse(app *pocketbase.PocketBase, rootPath string, curPath string) (File, e
 		yaml.Unmarshal([]byte(frontMatter), &data.FrontMatter)
 		jsonBytes, err := yaml.MarshalWithOptions(data.FrontMatter, yaml.JSON())
 		if err != nil {
-			app.Logger().Warn("error converting frontmatter to JSON", "error", err)
 			data.FrontMatterJSON = "{}"
 		} else {
 			data.FrontMatterJSON = string(jsonBytes)
@@ -421,59 +353,40 @@ func parse(app *pocketbase.PocketBase, rootPath string, curPath string) (File, e
 	return data, nil
 }
 
-func extractFrontMatter(content string) (frontMatter, mainContent string) {
-	// Check if content starts with "---"
-	if !strings.HasPrefix(content, "---\n") {
-		return "", content
-	}
-
-	// Find the closing "---"
-	endIndex := strings.Index(content[4:], "---")
-	if endIndex == -1 {
-		return "", content
-	}
-
-	endIndex += 4 // Adjust for the initial offset
-	frontMatter = content[4:endIndex]
-	mainContent = content[endIndex+3:] // Skip past the closing "---"
-
-	return frontMatter, mainContent
-}
-
 type WatcherEvent struct {
 	EventType string
 	Path      string
 }
 
-func handleFSNotifyEvent(app *pocketbase.PocketBase, event string, rootPath string, curPath string) {
-	switch event {
-	case "CREATE", "WRITE":
-		data, err := parse(app, rootPath, curPath)
+func (h *SyncHandler) handleFSNotifyEvent(event notify.EventInfo) {
+	switch event.Event() {
+	case notify.Create, notify.Write:
+		data, err := parse(h.root, event.Path())
 		if err != nil {
-			app.Logger().Error("unable to parse", err)
+			h.app.Logger().Error("unable to parse", err)
 			return
 		}
 
-		if event == "CREATE" {
+		if event.Event() == notify.Create {
 			if data.Slug == "Untitled" {
 				// thi is probably a placeholder file, created by Obsidian, ignore it
 				return
 			}
-			if err := createFile(app, data); err != nil {
-				app.Logger().Error("unable to create file", err)
+			if err := createFile(h.app, data); err != nil {
+				h.app.Logger().Error("unable to create file", err)
 			}
 			return
 		}
 
-		if event == "WRITE" {
-			if err := updateFile(app, data); err != nil {
-				app.Logger().Error("unable to create file", err)
+		if event.Event() == notify.Write {
+			if err := h.updateFile(data); err != nil {
+				h.app.Logger().Error("unable to create file", err)
 			}
 			return
 		}
-	case "REMOVE", "RENAME":
-		if err := deleteFile(app, curPath); err != nil {
-			app.Logger().Error("unable to delete file", err)
+	case notify.Rename, notify.Remove:
+		if err := h.deleteFile(event.Path()); err != nil {
+			h.app.Logger().Error("unable to delete file", err)
 		}
 	}
 }
@@ -498,37 +411,29 @@ func fillFileRecFromData(fileRec *core.Record, data File) {
 		"slug":        data.Slug,
 		"content":     data.Content,
 		"frontmatter": data.FrontMatterJSON,
-		"hash":        data.Hash,
-		// tags?
-		// links?
 	})
 }
 
-func updateFile(app *pocketbase.PocketBase, data File) error {
-	fileRec, err := app.FindFirstRecordByData("files", "path", data.RelPath)
+func (h *SyncHandler) updateFile(data File) error {
+	fileRec, err := h.app.FindFirstRecordByData("files", "path", data.RelPath)
 	if err != nil {
 		return err
 	}
-	curHash := fileRec.GetString("hash")
-	if curHash == data.Hash {
-		app.Logger().Debug("File hash unchanged, skipping update", "path", data.RelPath)
-		return nil
-	}
 	fillFileRecFromData(fileRec, data)
-	if err := app.Save(fileRec); err != nil {
-		app.Logger().Error("Error updating file record", "error", err)
+	if err := h.app.Save(fileRec); err != nil {
+		h.app.Logger().Error("Error updating file record", "error", err)
 		return err
 	}
 	return nil
 }
 
-func deleteFile(app *pocketbase.PocketBase, path string) error {
-	fileRec, err := app.FindFirstRecordByData("files", "path", path)
+func (h *SyncHandler) deleteFile(path string) error {
+	fileRec, err := h.app.FindFirstRecordByData("files", "path", path)
 	if err != nil {
 		return err
 	}
-	if err := app.Delete(fileRec); err != nil {
-		app.Logger().Error("Error deleting file record", "error", err)
+	if err := h.app.Delete(fileRec); err != nil {
+		h.app.Logger().Error("Error deleting file record", "error", err)
 		return err
 	}
 	return nil
