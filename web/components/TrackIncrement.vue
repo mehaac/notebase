@@ -1,25 +1,27 @@
-<script setup lang="ts" generic="T extends Item & { frontmatter: TrackFrontmatter }">
-import { ref, type Item, type TrackFrontmatter } from '#imports'
-import { incrByStep } from '~/utils/services'
+<script setup lang="ts" generic="T extends ItemRecord & { frontmatter: TrackFrontmatter }">
+import { onMounted, ref, useActivitiesStore, useClient, watchDebounced } from '#imports'
+import type { ItemRecord, TrackFrontmatter } from '#pocketbase-imports'
 
 const { item, incrKey } = defineProps<{ item: T, incrKey: string }>()
+const pb = useClient()
+const num = ref(0)
+const { updateItem } = useActivitiesStore()
 
-const num = ref()
-
-if (incrKey === 'season') {
-  num.value = item.frontmatter.season
-}
-if (incrKey === 'episode') {
-  num.value = item.frontmatter.episode
+const incr = async (n: number) => {
+  num.value += n
 }
 
-const incr = (n: number) => {
-  incrByStep(item.id, incrKey, n)
-}
+watchDebounced(num, async (newValue, oldValue) => {
+  if (oldValue === 0) return
+  const newItem = item
+  newItem.frontmatter[incrKey] = newValue
+  await pb.updateFrontmatter(item.id, newItem.frontmatter)
+  updateItem(newItem)
+}, { debounce: 800 })
 
-const onManualChange = () => {
-  console.log(num.value)
-}
+onMounted(() => {
+  num.value = item.frontmatter[incrKey] as number
+})
 </script>
 
 <template>
@@ -37,14 +39,13 @@ const onManualChange = () => {
       variant="outline"
       type="number"
       class="w-24"
-      @change="onManualChange"
     />
 
     <UButton
       color="success"
       variant="subtle"
       icon="material-symbols:add"
-      @click="() => incr(-1)"
+      @click="() => incr(1)"
     />
   </UButtonGroup>
 </template>

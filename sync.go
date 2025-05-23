@@ -380,7 +380,7 @@ func (h *SyncHandler) handleFSNotifyEvent(event notify.EventInfo) {
 
 		if event.Event() == notify.Write {
 			if err := h.updateFile(data); err != nil {
-				h.app.Logger().Error("unable to create file", err)
+				h.app.Logger().Error("unable to write file", err)
 			}
 			return
 		}

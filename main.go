@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"os"
+	"os/user"
+	"path/filepath"
 	"strings"
 
 	_ "github.com/biozz/wow/notebase/migrations"
@@ -19,6 +21,14 @@ func main() {
 		se.Router.GET("/{path...}", apis.Static(os.DirFS("./pb_public"), false))
 
 		root, _ := app.RootCmd.Flags().GetString("root")
+		if strings.HasPrefix(root, "~/") {
+			usr, _ := user.Current()
+			dir := usr.HomeDir
+			root = filepath.Join(dir, root[1:])
+		} else if strings.HasPrefix(root, ".") {
+			wd, _ := os.Getwd()
+			root = filepath.Join(wd, root)
+		}
 		fsHandler := NewFSHandler(app, root)
 		syncHandler := NewSyncHandler(app, root)
 

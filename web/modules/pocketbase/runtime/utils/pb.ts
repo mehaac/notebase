@@ -1,5 +1,5 @@
 import PocketBase from 'pocketbase'
-import type { BaseClient } from '../../types/types'
+import type { BaseClient, Frontmatter } from '../../types/types'
 import { frontmatterSchema, recordSchema } from '../../types/schema'
 import { parseDate } from './time'
 
@@ -92,6 +92,16 @@ export function createPocketBaseClient(url: string): BaseClient {
     }
   }
 
+  const updateFrontmatter = async (id: string, data: Frontmatter) => {
+    const item = await getItem(id)
+    return await pb.send('/fs/frontmatter', { method: 'post', body: JSON.stringify({ path: item.path, data: data }) })
+  }
+
+  const updateContent = async (id: string, data: string) => {
+    const item = await getItem(id)
+    return await pb.send('/fs/content', { method: 'post', body: JSON.stringify({ path: item.path, data: data }) })
+  }
+
   return {
     getItem,
     toggleItem,
@@ -101,5 +111,7 @@ export function createPocketBaseClient(url: string): BaseClient {
     clearAuth,
     authenticatedUser,
     getList,
+    updateFrontmatter,
+    updateContent,
   }
 }

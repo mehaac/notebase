@@ -28,10 +28,10 @@ func (h *FSHandler) Routes(se *core.ServeEvent) {
 	fsGroup := se.Router.Group("/fs")
 	fsGroup.Bind(apis.RequireSuperuserAuth())
 
-	fsGroup.PATCH("/frontmatter", func(e *core.RequestEvent) error {
+	fsGroup.POST("/frontmatter", func(e *core.RequestEvent) error {
 		return h.handleModifyFrontmatter(e)
 	})
-	fsGroup.PUT("/content", func(e *core.RequestEvent) error {
+	fsGroup.POST("/content", func(e *core.RequestEvent) error {
 		return h.handleModifyContent(e)
 	})
 }
