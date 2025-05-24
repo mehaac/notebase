@@ -6,6 +6,7 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@nuxtjs/mdc',
     '~/modules/pocketbase/module',
+    '@nuxt/test-utils/module',
   ],
   ssr: false,
   imports: {
