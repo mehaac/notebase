@@ -1,0 +1,16 @@
+[tasks.deps]
+run = ['go mod tidy', 'go mod vendor']
+
+[tasks.backend]
+run = "go run . --root=$NOTES_ROOT serve"
+
+[tasks.frontend]
+dir = "web"
+run = "pnpm dev"
+
+[tasks.default]
+depends = ["backend", "frontend"]
+
+[tools]
+pnpm = "latest"
+go = "latest"

@@ -5,7 +5,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -60,6 +59,8 @@ func (h *SyncHandler) Routes(se *core.ServeEvent) {
 type NotebaseConfig struct {
 	ClearOnStartup bool     `yaml:"clear_on_startup"`
 	Exclude        []string `yaml:"exclude"`
+	SyncWorkers    int      `yaml:"sync_workers"`
+	SyncBatchSize  int      `yaml:"sync_batch_size"`
 }
 
 // syncJob loads markdown files into an SQLite database and synchronizes
@@ -90,10 +91,6 @@ func (h *SyncHandler) job(stopCh <-chan struct{}, doneCh chan<- struct{}) {
 	startTime := time.Now()
 
 	if config.ClearOnStartup {
-		// TODO: add metrics to find out if it works
-		// app.DB().NewQuery("PRAGMA synchronous = OFF").Execute()
-		// app.DB().NewQuery("PRAGMA journal_mode = MEMORY").Execute()
-
 		_, err := h.app.DB().NewQuery("DELETE FROM files").Execute()
 		if err != nil {
 			h.app.Logger().Error("unable to clear files table", err)
@@ -119,15 +116,13 @@ func (h *SyncHandler) job(stopCh <-chan struct{}, doneCh chan<- struct{}) {
 	defer notify.Stop(fileChanges)
 	go h.fileWatcher(fileChanges, patterns)
 
-	filesChan := make(chan string, 200)
-	resultsChan := make(chan File, 200)
+	filesChan := make(chan string, config.SyncBatchSize)
+	resultsChan := make(chan File, config.SyncBatchSize)
 
 	var parseWg sync.WaitGroup
 	var saveWg sync.WaitGroup
 
-	// TODO: move to config
-	numWorkers := 5
-	for i := 0; i < numWorkers; i++ {
+	for i := 0; i < config.SyncWorkers; i++ {
 		parseWg.Add(1)
 		go func() {
 			defer parseWg.Done()
@@ -142,12 +137,10 @@ func (h *SyncHandler) job(stopCh <-chan struct{}, doneCh chan<- struct{}) {
 		}()
 	}
 
-	// TODO: move to config
-	const batchSize = 200
 	saveWg.Add(1)
 	go func() {
 		defer saveWg.Done()
-		batch := make([]File, 0, batchSize)
+		batch := make([]File, 0, config.SyncBatchSize)
 
 		processBatch := func() {
 			if len(batch) == 0 {
@@ -177,7 +170,7 @@ func (h *SyncHandler) job(stopCh <-chan struct{}, doneCh chan<- struct{}) {
 
 		for data := range resultsChan {
 			batch = append(batch, data)
-			if len(batch) >= batchSize {
+			if len(batch) >= config.SyncBatchSize {
 				processBatch()
 			}
 		}
@@ -229,6 +222,9 @@ func (h *SyncHandler) job(stopCh <-chan struct{}, doneCh chan<- struct{}) {
 func (h *SyncHandler) JobManager() {
 	var internalStopCh chan struct{}
 	var doneCh chan struct{}
+
+	// This probably fixes pocketbase starting with a clean database
+	time.Sleep(2 * time.Second)
 
 	h.controlCh <- true
 
@@ -292,13 +288,11 @@ type File struct {
 	AbsPath         string
 	RelPath         string
 	Slug            string
-	Links           []string
-	Tags            []string
-}
 
-var (
-	linkRegex = regexp.MustCompile(`\[\[(\S*)\]\]`)
-)
+	// Versioning
+	Origin  string
+	Version string
+}
 
 func parse(rootPath string, curPath string) (File, error) {
 	relPath, _ := filepath.Rel(rootPath, curPath)
@@ -316,8 +310,7 @@ func parse(rootPath string, curPath string) (File, error) {
 		RelPath:     relPath,
 		Slug:        slug,
 		FrontMatter: yaml.MapSlice{},
-		Links:       []string{},
-		Tags:        []string{},
+		Version:     getVersion(),
 	}
 
 	// Extract frontmatter
@@ -333,22 +326,7 @@ func parse(rootPath string, curPath string) (File, error) {
 		}
 	}
 
-	// Store content
 	data.Content = mainContent
-
-	// Find all links in one pass
-	linkMap := make(map[string]bool)
-	linkMatches := linkRegex.FindAllStringSubmatch(contentStr, -1)
-	for _, match := range linkMatches {
-		if len(match[1]) > 0 {
-			linkMap[match[1]] = true
-		}
-	}
-
-	// Convert link map to slice
-	for link := range linkMap {
-		data.Links = append(data.Links, link)
-	}
 
 	return data, nil
 }
@@ -398,10 +376,18 @@ func createFile(app *pocketbase.PocketBase, data File) error {
 	}
 	fileRec := core.NewRecord(filesCol)
 	fillFileRecFromData(fileRec, data)
+
+	version := getVersion()
+	fileRec.Set("version", version)
+
 	if err := app.Save(fileRec); err != nil {
 		app.Logger().Error("Error saving file record", "error", err)
 		return err
 	}
+
+	// Set xattr notebase.version with the version timestamp
+	setFileXAttrVersion(data.AbsPath, version)
+
 	return nil
 }
 
@@ -411,6 +397,8 @@ func fillFileRecFromData(fileRec *core.Record, data File) {
 		"slug":        data.Slug,
 		"content":     data.Content,
 		"frontmatter": data.FrontMatterJSON,
+		"origin":      data.Origin,
+		"version":     data.Version,
 	})
 }
 
@@ -420,10 +408,17 @@ func (h *SyncHandler) updateFile(data File) error {
 		return err
 	}
 	fillFileRecFromData(fileRec, data)
+
+	version := getVersion()
+	fileRec.Set("version", version)
+
 	if err := h.app.Save(fileRec); err != nil {
 		h.app.Logger().Error("Error updating file record", "error", err)
 		return err
 	}
+
+	setFileXAttrVersion(data.AbsPath, version)
+
 	return nil
 }
 
@@ -436,5 +431,12 @@ func (h *SyncHandler) deleteFile(path string) error {
 		h.app.Logger().Error("Error deleting file record", "error", err)
 		return err
 	}
+
+	// Remove xattr notebase.version on delete is optional, ignoring error
+	_ = removeFileXAttrVersion(path)
+
 	return nil
+}
+
+func (h *SyncHandler) DBToFSUpdate(record *core.Record) {
 }

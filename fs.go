@@ -1,15 +1,11 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/pocketbase/pocketbase"
-	"github.com/pocketbase/pocketbase/apis"
-	"github.com/pocketbase/pocketbase/core"
 )
 
 type FSHandler struct {
@@ -22,85 +18,6 @@ func NewFSHandler(app *pocketbase.PocketBase, root string) *FSHandler {
 		app:  app,
 		root: root,
 	}
-}
-
-func (h *FSHandler) Routes(se *core.ServeEvent) {
-	fsGroup := se.Router.Group("/fs")
-	fsGroup.Bind(apis.RequireSuperuserAuth())
-
-	fsGroup.POST("/frontmatter", func(e *core.RequestEvent) error {
-		return h.handleModifyFrontmatter(e)
-	})
-	fsGroup.POST("/content", func(e *core.RequestEvent) error {
-		return h.handleModifyContent(e)
-	})
-}
-
-type FrontmatterRequest struct {
-	Path string          `json:"path"`
-	Data json.RawMessage `json:"data"`
-}
-
-func (h *FSHandler) handleModifyFrontmatter(e *core.RequestEvent) error {
-	req := FrontmatterRequest{}
-	if err := e.BindBody(&req); err != nil {
-		return fmt.Errorf("invalid json body: %w", err)
-	}
-
-	fileRec, err := h.app.FindFirstRecordByData("files", "path", req.Path)
-	if err != nil {
-		return fmt.Errorf("file not found: %w", err)
-	}
-
-	newJSONBytes, err := json.Marshal(json.RawMessage(req.Data))
-	if err != nil {
-		return fmt.Errorf("invalid frontmatter json data: %w", err)
-	}
-
-	absPath := filepath.Join(h.root, fileRec.GetString("path"))
-	err = updateFrontmatterJSON(absPath, string(newJSONBytes), "")
-	if err != nil {
-		return fmt.Errorf("failed to update frontmatter on disk: %w", err)
-	}
-
-	return nil
-}
-
-type ContentRequest struct {
-	Path    string `json:"path"`
-	Content string `json:"content"`
-}
-
-func (h *FSHandler) handleModifyContent(e *core.RequestEvent) error {
-	req := ContentRequest{}
-	if err := e.BindBody(&req); err != nil {
-		return fmt.Errorf("invalid json body: %w", err)
-	}
-
-	fileRec, err := h.app.FindFirstRecordByData("files", "path", req.Path)
-	if err != nil {
-		return fmt.Errorf("file not found: %w", err)
-	}
-
-	// Keep frontmatter from the record to preserve it
-	frontmatterJSON := fileRec.GetString("frontmatter")
-
-	// Update content in the record
-	fileRec.Set("content", req.Content)
-
-	absPath := filepath.Join(h.root, fileRec.GetString("path"))
-
-	err = saveToDisk(absPath, req.Content, frontmatterJSON)
-	if err != nil {
-		return fmt.Errorf("failed to save file on disk: %w", err)
-	}
-
-	// Save updated record
-	if err := h.app.Save(fileRec); err != nil {
-		return fmt.Errorf("failed to save updated file record: %w", err)
-	}
-
-	return nil
 }
 
 func updateFrontmatterJSON(filePath string, frontmatterJSON string, content string) error {

@@ -16,11 +16,12 @@ import (
 
 func main() {
 	app := pocketbase.New()
+	root := os.Getenv("NOTES_ROOT")
+	syncHandler := NewSyncHandler(app, root)
 
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		se.Router.GET("/{path...}", apis.Static(os.DirFS("./pb_public"), false))
 
-		root, _ := app.RootCmd.Flags().GetString("root")
 		if strings.HasPrefix(root, "~/") {
 			usr, _ := user.Current()
 			dir := usr.HomeDir
@@ -29,16 +30,18 @@ func main() {
 			wd, _ := os.Getwd()
 			root = filepath.Join(wd, root)
 		}
-		fsHandler := NewFSHandler(app, root)
-		syncHandler := NewSyncHandler(app, root)
 
-		fsHandler.Routes(se)
 		syncHandler.Routes(se)
 		go syncHandler.JobManager()
 
 		initCaldavRoutes(app, se)
 
 		return se.Next()
+	})
+
+	app.OnRecordAfterUpdateSuccess("files").BindFunc(func(e *core.RecordEvent) error {
+		syncHandler.DBToFSUpdate(e.Record)
+		return e.Next()
 	})
 
 	isGoRun := strings.HasPrefix(os.Args[0], os.TempDir())
@@ -48,7 +51,6 @@ func main() {
 		Dir:         "./migrations",
 	})
 
-	app.RootCmd.PersistentFlags().String("root", "", "a path to notes root, which has .notebase.yml")
 	// app.RootCmd.AddCommand(syncHandler.SyncCmd())
 
 	if err := app.Start(); err != nil {

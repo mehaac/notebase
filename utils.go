@@ -8,6 +8,7 @@ import (
 
 	"github.com/gobwas/glob"
 	"github.com/goccy/go-yaml"
+	"github.com/pkg/xattr"
 	"github.com/pocketbase/pocketbase"
 )
 
@@ -129,4 +130,18 @@ func isExcluded(patterns []glob.Glob, path string) bool {
 		}
 	}
 	return false
+}
+
+func setFileXAttrVersion(filePath, version string) {
+	// Use only the Linux style user namespace key to avoid OS specific logic
+	_ = xattr.Set(filePath, "user.notebase.version", []byte(version))
+}
+
+func removeFileXAttrVersion(filePath string) error {
+	// Remove only the Linux style user namespace key
+	return xattr.Remove(filePath, "user.notebase.version")
+}
+
+func getVersion() string {
+	return time.Now().UTC().Format(time.RFC3339Nano)
 }
