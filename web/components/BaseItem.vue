@@ -4,7 +4,7 @@ import type { ItemRecord } from '#pocketbase-imports'
 
 const { item, isList } = defineProps<{ item: ItemRecord, isList: boolean }>()
 
-const itemComponent = resolveDynamicComponent('item-' + (item.frontmatter?.type ?? 'none'))
+const itemComponent = resolveDynamicComponent('item-' + (item?.frontmatter?.type ?? 'none'))
 </script>
 
 <template>

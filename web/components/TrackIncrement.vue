@@ -1,11 +1,11 @@
 <script setup lang="ts" generic="T extends ItemRecord & { frontmatter: TrackFrontmatter }">
-import { onMounted, ref, useActivitiesStore, useClient, watchDebounced } from '#imports'
+import { onMounted, ref, watchDebounced } from '#imports'
 import type { ItemRecord, TrackFrontmatter } from '#pocketbase-imports'
+import { useActivitiesUpdateItemMutation } from '~/composables/queries'
 
 const { item, incrKey } = defineProps<{ item: T, incrKey: string }>()
-const pb = useClient()
 const num = ref(0)
-const { updateItem } = useActivitiesStore()
+const { mutateAsync } = useActivitiesUpdateItemMutation()
 
 const incr = async (n: number) => {
   num.value += n
@@ -15,8 +15,7 @@ watchDebounced(num, async (newValue, oldValue) => {
   if (oldValue === 0) return
   const newItem = item
   newItem.frontmatter[incrKey] = newValue
-  await pb.updateFrontmatter(item.id, newItem.frontmatter)
-  updateItem(newItem)
+  await mutateAsync(newItem)
 }, { debounce: 800 })
 
 onMounted(() => {

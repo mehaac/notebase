@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { useStorage, watchDebounced } from '@vueuse/core'
-import { useActivitiesStore } from '#imports'
+import { ref } from 'vue'
 
 export const useFiltersStore = defineStore('filters', () => {
   const query = useStorage('query', '', localStorage)
@@ -10,9 +10,9 @@ export const useFiltersStore = defineStore('filters', () => {
   const pathFilterEnabled = useStorage('path-filter-enabled', false, localStorage)
   const typeFilterEnabled = useStorage('type-filter-enabled', false, localStorage)
 
-  const activitiesStore = useActivitiesStore()
+  const buildedQuery = ref('')
 
-  const buildQuery = () => {
+  function buildQuery() {
     const filterParts: string[] = []
     if (typeFilterEnabled.value && typeFilter.value.length > 0) {
       filterParts.push(`frontmatter.type = '${typeFilter.value}'`)
@@ -39,8 +39,8 @@ export const useFiltersStore = defineStore('filters', () => {
       pathFilterEnabled,
       typeFilterEnabled,
     ],
-    async () => {
-      await activitiesStore.load()
+    () => {
+      buildedQuery.value = buildQuery()
     },
     { debounce: 300 },
   )
@@ -53,5 +53,6 @@ export const useFiltersStore = defineStore('filters', () => {
     pathFilterEnabled,
     typeFilterEnabled,
     buildQuery,
+    buildedQuery,
   }
 })

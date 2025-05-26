@@ -1,7 +1,7 @@
 ---
 aliases: null
 tags: null
-biba: bobsa
+biba: boba
 ---
 
 # index

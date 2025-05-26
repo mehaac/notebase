@@ -1,35 +1,24 @@
 <script setup lang="ts" generic="T extends ItemRecord">
-import { useClient, ref, useActivitiesStore, computed } from '#imports'
+import { computed } from '#imports'
 import { LazyBaseItem } from '#components'
 import type { ItemRecord } from '#pocketbase-imports'
+import { useActivitiesToggleItemMutation } from '~/composables/queries'
 
 const { item } = defineProps<{ item: T }>()
 
-const pb = useClient()
-const activitiesStore = useActivitiesStore()
 const isChecked = computed(() => Boolean(item.frontmatter?.completed))
-const loading = ref(false)
-// TODO: fix this must be handled by state machine that awaits for responce
+
+const { mutateAsync, asyncStatus } = useActivitiesToggleItemMutation()
+
 async function toggleItem() {
-  loading.value = true
-  try {
-    const result = await pb.toggleItem(item.id)
-    if (result) {
-      activitiesStore.items = activitiesStore
-        .items.map((item: ItemRecord) => item.id === result.id ? result : item)
-    }
-  }
-  catch (err) {
-    console.log('error', err)
-  }
-  loading.value = false
+  await mutateAsync(item)
 }
 </script>
 
 <template>
   <UCheckbox
-    :loading="loading"
-    :disabled="loading"
+    :loading="asyncStatus === 'loading'"
+    :disabled="asyncStatus === 'loading'"
     :model-value="isChecked"
     @change="() => toggleItem()"
   >

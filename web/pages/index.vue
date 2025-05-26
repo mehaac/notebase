@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { definePageMeta } from '#imports'
-import { useActivitiesQuery } from '~/composables/queries/'
+import { useActivitiesListQuery } from '~/composables/queries/'
 
 definePageMeta({
   middleware: ['auth'],
 })
 
-const { state } = useActivitiesQuery()
+const { state } = useActivitiesListQuery()
 </script>
 
 <template>
