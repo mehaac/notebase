@@ -28,7 +28,7 @@ watch(() => state.value.status, async (status) => {
       '```json\n' + JSON.stringify(state.value.data?.frontmatter ?? {}, null, 2) + '\n```',
     )
   }
-})
+}, { immediate: true })
 
 onMounted(async () => {
   if (typeof route.params.id !== 'string') {

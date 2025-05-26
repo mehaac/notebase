@@ -40,29 +40,29 @@ const formatCurrency = (amount: number) => {
 }
 
 const total = computed(() => {
-  return item.frontmatter.transactions.reduce((acc, tx) => {
+  return item.frontmatter.transactions?.reduce((acc, tx) => {
     return acc + tx.amount
-  }, 0)
+  }, 0) ?? 0
 })
 
 const returned = computed(() => {
-  return item.frontmatter.transactions.reduce((acc, tx) => {
+  return item.frontmatter.transactions?.reduce((acc, tx) => {
     return acc + Math.abs(tx.amount)
-  }, 0)
+  }, 0) ?? 0
 })
 const left = computed(() => {
   return total.value - returned.value
 })
 
 const transactions = computed(() => {
-  return item.frontmatter.transactions.map((tx) => {
+  return item.frontmatter.transactions?.map((tx) => {
     return {
       id: `${tx.created}-${tx.amount}-${tx.comment ?? 'None'}`,
       amount: tx.amount,
       comment: tx.comment,
       date: tx.created,
     }
-  })
+  }) ?? []
 })
 // const isEditing = ref(false)
 type Transaction = {
