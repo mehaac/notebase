@@ -40,6 +40,22 @@ export interface BaseClient {
   updateDebtTransaction: (id: string, date: string, payload: { date?: string, amount?: number, comment?: string }) => Promise<ItemRecord>
 
   /**
+  * Updates the frontmatter of an item
+    * @param id - The unique identifier of the item
+    * @param data - The new frontmatter of the item
+    * @returns Promise resolving to the updated item record
+    */
+  updateFrontmatter: (id: string, data: Frontmatter) => Promise<void>
+
+  /**
+  * Updates the content of an item
+   * @param id - The unique identifier of the item
+   * @param data - The new content of the item
+   * @returns Promise resolving to the updated item record
+   */
+  updateContent: (id: string, data: string) => Promise<void>
+
+  /**
    * Checks if the current client has valid authentication
    * @returns Promise resolving to authentication status (true/false)
    */

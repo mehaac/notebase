@@ -65,6 +65,9 @@ github.com/mattn/go-isatty
 # github.com/ncruces/go-strftime v0.1.9
 ## explicit; go 1.17
 github.com/ncruces/go-strftime
+# github.com/pkg/xattr v0.4.10
+## explicit; go 1.14
+github.com/pkg/xattr
 # github.com/pocketbase/dbx v1.11.0
 ## explicit; go 1.13
 github.com/pocketbase/dbx

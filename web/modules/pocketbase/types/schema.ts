@@ -54,7 +54,6 @@ export const recordSchema = z.object({
   id: z.string(),
   content: z.string(),
   created: z.string(),
-  hash: z.string(),
   path: z.string(),
   slug: z.string(),
   updated: z.string(),

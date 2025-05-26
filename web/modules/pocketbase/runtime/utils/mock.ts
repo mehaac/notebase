@@ -35,7 +35,6 @@ export function useMockClient(): BaseClient {
         content: content ?? '',
         frontmatter: frontmatterSchema.parse(rest),
         created: new Date().toISOString(),
-        hash: crypto.randomUUID().toString(),
         path: '',
         slug: '',
         updated: new Date().toISOString(),

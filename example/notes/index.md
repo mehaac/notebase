@@ -1,6 +1,7 @@
 ---
 aliases: null
 tags: null
+biba: bobsa
 ---
 
 # index
@@ -10,13 +11,12 @@ dv.pages().where(p => p.file.name !== this.file.name)
 ```
 
 ```js
-dv.pages().where(p => p.file.name !== this.file.name)
+dv.pages().where((p) => p.file.name !== this.file.name);
 ```
 
 ```ts
-
 export default function useMarkdownParser() {
-  let parser: Awaited<ReturnType<typeof createMarkdownParser>>
+  let parser: Awaited<ReturnType<typeof createMarkdownParser>>;
 
   const parse = async (markdown: string) => {
     if (!parser) {
@@ -47,12 +47,11 @@ export default function useMarkdownParser() {
         //     },
         //   },
         // },
-      })
+      });
     }
-    return parser(markdown)
-  }
+    return parser(markdown);
+  };
 
-  return parse
+  return parse;
 }
-
 ```
