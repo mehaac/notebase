@@ -18,18 +18,13 @@ func (h *SyncHandler) OnRecordUpdate(record *core.Record) {
 	dbHash := utils.GetDBHash(record.GetString("frontmatter"), record.GetString("content"))
 	fsHash := utils.GetFSHash(path)
 
-	h.app.Logger().Info("record update", "path", path, "dbVersion", dbVersion, "fsVersion", fsVersion, "dbHash", dbHash, "fsHash", fsHash)
+	// h.app.Logger().Info("record update", "path", path, "dbVersion", dbVersion, "fsVersion", fsVersion, "dbHash", dbHash, "fsHash", fsHash)
 
 	if dbVersion == fsVersion && dbHash == fsHash {
 		return
 	}
 
 	content := record.GetString("content")
-	if content == "" {
-		h.app.Logger().Error("record missing content")
-		return
-	}
-
 	newVersion := utils.GetVersion()
 	frontmatterJSON := record.GetString("frontmatter")
 

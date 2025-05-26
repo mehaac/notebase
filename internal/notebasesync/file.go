@@ -170,6 +170,14 @@ func (h *SyncHandler) updateFile(data File) error {
 	dbVersion, _ := time.Parse(time.RFC3339Nano, fileRec.GetString("version"))
 	fsVersion, _ := time.Parse(time.RFC3339Nano, xattrs.Version)
 
+	dbHash := utils.GetDBHash(fileRec.GetString("frontmatter"), fileRec.GetString("content"))
+	fsHash := utils.GetFSHash(data.AbsPath)
+
+	if dbHash == fsHash {
+		// h.app.Logger().Debug("file hash is not changed, skipping update", "path", data.RelPath)
+		return nil
+	}
+
 	if dbVersion.After(fsVersion) {
 		h.app.Logger().Debug("file version is not newer, skipping update", "path", data.RelPath)
 		return nil

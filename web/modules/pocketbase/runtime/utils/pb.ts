@@ -93,13 +93,11 @@ export function createPocketBaseClient(url: string): BaseClient {
   }
 
   const updateFrontmatter = async (id: string, data: Frontmatter) => {
-    const item = await getItem(id)
-    return await pb.send('/fs/frontmatter', { method: 'post', body: JSON.stringify({ path: item.path, data: data }) })
+    await pb.collection('files').update(id, { frontmatter: data })
   }
 
   const updateContent = async (id: string, data: string) => {
-    const item = await getItem(id)
-    return await pb.send('/fs/content', { method: 'post', body: JSON.stringify({ path: item.path, data: data }) })
+    await pb.collection('files').update(id, { content: data })
   }
 
   return {
