@@ -1,6 +1,8 @@
-package main
+package utils
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"os"
 	"strings"
@@ -12,7 +14,7 @@ import (
 	"github.com/pocketbase/pocketbase"
 )
 
-func getSetting(app *pocketbase.PocketBase, key string) string {
+func GetSetting(app *pocketbase.PocketBase, key string) string {
 	rec, err := app.FindFirstRecordByData("settings", "key", key)
 	if err != nil {
 		app.Logger().Error("unable to find setting", err)
@@ -21,7 +23,7 @@ func getSetting(app *pocketbase.PocketBase, key string) string {
 	return rec.GetString("value")
 }
 
-func debounce[T any](input <-chan T, duration time.Duration) <-chan T {
+func Debounce[T any](input <-chan T, duration time.Duration) <-chan T {
 	out := make(chan T)
 	go func() {
 		defer close(out)
@@ -70,7 +72,7 @@ func debounce[T any](input <-chan T, duration time.Duration) <-chan T {
 	return out
 }
 
-func extractFrontMatter(content string) (frontMatter, mainContent string) {
+func ExtractFrontMatter(content string) (frontMatter, mainContent string) {
 	// Check if content starts with "---"
 	if !strings.HasPrefix(content, "---\n") {
 		return "", content
@@ -84,13 +86,13 @@ func extractFrontMatter(content string) (frontMatter, mainContent string) {
 
 	endIndex += 4 // Adjust for the initial offset
 	frontMatter = content[4:endIndex]
-	mainContent = content[endIndex+3:] // Skip past the closing "---"
+	mainContent = content[endIndex+4:] // Skip past the closing "---" and catch the last newline
 
 	return frontMatter, mainContent
 }
 
-func saveToDisk(filePath string, content string, frontmatterJSON string) error {
-	yamlFrontmatter := jsonToYaml(frontmatterJSON)
+func SaveToDisk(filePath string, content string, frontmatterJSON string) error {
+	yamlFrontmatter := JsonToYaml(frontmatterJSON)
 	if yamlFrontmatter == "" {
 		yamlFrontmatter = ""
 	}
@@ -105,7 +107,7 @@ func saveToDisk(filePath string, content string, frontmatterJSON string) error {
 	return os.WriteFile(filePath, []byte(b.String()), 0644)
 }
 
-func jsonToYaml(jsonRaw string) string {
+func JsonToYaml(jsonRaw string) string {
 	if jsonRaw == "" {
 		return ""
 	}
@@ -123,7 +125,7 @@ func jsonToYaml(jsonRaw string) string {
 	return string(yamlBytes)
 }
 
-func isExcluded(patterns []glob.Glob, path string) bool {
+func IsExcluded(patterns []glob.Glob, path string) bool {
 	for _, pattern := range patterns {
 		if pattern.Match(path) {
 			return true
@@ -132,16 +134,48 @@ func isExcluded(patterns []glob.Glob, path string) bool {
 	return false
 }
 
-func setFileXAttrVersion(filePath, version string) {
-	// Use only the Linux style user namespace key to avoid OS specific logic
-	_ = xattr.Set(filePath, "user.notebase.version", []byte(version))
-}
-
-func removeFileXAttrVersion(filePath string) error {
+func RemoveFileXAttrVersion(filePath string) error {
 	// Remove only the Linux style user namespace key
 	return xattr.Remove(filePath, "user.notebase.version")
 }
 
-func getVersion() string {
+func GetVersion() string {
 	return time.Now().UTC().Format(time.RFC3339Nano)
+}
+
+type XAttrs struct {
+	Version string
+	Origin  string
+}
+
+func GetXAttrs(filePath string) (XAttrs, error) {
+	version, _ := xattr.Get(filePath, "user.notebase.version")
+	origin, _ := xattr.Get(filePath, "user.notebase.origin")
+	return XAttrs{
+		Version: string(version),
+		Origin:  string(origin),
+	}, nil
+}
+
+func SetFileXAttrs(filePath string, xattrs XAttrs) {
+	_ = xattr.Set(filePath, "user.notebase.version", []byte(xattrs.Version))
+	_ = xattr.Set(filePath, "user.notebase.origin", []byte(xattrs.Origin))
+}
+
+func GetDBHash(frontmatter, content string) string {
+	yamlFM := JsonToYaml(frontmatter)
+	h := sha256.New()
+	h.Write([]byte("---\n"))
+	h.Write([]byte(yamlFM))
+	h.Write([]byte("---\n"))
+	// h.Write([]byte("\n"))
+	h.Write([]byte(content))
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+func GetFSHash(filePath string) string {
+	result, _ := os.ReadFile(filePath)
+	h := sha256.New()
+	h.Write(result)
+	return hex.EncodeToString(h.Sum(nil))
 }

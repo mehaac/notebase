@@ -1,5 +1,4 @@
-// caldav implementation for Mac Calendar compatibility
-package main
+package caldav
 
 import (
 	"log"
@@ -11,8 +10,20 @@ import (
 	"github.com/pocketbase/pocketbase/core"
 )
 
+type CaldavHandler struct {
+	app  *pocketbase.PocketBase
+	root string
+}
+
+func NewHandler(app *pocketbase.PocketBase, root string) *CaldavHandler {
+	return &CaldavHandler{
+		app:  app,
+		root: root,
+	}
+}
+
 // initCaldavRoutes registers minimal CalDAV endpoints.
-func initCaldavRoutes(app *pocketbase.PocketBase, se *core.ServeEvent) {
+func (h *CaldavHandler) Routes(se *core.ServeEvent) {
 	// Handle all common discovery paths
 	discoveryPaths := []string{
 		"/.well-known/caldav",

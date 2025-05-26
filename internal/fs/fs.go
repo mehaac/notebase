@@ -1,10 +1,11 @@
-package main
+package fs
 
 import (
 	"fmt"
 	"os"
 	"strings"
 
+	"github.com/biozz/wow/notebase/internal/utils"
 	"github.com/pocketbase/pocketbase"
 )
 
@@ -26,7 +27,7 @@ func updateFrontmatterJSON(filePath string, frontmatterJSON string, content stri
 		return err
 	}
 
-	yamlFrontmatter := jsonToYaml(frontmatterJSON)
+	yamlFrontmatter := utils.JsonToYaml(frontmatterJSON)
 	if yamlFrontmatter == "" {
 		return fmt.Errorf("empty yaml")
 	}
