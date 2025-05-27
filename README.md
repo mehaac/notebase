@@ -17,10 +17,10 @@ You are going to need Go (whichever version is provided in `go.mod`) and Node/pn
 There is an `example/` directory with a bunch of notes and a config file.
 
 ```
-go run . --root=./example/notes serve
+NOTES_ROOT=./example/notes go run . serve
 ```
 
-If you feel ambitious after thoroughly inspecting the source code, you can do `go run . --root=/abs/path/to/your/vault serve` and try it on the real data. :)
+If you feel ambitious after thoroughly inspecting the source code, you can do `NOTES_ROOT=/abs/path/to/your/vault go run . serve` and try it on the real data. :)
 
 And if you do, don't forget to add `.notebase.yml` to your root. You can check out my current config in [/examples/biozz_notebase_config.yml](./examples/biozz_notebase_config.yml).
 
