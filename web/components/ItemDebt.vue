@@ -1,10 +1,13 @@
 <script lang="ts">
-import { z } from 'zod'
+import { z } from 'zod/v4-mini'
+import { useActivitiesUpdateItemMutation } from '~/composables/queries'
 
 export const formSchema = z.object({
-  date: z.iso.datetime({ local: true }).optional(),
+  date: z.optional(z.iso.datetime({ local: true })),
   amount: z.number({ error: 'amount is required' }),
-  comment: z.string().max(256, { error: 'comment is too long' }).optional(),
+  comment: z.optional(z.string().check(
+    z.maxLength(256, { error: 'comment is too long' }),
+  )),
 })
 
 export type FormState = z.infer<typeof formSchema>
@@ -12,7 +15,7 @@ export type FormState = z.infer<typeof formSchema>
 
 <script setup lang="ts" generic="T extends ItemRecord & { frontmatter: DebtFrontmatter }">
 import type { TableColumn } from '@nuxt/ui'
-import { h, ref, computed, useClient, useActivitiesStore, resolveComponent } from '#imports'
+import { h, ref, computed, resolveComponent, parseDate } from '#imports'
 import { LazyDebtAddEditForm } from '#components'
 import type { ItemRecord, DebtFrontmatter } from '#pocketbase-imports'
 
@@ -37,29 +40,29 @@ const formatCurrency = (amount: number) => {
 }
 
 const total = computed(() => {
-  return item.frontmatter.transactions.reduce((acc, tx) => {
+  return item.frontmatter.transactions?.reduce((acc, tx) => {
     return acc + tx.amount
-  }, 0)
+  }, 0) ?? 0
 })
 
 const returned = computed(() => {
-  return item.frontmatter.transactions.reduce((acc, tx) => {
+  return item.frontmatter.transactions?.reduce((acc, tx) => {
     return acc + Math.abs(tx.amount)
-  }, 0)
+  }, 0) ?? 0
 })
 const left = computed(() => {
   return total.value - returned.value
 })
 
 const transactions = computed(() => {
-  return item.frontmatter.transactions.map((tx) => {
+  return item.frontmatter.transactions?.map((tx) => {
     return {
       id: `${tx.created}-${tx.amount}-${tx.comment ?? 'None'}`,
       amount: tx.amount,
       comment: tx.comment,
       date: tx.created,
     }
-  })
+  }) ?? []
 })
 // const isEditing = ref(false)
 type Transaction = {
@@ -155,19 +158,33 @@ const sorting = ref([
   },
 ])
 
-const activitiesStore = useActivitiesStore()
-const pb = useClient()
+const { mutateAsync } = useActivitiesUpdateItemMutation()
 
-async function handleSuccess(data: FormState) {
-  console.log(data)
-  const itemToUpdate = await pb.addDebtTransaction(item.id, data.amount, data.comment)
-  activitiesStore.updateItem(itemToUpdate)
+async function handleSuccess(payload: FormState) {
+  const frontmatter = item.frontmatter
+  frontmatter.transactions.push({
+    created: payload.date ?? new Date().toISOString().split('.')[0]!,
+    amount: payload.amount,
+    comment: payload.comment,
+  })
+
+  await mutateAsync(item)
 }
 
-async function handleEdit(id: string, payload: FormState, cb: () => void) {
-  const itemToUpdate = await pb.updateDebtTransaction(item.id, id, payload)
-  activitiesStore.updateItem(itemToUpdate)
-  cb()
+async function handleEdit(originalCreated: string, payload: FormState, expandCb: () => void) {
+  const frontmatter = item.frontmatter
+
+  const parsedOriginalCreated = parseDate(originalCreated)
+  const transaction = frontmatter.transactions.find(tx =>
+    parseDate(tx.created).compare(parsedOriginalCreated) === 0,
+  )
+  console.log(transaction)
+  if (!transaction) return
+  transaction.amount = payload.amount ?? transaction.amount
+  transaction.comment = payload.comment ?? transaction.comment
+  transaction.created = payload.date ?? transaction.created
+  await mutateAsync(item)
+  expandCb()
 }
 </script>
 

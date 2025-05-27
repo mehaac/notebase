@@ -1,75 +1,57 @@
 <script setup lang="ts">
-import { onMounted, shallowRef, ref, computed } from 'vue'
+import { onMounted, shallowRef, ref, watch } from 'vue'
 import type { MDCParserResult } from '@nuxtjs/mdc'
 import {
   definePageMeta,
-  useActivitiesStore,
   useRoute,
   useMarkdownParser,
-  useClient,
 } from '#imports'
 import { BaseItem } from '#components'
+import { useActivitiesItemQuery } from '~/composables/queries/'
 
 definePageMeta({
   middleware: ['auth'],
 })
-const pb = useClient()
 const route = useRoute()
-const activitiesStore = useActivitiesStore()
 const parseMd = useMarkdownParser()
 const contentAst = ref<MDCParserResult | null>(null)
 const frontmatterAst = ref<MDCParserResult | null>(null)
 
 const error = shallowRef<string>()
 
-const isLoading = shallowRef(false)
+const { state, id } = useActivitiesItemQuery()
 
-const item = computed({
-  get() {
-    return activitiesStore.items.find(item => item.id === route.params.id)
-  },
-  set(value) {
-    if (!value) return
-    activitiesStore.addItem(value)
-  },
-})
+watch(() => state.value.status, async (status) => {
+  if (status === 'success') {
+    contentAst.value = await parseMd(state.value.data?.content ?? '\n')
+    frontmatterAst.value = await parseMd(
+      '```json\n' + JSON.stringify(state.value.data?.frontmatter ?? {}, null, 2) + '\n```',
+    )
+  }
+}, { immediate: true })
 
 onMounted(async () => {
   if (typeof route.params.id !== 'string') {
     error.value = 'Invalid item id'
     return
   }
-  isLoading.value = true
-  let itemToFind = activitiesStore.items.find(item => item.id === route.params.id)
-  if (!itemToFind) {
-    try {
-      itemToFind = await pb.getItem(route.params.id)
-    }
-    catch (e) {
-      console.error(e)
-      error.value = 'Item not found'
-    }
-  }
-  activitiesStore.addItem(itemToFind!)
-  isLoading.value = false
-
-  contentAst.value = await parseMd(item.value?.content ?? '\n')
-  frontmatterAst.value = await parseMd('```json\n' + JSON.stringify(item.value?.frontmatter ?? {}, null, 2) + '\n```')
+  id.value = route.params.id
 })
 </script>
 
 <template>
   <div>
     <ULink to="/">back</ULink>
-    <template v-if="isLoading">
+    <template v-if="state.status === 'pending'">
       <h1>Loading...</h1>
     </template>
-    <template v-else-if="item">
+    <template v-else-if="state.status === 'success'">
       <h1 class="text-2xl font-bold mb-5">
-        {{ item.frontmatter?.title ?? item.frontmatter?.summary ?? 'None' }}
+        {{ state.data?.frontmatter?.title ?? state.data?.frontmatter?.summary ?? 'None' }}
       </h1>
+
       <BaseItem
-        :item="item"
+        :item="state.data"
         :is-list="false"
       />
       <hr class="my-4">
@@ -124,8 +106,8 @@ onMounted(async () => {
         </template>
       </UCollapsible>
     </template>
-    <template v-else-if="error">
-      <h1>{{ error }}</h1>
+    <template v-else-if="error || state.status === 'error'">
+      <h1>{{ error || state.error }}</h1>
     </template>
   </div>
 </template>

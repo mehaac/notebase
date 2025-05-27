@@ -13,10 +13,16 @@ importers:
         version: 3.8.0
       '@nuxt/ui':
         specifier: ^3.1.1
-        version: 3.1.1(@babel/parser@7.27.1)(db0@0.3.2(better-sqlite3@11.10.0))(embla-carousel@8.6.0)(ioredis@5.6.1)(jwt-decode@4.0.0)(magicast@0.3.5)(typescript@5.8.3)(vite@6.3.5(@types/node@22.15.5)(jiti@2.4.2)(lightningcss@1.29.2)(sass-embedded@1.87.0)(sass@1.87.0)(terser@5.39.0)(yaml@2.7.1))(vue-router@4.5.1(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))(zod@4.0.0-beta.20250505T195954)
+        version: 3.1.1(@babel/parser@7.27.1)(db0@0.3.2(better-sqlite3@11.10.0))(embla-carousel@8.6.0)(ioredis@5.6.1)(jwt-decode@4.0.0)(magicast@0.3.5)(typescript@5.8.3)(vite@6.3.5(@types/node@22.15.5)(jiti@2.4.2)(lightningcss@1.29.2)(sass-embedded@1.87.0)(sass@1.87.0)(terser@5.39.0)(yaml@2.7.1))(vue-router@4.5.1(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))(zod@3.25.28)
       '@nuxtjs/mdc':
         specifier: 0.17.0
         version: 0.17.0(magicast@0.3.5)
+      '@pinia/colada':
+        specifier: ^0.16.1
+        version: 0.16.1(pinia@3.0.2(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3)))
+      '@pinia/colada-nuxt':
+        specifier: ^0.2.0
+        version: 0.2.0(@pinia/colada@0.16.1(pinia@3.0.2(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3))))(magicast@0.3.5)
       '@pinia/nuxt':
         specifier: 0.11.0
         version: 0.11.0(magicast@0.3.5)(pinia@3.0.2(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3)))
@@ -45,8 +51,8 @@ importers:
         specifier: ^4.5.1
         version: 4.5.1(vue@3.5.13(typescript@5.8.3))
       zod:
-        specifier: 4.0.0-beta.20250505T195954
-        version: 4.0.0-beta.20250505T195954
+        specifier: 3.25.28
+        version: 3.25.28
     devDependencies:
       '@nuxt/eslint':
         specifier: ^1.3.0
@@ -210,8 +216,8 @@ packages:
     resolution: {integrity: sha512-+EzkxvLNfiUeKMgy/3luqfsCWFRXLb7U6wNQTk60tovuckwB15B191tJWvpp4HjiQWdJkCxO3Wbvc6jlk3Xb2Q==}
     engines: {node: '>=6.9.0'}
 
-  '@bufbuild/protobuf@2.3.0':
-    resolution: {integrity: sha512-WK6zH4MtBp/uesX8KGCnwDDRVnEVHUvwjsigKXcSR57Oo8Oyv1vRS9qyUlSP+6KWRl5z8tNAU5qpf3QodeVYxA==}
+  '@bufbuild/protobuf@2.5.0':
+    resolution: {integrity: sha512-nniMblXT+dNyubek2OLKAYJnG/in4tmfS2c5CDnIvqfF9kFlERSG3FCBvmdqerpkWuPv0qhdGKReQ2OqKPG20w==}
 
   '@capsizecss/metrics@3.5.0':
     resolution: {integrity: sha512-Ju2I/Qn3c1OaU8FgeW4Tc22D4C9NwyVfKzNmzst59bvxBjPoLYNZMqFYn+HvCtn4MpXwiaDtCE8fNuQLpdi9yA==}
@@ -830,6 +836,10 @@ packages:
     resolution: {integrity: sha512-Mz2Ni8iUwty5LBs3LepUL43rI2xXbuAz3Cqq37L9frOD2QI2tQUtasYaSoKk6U7nvYzuW2z/2b3YOLkMNi/k2w==}
     engines: {node: '>=18.12.0'}
 
+  '@nuxt/kit@3.17.4':
+    resolution: {integrity: sha512-l+hY8sy2XFfg3PigZj+PTu6+KIJzmbACTRimn1ew/gtCz+F38f6KTF4sMRTN5CUxiB8TRENgEonASmkAWfpO9Q==}
+    engines: {node: '>=18.12.0'}
+
   '@nuxt/schema@3.17.2':
     resolution: {integrity: sha512-DzmvgqcfIoCkNKXrBU6wpGckIXSxHHU+7OTlE68qNq6y0lVYnUA0Akrn0I8j+n/vFdQTIpJXiRD4dAgcomsBAg==}
     engines: {node: ^14.18.0 || >=16.10.0}
@@ -1028,6 +1038,16 @@ packages:
   '@parcel/watcher@2.5.1':
     resolution: {integrity: sha512-dfUnCxiN9H4ap84DvD2ubjw+3vUNpstxa0TneY/Paat8a3R4uQZDLSvWjmznAY/DoahqTHl9V46HF/Zs3F29pg==}
     engines: {node: '>= 10.0.0'}
+
+  '@pinia/colada-nuxt@0.2.0':
+    resolution: {integrity: sha512-inIOKhLFb5EGQzJO3rcr0i552+UBq/rF0DjctJhuvC7BJRZBLWUXW34TnnLQyBljNm/kfET53Fwix7WtEOtYhA==}
+    peerDependencies:
+      '@pinia/colada': '>=0.16.0'
+
+  '@pinia/colada@0.16.1':
+    resolution: {integrity: sha512-pTiFnx9SVKN4ijD93CZeIifBm9qtHf3wLBqkM7x9bIae6hcfBZeziwADiPdoFkAmuCn1xNzwkQvvLR2LFA9bjw==}
+    peerDependencies:
+      pinia: ^2.2.6 || ^3.0.0
 
   '@pinia/nuxt@0.11.0':
     resolution: {integrity: sha512-QGFlUAkeVAhPCTXacrtNP4ti24sGEleVzmxcTALY9IkS6U5OUox7vmNL1pkqBeW39oSNq/UC5m40ofDEPHB1fg==}
@@ -1822,9 +1842,6 @@ packages:
     resolution: {integrity: sha512-ueFCcIPaMgtuYDS9u0qlUoEvj6GiSsKrwnOLPp9SshqjtcRaR1IEHRjoReq3sXNydsF5i0ZnmuYgXq9dV53t0g==}
     engines: {node: '>=18.0.0'}
 
-  '@zod/core@0.11.6':
-    resolution: {integrity: sha512-03Bv82fFSfjDAvMfdHHdGSS6SOJs0iCcJlWJv1kJHRtoTT02hZpyip/2Lk6oo4l4FtjuwTrsEQTwg/LD8I7dJA==}
-
   abbrev@1.1.1:
     resolution: {integrity: sha512-nne9/IiQ/hzIhY6pdDnbBtz7DjPTKrY00P/zvPSm5pOFkl6xuGrGnXn/VtTNNfNtAfZ9/1RtehkszU9qcTii0Q==}
 
@@ -2063,6 +2080,14 @@ packages:
 
   c12@3.0.3:
     resolution: {integrity: sha512-uC3MacKBb0Z15o5QWCHvHWj5Zv34pGQj9P+iXKSpTuSGFS0KKhUWf4t9AJ+gWjYOdmWCPEGpEzm8sS0iqbpo1w==}
+    peerDependencies:
+      magicast: ^0.3.5
+    peerDependenciesMeta:
+      magicast:
+        optional: true
+
+  c12@3.0.4:
+    resolution: {integrity: sha512-t5FaZTYbbCtvxuZq9xxIruYydrAGsJ+8UdP0pZzMiK2xl/gNiSOy0OxhLzHUEEb0m1QXYqfzfvyIFEmz/g9lqg==}
     peerDependencies:
       magicast: ^0.3.5
     peerDependenciesMeta:
@@ -5008,6 +5033,11 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
+  semver@7.7.2:
+    resolution: {integrity: sha512-RF0Fw+rO5AMf9MAyaRXI4AV0Ulj5lMHqVxxdSgiVbixSCXoEmmX/jk0CuJw4+3SqroYO9VoUh+HcuJivvtJemA==}
+    engines: {node: '>=10'}
+    hasBin: true
+
   send@1.2.0:
     resolution: {integrity: sha512-uaW0WwXKpL9blXE2o0bRhoL2EGXIrZxQ2ZQ4mgcfoBxdFmQold+qWsD2jLrfZ0trjKL6vOw0j//eAwcALFjKSw==}
     engines: {node: '>= 18'}
@@ -5266,8 +5296,8 @@ packages:
     resolution: {integrity: sha512-GNzQvQTOIP6RyTfE2Qxb8ZVlNmw0n88vp1szwWRimP02mnTsx3Wtn5qRdqY9w2XduFNUgvOwhNnQsjwCp+kqaQ==}
     engines: {node: '>=6'}
 
-  tar-fs@2.1.2:
-    resolution: {integrity: sha512-EsaAXwxmx8UB7FRKqeozqEPop69DXcmYwTQwXvyAPF352HJsPdkVhvTaDPYqfNgruveJIJy3TA2l+2zj8LJIJA==}
+  tar-fs@2.1.3:
+    resolution: {integrity: sha512-090nwYJDmlhwFwEW3QQl+vaNnxsO2yVsd45eTKRBzSzu+hlb1w2K9inVq5b0ngXuLVqQ4ApvsUHHnu/zQNkWAg==}
 
   tar-stream@2.2.0:
     resolution: {integrity: sha512-ujeqbceABgwMZxEJnk2HDY2DlnUZ+9oEcb1KzTVfYHio0UE6dG71n60d8D2I4qNvleWrrXpmjpt7vZeF1LnMZQ==}
@@ -5928,11 +5958,8 @@ packages:
     peerDependencies:
       zod: ^3.24.1
 
-  zod@3.24.4:
-    resolution: {integrity: sha512-OdqJE9UDRPwWsrHjLN2F8bPxvwJBK22EHLWtanu0LSYr5YqzsaaW3RMgmjwr8Rypg5k+meEJdSPXJZXE/yqOMg==}
-
-  zod@4.0.0-beta.20250505T195954:
-    resolution: {integrity: sha512-iB8WvxkobVIXMARvQu20fKvbS7mUTiYRpcD8OQV1xjRhxO0EEpYIRJBk6yfBzHAHEdOSDh3SxDITr5Eajr2vtg==}
+  zod@3.25.28:
+    resolution: {integrity: sha512-/nt/67WYKnr5by3YS7LroZJbtcCBurDKKPBPWWzaxvVCGuG/NOsiKkrjoOhI8mJ+SQUXEbUzeB3S+6XDUEEj7Q==}
 
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
@@ -6129,7 +6156,7 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.27.1
 
-  '@bufbuild/protobuf@2.3.0':
+  '@bufbuild/protobuf@2.5.0':
     optional: true
 
   '@capsizecss/metrics@3.5.0': {}
@@ -6565,8 +6592,8 @@ snapshots:
       express-rate-limit: 7.5.0(express@5.1.0)
       pkce-challenge: 5.0.0
       raw-body: 3.0.0
-      zod: 3.24.4
-      zod-to-json-schema: 3.24.5(zod@3.24.4)
+      zod: 3.25.28
+      zod-to-json-schema: 3.24.5(zod@3.25.28)
     transitivePeerDependencies:
       - supports-color
 
@@ -6657,7 +6684,7 @@ snapshots:
       unixify: 1.0.0
       urlpattern-polyfill: 8.0.2
       yargs: 17.7.2
-      zod: 3.24.4
+      zod: 3.25.28
     transitivePeerDependencies:
       - encoding
       - rollup
@@ -6938,6 +6965,33 @@ snapshots:
     transitivePeerDependencies:
       - magicast
 
+  '@nuxt/kit@3.17.4(magicast@0.3.5)':
+    dependencies:
+      c12: 3.0.4(magicast@0.3.5)
+      consola: 3.4.2
+      defu: 6.1.4
+      destr: 2.0.5
+      errx: 0.1.0
+      exsolve: 1.0.5
+      ignore: 7.0.4
+      jiti: 2.4.2
+      klona: 2.0.6
+      knitwork: 1.2.0
+      mlly: 1.7.4
+      ohash: 2.0.11
+      pathe: 2.0.3
+      pkg-types: 2.1.0
+      scule: 1.3.0
+      semver: 7.7.2
+      std-env: 3.9.0
+      tinyglobby: 0.2.13
+      ufo: 1.6.1
+      unctx: 2.4.1
+      unimport: 5.0.1
+      untyped: 2.0.0
+    transitivePeerDependencies:
+      - magicast
+
   '@nuxt/schema@3.17.2':
     dependencies:
       '@vue/shared': 3.5.13
@@ -6963,7 +7017,7 @@ snapshots:
     transitivePeerDependencies:
       - magicast
 
-  '@nuxt/ui@3.1.1(@babel/parser@7.27.1)(db0@0.3.2(better-sqlite3@11.10.0))(embla-carousel@8.6.0)(ioredis@5.6.1)(jwt-decode@4.0.0)(magicast@0.3.5)(typescript@5.8.3)(vite@6.3.5(@types/node@22.15.5)(jiti@2.4.2)(lightningcss@1.29.2)(sass-embedded@1.87.0)(sass@1.87.0)(terser@5.39.0)(yaml@2.7.1))(vue-router@4.5.1(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))(zod@4.0.0-beta.20250505T195954)':
+  '@nuxt/ui@3.1.1(@babel/parser@7.27.1)(db0@0.3.2(better-sqlite3@11.10.0))(embla-carousel@8.6.0)(ioredis@5.6.1)(jwt-decode@4.0.0)(magicast@0.3.5)(typescript@5.8.3)(vite@6.3.5(@types/node@22.15.5)(jiti@2.4.2)(lightningcss@1.29.2)(sass-embedded@1.87.0)(sass@1.87.0)(terser@5.39.0)(yaml@2.7.1))(vue-router@4.5.1(vue@3.5.13(typescript@5.8.3)))(vue@3.5.13(typescript@5.8.3))(zod@3.25.28)':
     dependencies:
       '@iconify/vue': 4.3.0(vue@3.5.13(typescript@5.8.3))
       '@internationalized/date': 3.8.0
@@ -7010,7 +7064,7 @@ snapshots:
       vue-component-type-helpers: 2.2.10
     optionalDependencies:
       vue-router: 4.5.1(vue@3.5.13(typescript@5.8.3))
-      zod: 4.0.0-beta.20250505T195954
+      zod: 3.25.28
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -7265,6 +7319,18 @@ snapshots:
       '@parcel/watcher-win32-arm64': 2.5.1
       '@parcel/watcher-win32-ia32': 2.5.1
       '@parcel/watcher-win32-x64': 2.5.1
+
+  '@pinia/colada-nuxt@0.2.0(@pinia/colada@0.16.1(pinia@3.0.2(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3))))(magicast@0.3.5)':
+    dependencies:
+      '@nuxt/kit': 3.17.4(magicast@0.3.5)
+      '@pinia/colada': 0.16.1(pinia@3.0.2(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3)))
+    transitivePeerDependencies:
+      - magicast
+
+  '@pinia/colada@0.16.1(pinia@3.0.2(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3)))':
+    dependencies:
+      '@vue/devtools-api': 7.7.6
+      pinia: 3.0.2(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3))
 
   '@pinia/nuxt@0.11.0(magicast@0.3.5)(pinia@3.0.2(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3)))':
     dependencies:
@@ -8092,8 +8158,6 @@ snapshots:
       '@whatwg-node/promise-helpers': 1.3.1
       tslib: 2.8.1
 
-  '@zod/core@0.11.6': {}
-
   abbrev@1.1.1: {}
 
   abbrev@3.0.1: {}
@@ -8358,6 +8422,23 @@ snapshots:
   bytes@3.1.2: {}
 
   c12@3.0.3(magicast@0.3.5):
+    dependencies:
+      chokidar: 4.0.3
+      confbox: 0.2.2
+      defu: 6.1.4
+      dotenv: 16.5.0
+      exsolve: 1.0.5
+      giget: 2.0.0
+      jiti: 2.4.2
+      ohash: 2.0.11
+      pathe: 2.0.3
+      perfect-debounce: 1.0.0
+      pkg-types: 2.1.0
+      rc9: 2.1.2
+    optionalDependencies:
+      magicast: 0.3.5
+
+  c12@3.0.4(magicast@0.3.5):
     dependencies:
       chokidar: 4.0.3
       confbox: 0.2.2
@@ -9180,7 +9261,7 @@ snapshots:
       minimatch: 3.1.2
       natural-compare: 1.4.0
       optionator: 0.9.4
-      zod: 3.24.4
+      zod: 3.25.28
     optionalDependencies:
       jiti: 2.4.2
     transitivePeerDependencies:
@@ -10751,7 +10832,7 @@ snapshots:
 
   node-abi@3.75.0:
     dependencies:
-      semver: 7.7.1
+      semver: 7.7.2
     optional: true
 
   node-addon-api@7.1.1: {}
@@ -11366,7 +11447,7 @@ snapshots:
       pump: 3.0.2
       rc: 1.2.8
       simple-get: 4.0.1
-      tar-fs: 2.1.2
+      tar-fs: 2.1.3
       tunnel-agent: 0.6.0
     optional: true
 
@@ -11830,7 +11911,7 @@ snapshots:
 
   sass-embedded@1.87.0:
     dependencies:
-      '@bufbuild/protobuf': 2.3.0
+      '@bufbuild/protobuf': 2.5.0
       buffer-builder: 0.2.0
       colorjs.io: 0.5.2
       immutable: 5.1.2
@@ -11881,6 +11962,8 @@ snapshots:
   semver@6.3.1: {}
 
   semver@7.7.1: {}
+
+  semver@7.7.2: {}
 
   send@1.2.0:
     dependencies:
@@ -12170,7 +12253,7 @@ snapshots:
 
   tapable@2.2.1: {}
 
-  tar-fs@2.1.2:
+  tar-fs@2.1.3:
     dependencies:
       chownr: 1.1.4
       mkdirp-classic: 0.5.3
@@ -12875,14 +12958,10 @@ snapshots:
       compress-commons: 6.0.2
       readable-stream: 4.7.0
 
-  zod-to-json-schema@3.24.5(zod@3.24.4):
+  zod-to-json-schema@3.24.5(zod@3.25.28):
     dependencies:
-      zod: 3.24.4
+      zod: 3.25.28
 
-  zod@3.24.4: {}
-
-  zod@4.0.0-beta.20250505T195954:
-    dependencies:
-      '@zod/core': 0.11.6
+  zod@3.25.28: {}
 
   zwitch@2.0.4: {}
