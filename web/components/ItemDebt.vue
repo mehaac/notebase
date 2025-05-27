@@ -190,7 +190,10 @@ async function handleEdit(originalCreated: string, payload: FormState, expandCb:
 
 <template>
   <div>
-    <div class="flex items-center mb-1">
+    <div
+      v-if="!isList"
+      class="flex items-center mb-1"
+    >
       <UIcon
         name="i-lucide-credit-card"
         class="mr-2 text-primary-500"
