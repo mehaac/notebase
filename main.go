@@ -40,7 +40,7 @@ func main() {
 		syncHandler.Routes(se)
 		caldavHandler.Routes(se)
 
-		syncHandler.InitialSync()
+		go syncHandler.InitialSync()
 		go syncHandler.WatcherManager()
 
 		return se.Next()

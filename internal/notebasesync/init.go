@@ -11,6 +11,8 @@ import (
 )
 
 func (h *SyncHandler) InitialSync() {
+	h.app.Logger().Info("Initial sync started")
+
 	startTime := time.Now()
 
 	if h.config.ClearOnStartup {
