@@ -49,10 +49,6 @@ onUnmounted(() => {
       <h1>Loading...</h1>
     </template>
     <template v-else-if="state.status === 'success'">
-      <h1 class="text-2xl font-bold mb-5">
-        {{ state.data?.frontmatter?.title ?? state.data?.frontmatter?.summary ?? 'None' }}
-      </h1>
-
       <BaseItem
         :item="state.data"
         :is-list="false"
