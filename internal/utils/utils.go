@@ -72,23 +72,36 @@ func Debounce[T any](input <-chan T, duration time.Duration) <-chan T {
 	return out
 }
 
-func ExtractFrontMatter(content string) (frontMatter, mainContent string) {
+type ExtractFrontMatterResult struct {
+	FrontMatter string
+	MainContent string
+}
+
+func ExtractFrontMatter(content string) ExtractFrontMatterResult {
+	extracted := ExtractFrontMatterResult{
+		MainContent: content,
+	}
 	// Check if content starts with "---"
 	if !strings.HasPrefix(content, "---\n") {
-		return "", content
+		return extracted
 	}
 
 	// Find the closing "---"
 	endIndex := strings.Index(content[4:], "---")
 	if endIndex == -1 {
-		return "", content
+		return extracted
 	}
 
-	endIndex += 4 // Adjust for the initial offset
-	frontMatter = content[4:endIndex]
-	mainContent = content[endIndex+4:] // Skip past the closing "---" and catch the last newline
-
-	return frontMatter, mainContent
+	// Adjust for the initial offset "---\n"
+	endIndex += 4
+	extracted.FrontMatter = content[4:endIndex]
+	mainContentOffset := 3
+	if len(content) >= endIndex+4 {
+		// Catch the last newline after the frontmatter
+		mainContentOffset = 4
+	}
+	extracted.MainContent = content[endIndex+mainContentOffset:]
+	return extracted
 }
 
 func SaveToDisk(filePath string, content string, frontmatterJSON string) error {

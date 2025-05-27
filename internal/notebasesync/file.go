@@ -50,10 +50,10 @@ func parse(rootPath string, curPath string) (File, error) {
 	}
 
 	// Extract frontmatter
-	frontMatter, mainContent := utils.ExtractFrontMatter(contentStr)
+	extracted := utils.ExtractFrontMatter(contentStr)
 
-	if len(frontMatter) > 0 {
-		yaml.Unmarshal([]byte(frontMatter), &data.FrontMatter)
+	if len(extracted.FrontMatter) > 0 {
+		yaml.Unmarshal([]byte(extracted.FrontMatter), &data.FrontMatter)
 		jsonBytes, err := yaml.MarshalWithOptions(data.FrontMatter, yaml.JSON())
 		if err != nil {
 			data.FrontMatterJSON = "{}"
@@ -62,7 +62,7 @@ func parse(rootPath string, curPath string) (File, error) {
 		}
 	}
 
-	data.Content = mainContent
+	data.Content = extracted.MainContent
 
 	return data, nil
 }

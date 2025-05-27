@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/biozz/wow/notebase/internal/caldav"
+	"github.com/biozz/wow/notebase/internal/config"
 	"github.com/biozz/wow/notebase/internal/notebasesync"
 	_ "github.com/biozz/wow/notebase/migrations"
 	"github.com/pocketbase/pocketbase"
@@ -19,6 +20,7 @@ import (
 func main() {
 	app := pocketbase.New()
 	root := os.Getenv("NOTES_ROOT")
+
 	if strings.HasPrefix(root, "~/") {
 		usr, _ := user.Current()
 		dir := usr.HomeDir
@@ -27,12 +29,19 @@ func main() {
 		wd, _ := os.Getwd()
 		root = filepath.Join(wd, root)
 	}
-	syncHandler, err := notebasesync.NewHandler(app, root)
+
+	conf, err := config.Load(root)
+	if err != nil {
+		app.Logger().Error("error loading config", "error", err)
+		return
+	}
+
+	syncHandler, err := notebasesync.NewHandler(app, root, &conf)
 	if err != nil {
 		app.Logger().Error("error creating sync handler", "error", err)
 		return
 	}
-	caldavHandler := caldav.NewHandler(app, root)
+	caldavHandler := caldav.NewHandler(app, root, &conf)
 
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		se.Router.GET("/{path...}", apis.Static(os.DirFS("./pb_public"), false))
@@ -40,7 +49,8 @@ func main() {
 		syncHandler.Routes(se)
 		caldavHandler.Routes(se)
 
-		go syncHandler.InitialSync()
+		// TODO: run this in a goroutine, but make sure that watcher is not running, while syncing
+		syncHandler.InitialSync()
 		go syncHandler.WatcherManager()
 
 		return se.Next()

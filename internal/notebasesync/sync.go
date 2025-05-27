@@ -2,11 +2,10 @@ package notebasesync
 
 import (
 	"fmt"
-	"os"
 	"path"
 
+	"github.com/biozz/wow/notebase/internal/config"
 	"github.com/gobwas/glob"
-	"github.com/goccy/go-yaml"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
@@ -18,40 +17,17 @@ type SyncHandler struct {
 	app            *pocketbase.PocketBase
 	root           string
 	controlCh      chan bool
-	config         NotebaseConfig
 	excludePatters []glob.Glob
+	conf           *config.NotebaseConfig
 
 	// watcher
 	fileChanges chan notify.EventInfo
 }
 
-type NotebaseConfig struct {
-	ClearOnStartup bool     `yaml:"clear_on_startup"`
-	Exclude        []string `yaml:"exclude"`
-	SyncWorkers    int      `yaml:"sync_workers"`
-	SyncBatchSize  int      `yaml:"sync_batch_size"`
-}
+func NewHandler(app *pocketbase.PocketBase, root string, conf *config.NotebaseConfig) (*SyncHandler, error) {
 
-func NewHandler(app *pocketbase.PocketBase, root string) (*SyncHandler, error) {
-	data, err := os.ReadFile(path.Join(root, ".notebase.yml"))
-	if err != nil {
-		return nil, err
-	}
-	config := NotebaseConfig{}
-	err = yaml.Unmarshal(data, &config)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing config", err)
-	}
-
-	if config.SyncBatchSize == 0 {
-		config.SyncBatchSize = 200
-	}
-	if config.SyncWorkers == 0 {
-		config.SyncWorkers = 5
-	}
-
-	patterns := make([]glob.Glob, 0, len(config.Exclude))
-	for _, pattern := range config.Exclude {
+	patterns := make([]glob.Glob, 0, len(conf.Exclude))
+	for _, pattern := range conf.Exclude {
 		g, err := glob.Compile(pattern)
 		if err != nil {
 			return nil, fmt.Errorf("Invalid glob pattern", err)
@@ -68,9 +44,9 @@ func NewHandler(app *pocketbase.PocketBase, root string) (*SyncHandler, error) {
 	return &SyncHandler{
 		app:  app,
 		root: root,
+		conf: conf,
 		// It is buffered to send a start signal in the beginning
 		controlCh:      make(chan bool, 1),
-		config:         config,
 		excludePatters: patterns,
 		fileChanges:    fileChanges,
 	}, nil

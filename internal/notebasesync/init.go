@@ -15,7 +15,7 @@ func (h *SyncHandler) InitialSync() {
 
 	startTime := time.Now()
 
-	if h.config.ClearOnStartup {
+	if h.conf.ClearOnStartup {
 		_, err := h.app.DB().NewQuery("DELETE FROM files").Execute()
 		if err != nil {
 			h.app.Logger().Error("unable to clear files table", err)
@@ -23,15 +23,15 @@ func (h *SyncHandler) InitialSync() {
 		}
 	}
 
-	filesChan := make(chan string, h.config.SyncBatchSize)
-	resultsChan := make(chan File, h.config.SyncBatchSize)
+	filesChan := make(chan string, h.conf.SyncBatchSize)
+	resultsChan := make(chan File, h.conf.SyncBatchSize)
 
 	var parseWg sync.WaitGroup
 	var saveWg sync.WaitGroup
 
 	// Usually 5 workers is enough to parse about 4k files in <300ms.
 	// More workers will bottleneck saver process.
-	for i := 0; i < h.config.SyncWorkers; i++ {
+	for i := 0; i < h.conf.SyncWorkers; i++ {
 		parseWg.Add(1)
 		go h.parserManager(&parseWg, filesChan, resultsChan)
 	}
@@ -76,6 +76,7 @@ func (h *SyncHandler) InitialSync() {
 func (h *SyncHandler) parserManager(parseWg *sync.WaitGroup, filesChan <-chan string, resultsChan chan<- File) {
 	defer parseWg.Done()
 	for wp := range filesChan {
+		h.app.Logger().Debug("parsing file", "path", wp)
 		data, err := parse(h.root, wp)
 		if err != nil {
 			h.app.Logger().Error("error parsing file", "path", wp, "error", err)
@@ -87,15 +88,18 @@ func (h *SyncHandler) parserManager(parseWg *sync.WaitGroup, filesChan <-chan st
 
 func (h *SyncHandler) saverManager(saveWg *sync.WaitGroup, resultsChan <-chan File) {
 	defer saveWg.Done()
-	batch := make([]File, 0, h.config.SyncBatchSize)
+	batch := make([]File, 0, h.conf.SyncBatchSize)
 
 	for data := range resultsChan {
 		batch = append(batch, data)
-		if len(batch) >= h.config.SyncBatchSize {
+		if len(batch) >= h.conf.SyncBatchSize {
 			h.saver(batch)
+			batch = batch[:0]
 		}
 	}
-	h.saver(batch)
+	if len(batch) > 0 {
+		h.saver(batch)
+	}
 }
 
 func (h *SyncHandler) saver(batch []File) {
@@ -123,6 +127,4 @@ func (h *SyncHandler) saver(batch []File) {
 		h.app.Logger().Error("error saving batch", "error", err)
 		return
 	}
-	// Clear batch but reuse the underlying array
-	batch = batch[:0]
 }

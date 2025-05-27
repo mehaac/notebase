@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/biozz/wow/notebase/internal/config"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
@@ -15,7 +16,7 @@ type CaldavHandler struct {
 	root string
 }
 
-func NewHandler(app *pocketbase.PocketBase, root string) *CaldavHandler {
+func NewHandler(app *pocketbase.PocketBase, root string, config *config.NotebaseConfig) *CaldavHandler {
 	return &CaldavHandler{
 		app:  app,
 		root: root,
