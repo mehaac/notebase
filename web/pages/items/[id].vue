@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, shallowRef, ref, watch } from 'vue'
+import { onMounted, shallowRef, ref, watch, onUnmounted } from 'vue'
 import type { MDCParserResult } from '@nuxtjs/mdc'
 import {
   definePageMeta,
@@ -36,6 +36,9 @@ onMounted(async () => {
     return
   }
   id.value = route.params.id
+})
+onUnmounted(() => {
+  id.value = undefined
 })
 </script>
 
