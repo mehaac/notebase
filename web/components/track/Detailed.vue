@@ -28,7 +28,7 @@ const formattedCreatedDate = computed(() => {
 </script>
 
 <template>
-  <div class="flex flex-col md:flex-row gap-6">
+  <div class="flex flex-col gap-6">
     <div class="flex-1">
       <div class="flex items-center mb-1">
         <UIcon
@@ -66,7 +66,7 @@ const formattedCreatedDate = computed(() => {
         >Added: {{ formattedCreatedDate }}</span>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="flex flex-col gap-4 mb-6">
         <div class="flex items-center">
           <UIcon
             name="i-lucide-play"
