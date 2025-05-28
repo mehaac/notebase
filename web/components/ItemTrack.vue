@@ -3,7 +3,7 @@ import type { ItemRecord, TrackFrontmatter } from '#pocketbase-imports'
 
 import { useActivitiesUpdateItemMutation } from '~/composables/queries'
 
-const { item, isList } = defineProps<{ item: T, isList?: boolean }>()
+const { item, compact } = defineProps<{ item: T, compact?: boolean }>()
 const { mutateAsync, asyncStatus } = useActivitiesUpdateItemMutation()
 
 async function handleChange(payload: { key: string, n: number }) {
@@ -15,7 +15,7 @@ async function handleChange(payload: { key: string, n: number }) {
 
 <template>
   <TrackCompact
-    v-if="isList"
+    v-if="compact"
     :item="item"
     :loading="asyncStatus === 'loading'"
     @change="handleChange"

@@ -1,5 +1,5 @@
 import type { ListResult, RecordAuthResponse, RecordModel } from 'pocketbase'
-import type { Frontmatter, ItemType, DebtFrontmatter, DebtTransaction, TrackFrontmatter, ItemRecord } from './schema'
+import type { Frontmatter, ItemType, DebtFrontmatter, DebtTransaction, TrackFrontmatter, ItemRecord, GroceryItem, GroceryFrontmatter } from './schema'
 
 /**
  * Base client interface for database operations
@@ -65,4 +65,6 @@ export type {
   DebtTransaction,
   TrackFrontmatter,
   ItemRecord,
+  GroceryFrontmatter,
+  GroceryItem,
 }

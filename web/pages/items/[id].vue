@@ -51,7 +51,6 @@ onUnmounted(() => {
     <template v-else-if="state.status === 'success'">
       <BaseItem
         :item="state.data"
-        :is-list="false"
       />
       <hr class="my-4">
       <UCollapsible v-if="frontmatterAst?.body">

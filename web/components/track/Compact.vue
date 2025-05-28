@@ -1,35 +1,36 @@
 <script lang="ts" setup>
 import type { ItemRecord, TrackFrontmatter } from '#pocketbase-imports'
+import { computed } from 'vue'
 
 const { item, loading = false } = defineProps<{
   item: ItemRecord & { frontmatter: TrackFrontmatter }
   loading?: boolean
 }>()
 
+const checked = computed(() => {
+  return Boolean(item.frontmatter?.completed)
+})
+
 const emits = defineEmits<{
+  done: [id: string]
   change: [payload: { key: string, n: number }]
 }>()
+
+const title = computed(() =>
+  (item.frontmatter.title || item.frontmatter.summary || 'None'),
+)
 </script>
 
 <template>
-  <div class="flex  justify-between gap-3  rounded-lg">
-    <div class="flex items-end  gap-3">
-      <TrackIncrement
-        :item="item"
-        incr-key="season"
-        :is-list="true"
-        :loading="loading"
-        @change="(payload) => emits('change', payload)"
-      />
-
-      <TrackIncrement
-        :item="item"
-        incr-key="episode"
-        :is-list="true"
-        :loading="loading"
-        @change="(payload) => emits('change', payload)"
-      />
-
+  <ItemsListCard
+    :id="item.id"
+    :title="title"
+    :icon="'i-lucide-tv'"
+    :checked="checked"
+    :loading="loading"
+    @done="emits('done', item.id)"
+  >
+    <template #actions>
       <UButton
         v-if="item.frontmatter.url"
         color="primary"
@@ -40,8 +41,26 @@ const emits = defineEmits<{
         target="_blank"
         external
         label="Watch"
-        class="text-center justify-center min-w-20 absolute right-2 top-2"
       />
+    </template>
+    <div class="flex flex-col gap-4">
+      <div class="flex gap-3">
+        <TrackIncrement
+          :item="item"
+          incr-key="season"
+          :is-list="true"
+          :loading="loading"
+          @change="(payload) => emits('change', payload)"
+        />
+
+        <TrackIncrement
+          :item="item"
+          incr-key="episode"
+          :is-list="true"
+          :loading="loading"
+          @change="(payload) => emits('change', payload)"
+        />
+      </div>
     </div>
-  </div>
+  </ItemsListCard>
 </template>
