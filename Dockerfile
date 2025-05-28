@@ -9,7 +9,7 @@ RUN corepack enable
 COPY ./web/package.json ./web/pnpm-lock.yaml ./
 RUN pnpm install
 COPY ./web ./
-RUN pnpm run generate
+RUN pnpm run generate-prod
 
 FROM alpine:3.19
 WORKDIR /app/

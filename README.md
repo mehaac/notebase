@@ -10,6 +10,17 @@ There are several key points, why I develop this project:
 
 I document some of my decisions regarding this project in [docs/adrs](./docs/adrs).
 
+## Usage
+
+Notebase is intented to run as a Docker container. You can try it out together with the example data like this:
+
+```bash
+docker build -t notebase:latest .
+docker run -it -v $PWD/example/notes:/tmp/notes --env NOTES_ROOT=/tmp/notes -p 8080:8080 notesbase serve --http=0.0.0.0:8080
+```
+
+PocketBase will prompt you to create a superuser account. After creating it, go to http://localhost:8080.
+
 ## Development
 
 You are going to need Go (whichever version is provided in `go.mod`) and Node/pnpm.
