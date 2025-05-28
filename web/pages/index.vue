@@ -10,18 +10,22 @@ const { state } = useActivitiesListQuery()
 </script>
 
 <template>
-  <div>
+  <div class="flex flex-col gap-4">
     <AppFilters />
     <div v-if="state.status !== 'success'">
-      <!-- this can be a skeleton loader -->
+      <!-- TODO: this can be a skeleton loader -->
       <UProgress indeterminate />
     </div>
-    <UCard
-      v-for="item in state.data?.items"
-      :key="item.id"
-      class="mt-4"
+
+    <ul
+      v-if="state.status === 'success'"
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
     >
-      <LazyListItem :item="item" />
-    </UCard>
+      <LazyListItem
+        v-for="item in state.data?.items"
+        :key="item.id"
+        :item="item"
+      />
+    </ul>
   </div>
 </template>

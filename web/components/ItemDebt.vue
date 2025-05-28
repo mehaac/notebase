@@ -190,6 +190,18 @@ async function handleEdit(originalCreated: string, payload: FormState, expandCb:
 
 <template>
   <div>
+    <div
+      v-if="!isList"
+      class="flex items-center mb-1"
+    >
+      <UIcon
+        name="i-lucide-credit-card"
+        class="mr-2 text-primary-500"
+      />
+      <h1 class="text-2xl font-bold">
+        {{ item.frontmatter.summary }}
+      </h1>
+    </div>
     <UProgress
       v-model="progress"
       size="xl"

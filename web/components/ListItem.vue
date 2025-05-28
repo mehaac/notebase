@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T extends ItemRecord">
 import { computed } from '#imports'
-import { LazyBaseItem } from '#components'
+import { LazyBaseItem, UCard } from '#components'
 import type { ItemRecord } from '#pocketbase-imports'
 import { useActivitiesToggleItemMutation } from '~/composables/queries'
 
@@ -16,21 +16,28 @@ async function toggleItem() {
 </script>
 
 <template>
-  <UCheckbox
-    :loading="asyncStatus === 'loading'"
-    :disabled="asyncStatus === 'loading'"
-    :model-value="isChecked"
-    @change="() => toggleItem()"
+  <UCard
+    as="li"
+    class="relative"
   >
-    <template #label>
-      <ULink :to="{ name: 'items-id', params: { id: item.id } }">
-        {{ item.frontmatter?.title ?? item.frontmatter?.summary ?? 'None' }}
-      </ULink>
+    <template #header>
+      <UCheckbox
+        :loading="asyncStatus === 'loading'"
+        :disabled="asyncStatus === 'loading'"
+        :model-value="isChecked"
+        @change="() => toggleItem()"
+      >
+        <template #label>
+          <ULink :to="{ name: 'items-id', params: { id: item.id } }">
+            {{ item.frontmatter?.title ?? item.frontmatter?.summary ?? 'None' }}
+          </ULink>
+        </template>
+      </UCheckbox>
     </template>
-  </UCheckbox>
-  <LazyBaseItem
-    :item="item"
-    is-list
-    class="ml-6"
-  />
+    <LazyBaseItem
+      :item="item"
+      is-list
+      class="ml-6"
+    />
+  </UCard>
 </template>
