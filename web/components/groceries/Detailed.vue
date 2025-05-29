@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import type { ItemRecord } from '#pocketbase-imports'
 import type { GroceriesFrontmatter } from '~/modules/pocketbase/types/schema'
 import type { BaseItemEmits } from '../BaseItem.vue'
+import { formatDateShort } from '#imports'
 
 const { item, loading = false } = defineProps<{
   item: ItemRecord & { frontmatter: GroceriesFrontmatter }
@@ -15,7 +16,7 @@ const newItem = ref('')
 
 const formattedCreatedDate = computed(() => {
   return item.frontmatter.created && typeof item.frontmatter.created === 'string'
-    ? new Date(item.frontmatter.created).toLocaleDateString()
+    ? formatDateShort(new Date(item.frontmatter.created))
     : ''
 })
 

@@ -1,5 +1,6 @@
 <script lang="ts">
 import { z } from 'zod/v4-mini'
+import { formatDateShort, computed, h, parseDate, ref, resolveComponent } from '#imports'
 
 export const formSchema = z.object({
   date: z.optional(z.iso.datetime({ local: true })),
@@ -20,7 +21,6 @@ export type Transaction = {
 
 <script lang="ts" setup>
 import type { DebtData, DebtProps } from '../ItemDebt.vue'
-import { computed, h, parseDate, ref, resolveComponent } from '#imports'
 
 import type { TableColumn } from '@nuxt/ui'
 import type { BaseItemEmits } from '../BaseItem.vue'
@@ -71,11 +71,7 @@ const columns: TableColumn<Transaction>[] = [
       })
     },
     cell: ({ row }) => {
-      return new Date(row.getValue('date')).toLocaleDateString('ru-RU', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      })
+      return new Date(formatDateShort(row.getValue('date')))
     },
   },
   {

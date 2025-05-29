@@ -2,6 +2,7 @@
 import type { ItemRecord, TrackFrontmatter } from '#pocketbase-imports'
 import { computed } from 'vue'
 import type { BaseItemEmits } from '../BaseItem.vue'
+import { formatDateShort } from '#imports'
 
 const {
   item,
@@ -15,13 +16,13 @@ const emits = defineEmits<BaseItemEmits>()
 
 const formattedDate = computed(() => {
   return item.frontmatter.next_episode
-    ? new Date(item.frontmatter.next_episode).toLocaleDateString()
+    ? formatDateShort(new Date(item.frontmatter.next_episode))
     : null
 })
 
 const formattedCreatedDate = computed(() => {
   return item.frontmatter.created && typeof item.frontmatter.created === 'string'
-    ? new Date(item.frontmatter.created).toLocaleDateString()
+    ? formatDateShort(new Date(item.frontmatter.created))
     : null
 })
 </script>
