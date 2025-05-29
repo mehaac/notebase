@@ -1,6 +1,7 @@
 <script setup lang="ts" generic="T extends ItemRecord & { frontmatter: TrackFrontmatter }">
 import { onMounted, ref, watchDebounced } from '#imports'
 import type { ItemRecord, TrackFrontmatter } from '#pocketbase-imports'
+import type { BaseItemEmits } from '../BaseItem.vue'
 
 const {
   item,
@@ -16,15 +17,19 @@ const {
   disabled?: boolean
 }>()
 
-const emits = defineEmits<{
-  change: [payload: { key: string, n: number }]
-}>()
+const emits = defineEmits<BaseItemEmits>()
 
 const num = ref(0)
 
 watchDebounced(num, async (newValue, oldValue) => {
   if (oldValue === 0) return
-  emits('change', { key: incrKey, n: newValue })
+  emits('updateFrontmatter', {
+    ...item,
+    frontmatter: {
+      ...item.frontmatter,
+      [incrKey]: newValue,
+    },
+  })
 }, { debounce: 800 })
 
 onMounted(() => {

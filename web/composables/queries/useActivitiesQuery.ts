@@ -30,7 +30,7 @@ export const useActivitiesItemQuery = defineQuery(() => {
   const client = useClient()
   const id = ref<string>()
   const query = useQuery<ItemRecord>({
-    key: () => ['activities', { id: id.value }],
+    key: () => ['activity', { id: id.value }],
     query: async () => (
       await client.getItem(id.value!)
     ),
@@ -42,7 +42,7 @@ export const useActivitiesItemQuery = defineQuery(() => {
 })
 
 export const useActivitiesToggleItemMutation = (
-  opts: { onSuccess?: (item: ItemRecord) => void } = {},
+  opts: { onSuccess?: (item: ItemRecord) => Promise<void> | void } = {},
 ) => {
   const queryCache = useQueryCache()
   const pb = useClient()
@@ -60,9 +60,11 @@ export const useActivitiesToggleItemMutation = (
       await pb.updateFrontmatter(item.id, frontmatter)
       return item
     },
-    onSuccess(_data, vars) {
-      queryCache.invalidateQueries({ key: ['activities'], exact: false })
-      opts.onSuccess?.(vars)
+    async onSuccess(_data, vars) {
+      await opts.onSuccess?.(vars)
+    },
+    async onSettled() {
+      await queryCache.invalidateQueries({ key: ['activities'], exact: false })
     },
   })
 
@@ -94,8 +96,11 @@ export const useActivitiesUpdateItemMutation = (
   const mutation = useMutation({
     mutation: async (item: ItemRecord) => client.updateFrontmatter(item.id, item.frontmatter!),
     async onSuccess(_data, vars) {
-      await queryCache.invalidateQueries({ key: ['activities'], exact: false })
+      await queryCache.invalidateQueries({ key: ['activity', { id: vars.id }], exact: true })
       await opts.onSuccess?.(vars)
+    },
+    async onSettled() {
+      await queryCache.invalidateQueries({ key: ['activities'], exact: false })
     },
   })
 

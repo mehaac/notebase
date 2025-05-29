@@ -15,6 +15,14 @@ export const debtTransactionSchema = z.object({
   comment: z.nullish(z.string()),
 })
 
+export const groceriesItemSchema = z.object({
+  name: z.string(),
+  done: z.boolean(),
+})
+export const groceriesFrontmatterSchema = z.object({
+  checklist: z.array(groceriesItemSchema),
+})
+
 export const baseFrontmatterSchema = z.looseObject({
   title: z.nullish(z.string()),
   summary: z.nullish(z.string()),
@@ -48,6 +56,7 @@ export const frontmatterSchema = z.extend(baseFrontmatterSchema, {
   priority: z.nullish(z.string()),
   modified: z.nullish(z.string()),
   rating: z.nullish(z.string()),
+  items: z.nullish(z.array(groceriesItemSchema)),
 })
 
 export const recordSchema = z.object({
@@ -68,3 +77,6 @@ export type DebtFrontmatter = z.infer<typeof debtFrontmatterSchema>
 export type DebtTransaction = z.infer<typeof debtTransactionSchema>
 
 export type TrackFrontmatter = z.infer<typeof trackFrontmatterSchema>
+
+export type GroceriesFrontmatter = z.infer<typeof groceriesFrontmatterSchema>
+export type GroceriesItem = z.infer<typeof groceriesItemSchema>

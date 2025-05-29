@@ -1,35 +1,23 @@
 <script lang="ts" setup>
 import type { ItemRecord, TrackFrontmatter } from '#pocketbase-imports'
+import type { BaseItemEmits } from '../BaseItem.vue'
 
 const { item, loading = false } = defineProps<{
   item: ItemRecord & { frontmatter: TrackFrontmatter }
   loading?: boolean
 }>()
 
-const emits = defineEmits<{
-  change: [payload: { key: string, n: number }]
-}>()
+const emits = defineEmits<BaseItemEmits>()
 </script>
 
 <template>
-  <div class="flex  justify-between gap-3  rounded-lg">
-    <div class="flex items-end  gap-3">
-      <TrackIncrement
-        :item="item"
-        incr-key="season"
-        :is-list="true"
-        :loading="loading"
-        @change="(payload) => emits('change', payload)"
-      />
-
-      <TrackIncrement
-        :item="item"
-        incr-key="episode"
-        :is-list="true"
-        :loading="loading"
-        @change="(payload) => emits('change', payload)"
-      />
-
+  <ItemsListCard
+    :item="item"
+    :icon="'i-lucide-tv'"
+    :loading="loading"
+    @toggle-completed="emits('updateFrontmatter', item)"
+  >
+    <template #actions>
       <UButton
         v-if="item.frontmatter.url"
         color="primary"
@@ -40,8 +28,26 @@ const emits = defineEmits<{
         target="_blank"
         external
         label="Watch"
-        class="text-center justify-center min-w-20 absolute right-2 top-2"
       />
+    </template>
+    <div class="flex flex-col gap-4">
+      <div class="flex gap-3">
+        <TrackIncrement
+          :item="item"
+          incr-key="season"
+          :is-list="true"
+          :loading="loading"
+          @update-frontmatter="(payload) => emits('updateFrontmatter', payload)"
+        />
+
+        <TrackIncrement
+          :item="item"
+          incr-key="episode"
+          :is-list="true"
+          :loading="loading"
+          @update-frontmatter="(payload) => emits('updateFrontmatter', payload)"
+        />
+      </div>
     </div>
-  </div>
+  </ItemsListCard>
 </template>

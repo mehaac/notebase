@@ -17,15 +17,6 @@ const { state } = useActivitiesListQuery()
       <UProgress indeterminate />
     </div>
 
-    <ul
-      v-if="state.status === 'success'"
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-    >
-      <LazyListItem
-        v-for="item in state.data?.items"
-        :key="item.id"
-        :item="item"
-      />
-    </ul>
+    <ItemsList :items="state.data?.items ?? []" />
   </div>
 </template>
