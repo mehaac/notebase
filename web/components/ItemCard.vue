@@ -7,9 +7,10 @@ export const iconColors = {
   danger: 'text-red-500',
 }
 
-export interface ItemsListCardProps {
+export interface ItemCardProps {
   item: ItemRecord
-  icon: string
+  icon?: string
+  compact?: boolean
   loading?: boolean
   disabled?: boolean
   iconColor?: keyof typeof iconColors
@@ -19,8 +20,9 @@ export interface ItemsListCardProps {
 <script lang="ts" setup>
 import { computed } from 'vue'
 import type { ItemRecord } from '#pocketbase-imports'
+import { toggleItem } from '#imports'
 
-const { item, iconColor = 'primary' } = defineProps<ItemsListCardProps>()
+const { item, iconColor = 'primary', icon = 'i-lucide-notebook-pen' } = defineProps<ItemCardProps>()
 
 const emits = defineEmits<{
   'toggle-completed': [item: ItemRecord]
@@ -35,21 +37,6 @@ const title = computed(() => item?.frontmatter?.title || item?.frontmatter?.summ
 const checked = computed(() => {
   return Boolean(item?.frontmatter?.completed)
 })
-
-function toggleItem(item: ItemRecord) {
-  const frontmatter = item.frontmatter || {}
-  if (frontmatter?.completed) {
-    frontmatter.completed = ''
-  }
-  else {
-    frontmatter.completed = new Date().toISOString().split('.')[0]!
-  }
-
-  return {
-    ...item,
-    frontmatter,
-  }
-}
 
 function handleToggleDone(item: ItemRecord) {
   emits('toggle-completed', toggleItem(item))
@@ -84,6 +71,8 @@ function handleToggleDone(item: ItemRecord) {
         </div>
       </div>
     </slot>
-    <slot />
+    <div class="py-4">
+      <slot />
+    </div>
   </UCard>
 </template>
