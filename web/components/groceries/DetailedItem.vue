@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import type { GroceryItem } from '#pocketbase-imports'
+import type { GroceriesItem } from '#pocketbase-imports'
 
 defineProps<{
-  groceryItem: GroceryItem
+  groceryItem: GroceriesItem
   loading?: boolean
 }>()
 

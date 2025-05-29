@@ -1,17 +1,18 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 import type { ItemRecord } from '#pocketbase-imports'
-import type { GroceryFrontmatter } from '~/modules/pocketbase/types/schema'
-import { useActivitiesUpdateItemMutation } from '~/composables/queries'
+import type { GroceriesFrontmatter } from '~/modules/pocketbase/types/schema'
 
 const { item, loading = false } = defineProps<{
-  item: ItemRecord & { frontmatter: GroceryFrontmatter }
+  item: ItemRecord & { frontmatter: GroceriesFrontmatter }
   loading?: boolean
 }>()
 
-const newItem = ref('')
+const emits = defineEmits<{
+  update: [payload: ItemRecord]
+}>()
 
-const { mutateAsync: updateItem } = useActivitiesUpdateItemMutation()
+const newItem = ref('')
 
 const formattedCreatedDate = computed(() => {
   return item.frontmatter.created && typeof item.frontmatter.created === 'string'
@@ -20,48 +21,47 @@ const formattedCreatedDate = computed(() => {
 })
 
 const doneItems = computed(() => {
-  return item.frontmatter.items.filter(item => item.done)
+  return item.frontmatter.checklist.filter(item => item.done)
 })
 
 const activeItems = computed(() => {
-  return item.frontmatter.items.filter(item => !item.done)
+  return item.frontmatter.checklist.filter(item => !item.done)
 })
 
 async function toggleItem(nameToToggle: string) {
-  await updateItem({
-    ...item,
+  const payload = { ...item,
     frontmatter: {
       ...item.frontmatter,
-      items: item.frontmatter.items.map(item => item.name.localeCompare(nameToToggle) === 0
+      checklist: item.frontmatter.checklist.map(item => item.name.localeCompare(nameToToggle) === 0
         ? { ...item, done: !item.done }
         : item),
     },
-  })
+  }
+  emits('update', payload)
 }
 
 async function addItem() {
   if (!newItem.value.trim()) return
-
-  await updateItem({
+  const payload = {
     ...item,
     frontmatter: {
       ...item.frontmatter,
-      items: [...item.frontmatter.items, { name: newItem.value.trim(), done: false }],
+      checklist: [...item.frontmatter.checklist, { name: newItem.value.trim(), done: false }],
     },
-  })
+  }
+  emits('update', payload)
   newItem.value = ''
 }
 
 async function removeItem(id: string) {
-  await updateItem(
-    {
-      ...item,
-      frontmatter: {
-        ...item.frontmatter,
-        items: item.frontmatter.items.filter(item => item.name !== id),
-      },
+  const payload = {
+    ...item,
+    frontmatter: {
+      ...item.frontmatter,
+      checklist: item.frontmatter.checklist.filter(item => item.name !== id),
     },
-  )
+  }
+  emits('update', payload)
 }
 </script>
 
@@ -158,7 +158,7 @@ async function removeItem(id: string) {
     </div>
 
     <div
-      v-if="item.frontmatter.items.length === 0"
+      v-if="item.frontmatter.checklist.length === 0"
       class="text-center py-8 text-gray-500"
     >
       List is empty. Add your first item!

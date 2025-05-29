@@ -1,14 +1,10 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
-import type { ItemRecord } from '#pocketbase-imports'
+import type { GroceriesFrontmatter, ItemRecord } from '#pocketbase-imports'
 import type { BaseItemEmits } from '../BaseItem.vue'
 
 const { item } = defineProps<{
-  item: ItemRecord & { frontmatter: {
-    title: string
-    created: string
-    items: Array<{ name: string, done: boolean }>
-  } }
+  item: ItemRecord & { frontmatter: GroceriesFrontmatter }
   loading?: boolean
 }>()
 
@@ -18,11 +14,11 @@ const checked = computed(() => {
   return Boolean(item.frontmatter?.completed)
 })
 const completedItems = computed(() => {
-  return item.frontmatter.items.filter(item => item.done).length
+  return item.frontmatter.checklist.filter(item => item.done).length
 })
 
 const totalItems = computed(() => {
-  return item.frontmatter.items.length
+  return item.frontmatter.checklist.length
 })
 const title = computed(() => item.frontmatter.title || item.frontmatter.summary || 'None')
 </script>
@@ -48,11 +44,11 @@ const title = computed(() => item.frontmatter.title || item.frontmatter.summary 
 
     <div class="text-sm text-dimmed">
       <div
-        v-if="item.frontmatter.items.length > 0"
+        v-if="item.frontmatter.checklist.length > 0"
         class="text-xs"
       >
-        {{ item.frontmatter.items.slice(0, 3).map(item => item.name).join(', ') }}
-        <template v-if="item.frontmatter.items.length > 3">
+        {{ item.frontmatter.checklist.slice(0, 3).map(item => item.name).join(', ') }}
+        <template v-if="item.frontmatter.checklist.length > 3">
           ...
         </template>
       </div>
