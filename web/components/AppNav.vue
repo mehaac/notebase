@@ -1,20 +1,6 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
-import { navigateTo } from '#app'
-import {
-  ref,
-  useClient,
-  useUser,
-} from '#imports'
-
-const pb = useClient()
-const user = useUser()
-
-const onLogout = async () => {
-  await pb.clearAuth()
-  user.value.isAuthenticated = false
-  await navigateTo({ name: 'login' })
-}
+import { ref } from '#imports'
 
 const items = ref<NavigationMenuItem[]>([
   [
@@ -25,7 +11,8 @@ const items = ref<NavigationMenuItem[]>([
   ],
   [
     {
-      slot: 'login' as const,
+      label: 'Profile',
+      to: { name: 'profile' },
     },
   ],
 ])
@@ -35,11 +22,5 @@ const items = ref<NavigationMenuItem[]>([
   <UNavigationMenu
     :items="items"
     class="w-full justify-center"
-  >
-    <template #login-label>
-      <div @click="onLogout">
-        {{ user.isAuthenticated ? 'Logout' : 'Login' }}
-      </div>
-    </template>
-  </UNavigationMenu>
+  />
 </template>
