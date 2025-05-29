@@ -13,6 +13,8 @@ RUN pnpm run generate-prod
 
 FROM alpine:3.19
 WORKDIR /app/
+ENV NOTES_ROOT=/tmp/example/notes
 COPY --from=backend /app/bin/notebase .
 COPY --from=frontend /app/.output/public/ ./pb_public
+COPY ./example/ /tmp/example/
 ENTRYPOINT ["./notebase"]
