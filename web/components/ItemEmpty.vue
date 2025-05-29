@@ -1,23 +1,19 @@
-<template>
-  <UCard>
-    <div class="flex items-center gap-2">
-      <UIcon
-        name="i-lucide-alert-circle"
-        class="text-warning/80"
-      />
-      <ULink
-        :to="`/items/${itemId}`"
-      >
-        <h2 class="text-lg font-bold">
-          Empty item
-        </h2>
-      </ULink>
-    </div>
-  </UCard>
-</template>
-
 <script lang="ts" setup>
-defineProps<{
+const { itemId } = defineProps<{
   itemId: string
 }>()
 </script>
+
+<template>
+  <ItemsListCard
+    :id="itemId"
+    :title="itemId"
+    :icon="'i-lucide-alert-circle'"
+  >
+    <div class="flex gap-2 items-center py-2">
+      <p class="text-sm text-dimmed">
+        Empty item
+      </p>
+    </div>
+  </ItemsListCard>
+</template>
