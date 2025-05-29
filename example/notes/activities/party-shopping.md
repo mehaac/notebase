@@ -1,6 +1,6 @@
 ---
 created: 2025-02-06T16:08:14
-items:
+checklist:
 - done: false
   name: Potato chips (3 packs)
 - done: true

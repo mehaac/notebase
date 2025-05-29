@@ -11,12 +11,11 @@ export interface ItemsListCardProps {
   }
   iconVariant?: {
     color?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info'
-    size?: 'sm' | 'md' | 'lg' | 'xl'
   }
 }
 
 export const iconTheme = {
-  base: 'text-primary-500',
+  base: 'text-primary',
   variants: {
     color: {
       primary: 'text-primary-500',
@@ -26,16 +25,9 @@ export const iconTheme = {
       danger: 'text-red-500',
       info: 'text-blue-500',
     },
-    size: {
-      sm: 'text-sm',
-      md: 'text-base',
-      lg: 'text-lg',
-      xl: 'text-xl',
-    },
   },
   defaultVariants: {
     color: 'primary' as const,
-    size: 'md' as const,
   },
 }
 </script>

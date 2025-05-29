@@ -62,7 +62,7 @@ const handleAction = (payload: { action: string, id: string, data?: any }) => {
 <template>
   <ItemEmpty
     v-if="!hasValidItem"
-    :item-id="item.id"
+    :item="item"
   />
 
   <component

@@ -1,13 +1,15 @@
 <script lang="ts" setup>
-const { itemId } = defineProps<{
-  itemId: string
+import type { ItemRecord } from '#pocketbase-imports'
+
+const { item } = defineProps<{
+  item: ItemRecord
 }>()
 </script>
 
 <template>
   <ItemsListCard
-    :id="itemId"
-    :title="itemId"
+    :id="item.id"
+    :title="item.slug"
     :icon="'i-lucide-alert-circle'"
     :icon-variant="{
       color: 'warning',

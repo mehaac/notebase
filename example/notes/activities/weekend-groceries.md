@@ -2,7 +2,7 @@
 type: groceries
 title: Weekend Shopping
 created: 2024-05-06T16:08:14
-items:
+checklist:
 - done: false
   name: Pizza dough
 - done: false
