@@ -44,9 +44,6 @@ importers:
       pocketbase:
         specifier: ^0.26.0
         version: 0.26.0
-      tailwind-variants:
-        specifier: ^1.0.0
-        version: 1.0.0(tailwindcss@4.1.5)
       tailwindcss:
         specifier: ^4.1.5
         version: 4.1.5
