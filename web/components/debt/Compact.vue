@@ -17,7 +17,7 @@ const emits = defineEmits<BaseItemEmits>()
     :item="item"
     :icon="'i-lucide-credit-card'"
     :loading="loading"
-    @toggle-completed="emits('updateFrontmatter', item)"
+    @toggle-completed="(payload) => emits('updateFrontmatter', payload)"
   >
     <div class="pt-2">
       <UProgress

@@ -1,29 +1,23 @@
 <script setup lang="ts" generic="T extends ItemRecord & { frontmatter: TrackFrontmatter }">
 import type { ItemRecord, TrackFrontmatter } from '#pocketbase-imports'
+import type { BaseItemEmits } from './BaseItem.vue'
 
-import { useActivitiesUpdateItemMutation } from '~/composables/queries'
+const { item, compact, loading } = defineProps<{ item: T, compact?: boolean, loading?: boolean }>()
 
-const { item, compact } = defineProps<{ item: T, compact?: boolean }>()
-const { mutateAsync, asyncStatus } = useActivitiesUpdateItemMutation()
-
-async function handleChange(payload: { key: string, n: number }) {
-  const newItem = { ...item }
-  newItem.frontmatter[payload.key] = payload.n
-  await mutateAsync(newItem)
-}
+const emits = defineEmits<BaseItemEmits>()
 </script>
 
 <template>
   <TrackCompact
     v-if="compact"
     :item="item"
-    :loading="asyncStatus === 'loading'"
-    @change="handleChange"
+    :loading="loading"
+    @update-frontmatter="(payload) => emits('updateFrontmatter', payload)"
   />
   <TrackDetailed
     v-else
     :item="item"
-    :loading="asyncStatus === 'loading'"
-    @change="handleChange"
+    :loading="loading"
+    @update-frontmatter="(payload) => emits('updateFrontmatter', payload)"
   />
 </template>

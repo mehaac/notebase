@@ -15,7 +15,7 @@ const emits = defineEmits<BaseItemEmits>()
     :item="item"
     :icon="'i-lucide-tv'"
     :loading="loading"
-    @toggle-completed="emits('updateFrontmatter', item)"
+    @toggle-completed="(payload) => emits('updateFrontmatter', payload)"
   >
     <template #actions>
       <UButton

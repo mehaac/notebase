@@ -1,19 +1,9 @@
 <script lang="ts">
-import { z } from 'zod/v4-mini'
 import { computed } from 'vue'
 import { clamp } from '@vueuse/core'
 import type { ItemRecord, DebtFrontmatter } from '#pocketbase-imports'
 import type { BaseItemEmits } from './BaseItem.vue'
 
-export const formSchema = z.object({
-  date: z.optional(z.iso.datetime({ local: true })),
-  amount: z.number({ error: 'amount is required' }),
-  comment: z.optional(z.string().check(
-    z.maxLength(256, { error: 'comment is too long' }),
-  )),
-})
-
-export type FormState = z.infer<typeof formSchema>
 export type DebtData = {
   total: number
   returned: number
@@ -21,11 +11,11 @@ export type DebtData = {
   progress: number
 }
 
-export type DebtProps = { item: ItemRecord & { frontmatter: DebtFrontmatter }, compact?: boolean }
+export type DebtProps = { item: ItemRecord & { frontmatter: DebtFrontmatter }, compact?: boolean, loading?: boolean }
 </script>
 
 <script setup lang="ts">
-const { item, compact } = defineProps<DebtProps>()
+const { item, compact, loading } = defineProps<DebtProps>()
 
 const emits = defineEmits<BaseItemEmits>()
 
@@ -57,12 +47,13 @@ const debtData = computed<DebtData>(() => {
     v-if="compact"
     :item="item"
     :debt-data="debtData"
-    @toggle-completed="emits('updateFrontmatter', item)"
+    @update-frontmatter="(payload) => emits('updateFrontmatter', payload)"
   />
   <DebtDetailed
     v-else
     :item="item"
     :debt-data="debtData"
-    @toggle-completed="emits('updateFrontmatter', item)"
+    :loading="loading"
+    @update-frontmatter="(payload) => emits('updateFrontmatter', payload)"
   />
 </template>
