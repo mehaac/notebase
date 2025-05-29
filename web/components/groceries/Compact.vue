@@ -24,7 +24,7 @@ const totalItems = computed(() => {
     :item="item"
     :icon="'i-lucide-shopping-cart'"
     :loading="loading"
-    @toggle-completed="emits('updateFrontmatter', item)"
+    @toggle-completed="(payload) => emits('updateFrontmatter', payload)"
   >
     <template #actions>
       <UBadge

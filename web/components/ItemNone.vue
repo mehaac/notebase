@@ -18,7 +18,7 @@ const emits = defineEmits<BaseItemEmits>()
       color: 'warning',
     }"
     :loading="loading"
-    @toggle-completed="emits('updateFrontmatter', item)"
+    @toggle-completed="(payload) => emits('updateFrontmatter', payload)"
   >
     <div class="flex gap-2 items-center py-2">
       <p class="text-sm text-dimmed">

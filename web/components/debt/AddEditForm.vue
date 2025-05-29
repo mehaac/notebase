@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { FormSubmitEvent } from '@nuxt/ui'
 import { onMounted, reactive } from '#imports'
-import { type FormState, formSchema } from '../ItemDebt.vue'
+import { type FormState, formSchema } from './Detailed.vue'
 
 const { defaults, type = 'add' } = defineProps<{
   defaults?: {

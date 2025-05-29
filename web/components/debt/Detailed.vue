@@ -1,18 +1,36 @@
+<script lang="ts">
+import { z } from 'zod/v4-mini'
+
+export const formSchema = z.object({
+  date: z.optional(z.iso.datetime({ local: true })),
+  amount: z.number({ error: 'amount is required' }),
+  comment: z.optional(z.string().check(
+    z.maxLength(256, { error: 'comment is too long' }),
+  )),
+})
+
+export type FormState = z.infer<typeof formSchema>
+export type Transaction = {
+  id: string
+  date: string
+  amount: number
+  comment: string | null | undefined
+}
+</script>
+
 <script lang="ts" setup>
-import { useActivitiesUpdateItemMutation } from '~/composables/queries'
-import type { DebtData, DebtProps, FormState } from '../ItemDebt.vue'
+import type { DebtData, DebtProps } from '../ItemDebt.vue'
 import { computed, h, parseDate, ref, resolveComponent } from '#imports'
 
 import type { TableColumn } from '@nuxt/ui'
+import type { BaseItemEmits } from '../BaseItem.vue'
 
-const { item, debtData } = defineProps<DebtProps & { debtData: DebtData }>()
+const { item, debtData, loading } = defineProps<DebtProps & { debtData: DebtData, loading?: boolean }>()
 
 const UDropdownMenu = resolveComponent('UDropdownMenu')
 const UButton = resolveComponent('UButton')
 
-const _emits = defineEmits<{
-  done: [id: string]
-}>()
+const emits = defineEmits<BaseItemEmits>()
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('ru-RU', {
@@ -31,13 +49,7 @@ const transactions = computed(() => {
     }
   }) ?? []
 })
-// const isEditing = ref(false)
-type Transaction = {
-  id: string
-  date: string
-  amount: number
-  comment: string | null | undefined
-}
+
 const columns: TableColumn<Transaction>[] = [
   {
     accessorKey: 'date',
@@ -125,8 +137,6 @@ const sorting = ref([
   },
 ])
 
-const { mutateAsync } = useActivitiesUpdateItemMutation()
-
 async function handleSuccess(payload: FormState) {
   const frontmatter = item.frontmatter
   frontmatter.transactions.push({
@@ -134,8 +144,7 @@ async function handleSuccess(payload: FormState) {
     amount: payload.amount,
     comment: payload.comment,
   })
-
-  await mutateAsync(item)
+  emits('updateFrontmatter', item)
 }
 
 async function handleEdit(originalCreated: string, payload: FormState, expandCb: () => void) {
@@ -150,7 +159,7 @@ async function handleEdit(originalCreated: string, payload: FormState, expandCb:
   transaction.amount = payload.amount ?? transaction.amount
   transaction.comment = payload.comment ?? transaction.comment
   transaction.created = payload.date ?? transaction.created
-  await mutateAsync(item)
+  emits('updateFrontmatter', item)
   expandCb()
 }
 </script>
@@ -178,6 +187,7 @@ async function handleEdit(originalCreated: string, payload: FormState, expandCb:
         v-model:sorting="sorting"
         :data="transactions"
         :columns="columns"
+        :loading="loading"
       >
         <template #expanded="{ row }">
           <LazyDebtAddEditForm

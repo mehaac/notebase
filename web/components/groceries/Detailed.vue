@@ -2,15 +2,14 @@
 import { computed, ref } from 'vue'
 import type { ItemRecord } from '#pocketbase-imports'
 import type { GroceriesFrontmatter } from '~/modules/pocketbase/types/schema'
+import type { BaseItemEmits } from '../BaseItem.vue'
 
 const { item, loading = false } = defineProps<{
   item: ItemRecord & { frontmatter: GroceriesFrontmatter }
   loading?: boolean
 }>()
 
-const emits = defineEmits<{
-  update: [payload: ItemRecord]
-}>()
+const emits = defineEmits<BaseItemEmits>()
 
 const newItem = ref('')
 
@@ -37,7 +36,7 @@ async function toggleItem(nameToToggle: string) {
         : item),
     },
   }
-  emits('update', payload)
+  emits('updateFrontmatter', payload)
 }
 
 async function addItem() {
@@ -49,7 +48,7 @@ async function addItem() {
       checklist: [...item.frontmatter.checklist, { name: newItem.value.trim(), done: false }],
     },
   }
-  emits('update', payload)
+  emits('updateFrontmatter', payload)
   newItem.value = ''
 }
 
@@ -61,7 +60,7 @@ async function removeItem(id: string) {
       checklist: item.frontmatter.checklist.filter(item => item.name !== id),
     },
   }
-  emits('update', payload)
+  emits('updateFrontmatter', payload)
 }
 </script>
 

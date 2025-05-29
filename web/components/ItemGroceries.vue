@@ -6,10 +6,6 @@ import type { BaseItemEmits } from './BaseItem.vue'
 const { item, compact, loading } = defineProps<{ item: ItemRecord & { frontmatter: GroceriesFrontmatter }, compact?: boolean, loading?: boolean }>()
 
 const emits = defineEmits<BaseItemEmits>()
-
-async function handleUpdateFrontmatter(payload: ItemRecord) {
-  emits('updateFrontmatter', payload)
-}
 </script>
 
 <template>
@@ -17,12 +13,12 @@ async function handleUpdateFrontmatter(payload: ItemRecord) {
     v-if="compact"
     :item="item"
     :loading="loading"
-    @update-frontmatter="handleUpdateFrontmatter"
+    @update-frontmatter="(payload) => emits('updateFrontmatter', payload)"
   />
   <GroceriesDetailed
     v-else
     :item="item"
     :loading="loading"
-    @update-frontmatter="handleUpdateFrontmatter"
+    @update-frontmatter="(payload) => emits('updateFrontmatter', payload)"
   />
 </template>
