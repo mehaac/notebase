@@ -28,38 +28,14 @@ const formattedCreatedDate = computed(() => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-6">
+  <ItemCard
+    :item="item"
+    class="ring-0"
+    icon="i-lucide-tv-2"
+    @toggle-completed="(payload) => emits('updateFrontmatter', payload)"
+  >
     <div class="flex-1">
-      <div class="flex items-center mb-1">
-        <UIcon
-          name="i-lucide-tv-2"
-          class="mr-2 text-primary-500"
-        />
-        <h1 class="text-2xl font-bold">
-          {{ item.frontmatter.summary }}
-        </h1>
-      </div>
-
       <div class="mb-4 flex flex-wrap items-center gap-2">
-        <UBadge
-          v-if="item.frontmatter.rating"
-          color="warning"
-        >
-          {{ item.frontmatter.rating }}
-        </UBadge>
-        <UBadge
-          v-if="!item.frontmatter.completed"
-          color="primary"
-        >
-          Ongoing
-        </UBadge>
-        <UBadge
-          v-else
-          color="success"
-        >
-          Completed
-        </UBadge>
-
         <span
           v-if="formattedCreatedDate"
           class="text-xs"
@@ -162,5 +138,5 @@ const formattedCreatedDate = computed(() => {
         </div>
       </div>
     </div>
-  </div>
+  </ItemCard>
 </template>

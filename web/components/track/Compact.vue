@@ -11,10 +11,11 @@ const emits = defineEmits<BaseItemEmits>()
 </script>
 
 <template>
-  <ItemsListCard
+  <ItemCard
     :item="item"
     :icon="'i-lucide-tv'"
     :loading="loading"
+    compact
     @toggle-completed="(payload) => emits('updateFrontmatter', payload)"
   >
     <template #actions>
@@ -49,5 +50,5 @@ const emits = defineEmits<BaseItemEmits>()
         />
       </div>
     </div>
-  </ItemsListCard>
+  </ItemCard>
 </template>

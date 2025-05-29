@@ -66,18 +66,13 @@ async function removeItem(id: string) {
 </script>
 
 <template>
-  <div class="flex flex-col gap-6">
+  <ItemCard
+    :item="item"
+    :icon="'i-lucide-shopping-cart'"
+    :loading="loading"
+    @toggle-completed="(payload) => emits('updateFrontmatter', payload)"
+  >
     <div class="flex-1">
-      <div class="flex items-center mb-1">
-        <UIcon
-          name="i-lucide-shopping-cart"
-          class="mr-2 text-primary"
-        />
-        <h1 class="text-2xl font-bold">
-          {{ item.frontmatter.title }}
-        </h1>
-      </div>
-
       <div class="mb-4 flex flex-wrap items-center gap-2">
         <span
           v-if="formattedCreatedDate"
@@ -163,7 +158,7 @@ async function removeItem(id: string) {
     >
       List is empty. Add your first item!
     </div>
-  </div>
+  </ItemCard>
 </template>
 
 <style scoped>

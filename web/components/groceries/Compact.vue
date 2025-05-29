@@ -20,10 +20,11 @@ const totalItems = computed(() => {
 </script>
 
 <template>
-  <ItemsListCard
+  <ItemCard
     :item="item"
     :icon="'i-lucide-shopping-cart'"
     :loading="loading"
+    compact
     @toggle-completed="(payload) => emits('updateFrontmatter', payload)"
   >
     <template #actions>
@@ -53,5 +54,5 @@ const totalItems = computed(() => {
         Empty list
       </div>
     </div>
-  </ItemsListCard>
+  </ItemCard>
 </template>

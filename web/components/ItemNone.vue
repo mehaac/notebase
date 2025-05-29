@@ -11,19 +11,20 @@ const emits = defineEmits<BaseItemEmits>()
 </script>
 
 <template>
-  <ItemsListCard
+  <ItemCard
     :item="item"
     :icon="'i-lucide-alert-circle'"
     :icon-variant="{
       color: 'warning',
     }"
     :loading="loading"
+    compact
     @toggle-completed="(payload) => emits('updateFrontmatter', payload)"
   >
-    <div class="flex gap-2 items-center py-2">
+    <div class="flex gap-2 items-center">
       <p class="text-sm text-dimmed">
         This Item have data but no component
       </p>
     </div>
-  </ItemsListCard>
+  </ItemCard>
 </template>

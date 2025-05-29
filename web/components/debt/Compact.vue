@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { BaseItemEmits } from '../BaseItem.vue'
 import type { DebtData, DebtProps } from '../ItemDebt.vue'
-import { ItemsListCard, UProgress } from '#components'
+import { ItemCard, UProgress } from '#components'
 
 const {
   item,
@@ -13,9 +13,10 @@ const emits = defineEmits<BaseItemEmits>()
 </script>
 
 <template>
-  <ItemsListCard
+  <ItemCard
     :item="item"
     :icon="'i-lucide-credit-card'"
+    compact
     :loading="loading"
     @toggle-completed="(payload) => emits('updateFrontmatter', payload)"
   >
@@ -24,5 +25,5 @@ const emits = defineEmits<BaseItemEmits>()
         :model-value="debtData.progress"
       />
     </div>
-  </ItemsListCard>
+  </ItemCard>
 </template>
