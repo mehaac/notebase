@@ -7,6 +7,7 @@ export default defineNuxtConfig({
     '@nuxtjs/mdc',
     '~/modules/pocketbase/module',
     '@pinia/colada-nuxt',
+    '@nuxt/icon',
   ],
   ssr: false,
   imports: {
@@ -56,6 +57,12 @@ export default defineNuxtConfig({
     config: {
       stylistic: true,
       formatters: true,
+    },
+  },
+  icon: {
+    provider: 'none',
+    clientBundle: {
+      scan: true,
     },
   },
 })
