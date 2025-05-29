@@ -22,6 +22,8 @@ defineShortcuts({
       variant="outline"
       placeholder="Query"
       class="w-full"
+      autocapitalize="none"
+      autocorrect="off"
     >
       <template #trailing>
         <UButton
@@ -57,6 +59,8 @@ defineShortcuts({
       color="neutral"
       variant="outline"
       placeholder="inbox/activities/%"
+      autocapitalize="none"
+      autocorrect="off"
     />
   </UButtonGroup>
 
@@ -75,6 +79,8 @@ defineShortcuts({
       color="neutral"
       variant="outline"
       placeholder="debt"
+      autocapitalize="none"
+      autocorrect="off"
     />
   </UButtonGroup>
 </template>
