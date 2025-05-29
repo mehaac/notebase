@@ -51,6 +51,7 @@ function handleToggleDone(item: ItemRecord) {
           :loading="loading"
           :disabled="disabled || loading"
           :model-value="checked"
+          :icon="'i-lucide-check'"
           @update:model-value="handleToggleDone(item)"
         />
         <UIcon
