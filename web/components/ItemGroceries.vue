@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import type { GroceriesFrontmatter, ItemRecord } from '#pocketbase-imports'
-import { useActivitiesUpdateItemMutation } from '~/composables/queries'
+
 import type { BaseItemEmits } from './BaseItem.vue'
 
-const { item, compact } = defineProps<{ item: ItemRecord & { frontmatter: GroceriesFrontmatter }, compact?: boolean }>()
-const { mutateAsync, asyncStatus } = useActivitiesUpdateItemMutation()
+const { item, compact, loading } = defineProps<{ item: ItemRecord & { frontmatter: GroceriesFrontmatter }, compact?: boolean, loading?: boolean }>()
 
 const emits = defineEmits<BaseItemEmits>()
 
-async function handleChange(payload: ItemRecord) {
-  await mutateAsync(payload)
+async function handleUpdateFrontmatter(payload: ItemRecord) {
+  emits('updateFrontmatter', payload)
 }
 </script>
 
@@ -17,14 +16,13 @@ async function handleChange(payload: ItemRecord) {
   <GroceriesCompact
     v-if="compact"
     :item="item"
-    :loading="asyncStatus === 'loading'"
-    @done="emits('done', item.id)"
+    :loading="loading"
+    @update-frontmatter="handleUpdateFrontmatter"
   />
   <GroceriesDetailed
     v-else
     :item="item"
-    :loading="asyncStatus === 'loading'"
-    @change="handleChange"
-    @done="emits('done', item.id)"
+    :loading="loading"
+    @update-frontmatter="handleUpdateFrontmatter"
   />
 </template>

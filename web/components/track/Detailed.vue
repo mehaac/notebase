@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { ItemRecord, TrackFrontmatter } from '#pocketbase-imports'
 import { computed } from 'vue'
+import type { BaseItemEmits } from '../BaseItem.vue'
 
 const {
   item,
@@ -10,9 +11,7 @@ const {
   loading?: boolean
 }>()
 
-const emits = defineEmits<{
-  change: [payload: { key: string, n: number }]
-}>()
+const emits = defineEmits<BaseItemEmits>()
 
 const formattedDate = computed(() => {
   return item.frontmatter.next_episode
@@ -147,7 +146,7 @@ const formattedCreatedDate = computed(() => {
             :item="item"
             incr-key="season"
             :loading="loading"
-            @change="(payload) => emits('change', payload)"
+            @update-frontmatter="(payload) => emits('updateFrontmatter', payload)"
           />
         </div>
 
@@ -157,7 +156,7 @@ const formattedCreatedDate = computed(() => {
             :item="item"
             incr-key="episode"
             :loading="loading"
-            @change="(payload) => emits('change', payload)"
+            @update-frontmatter="(payload) => emits('updateFrontmatter', payload)"
           />
         </div>
       </div>

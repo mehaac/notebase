@@ -1,50 +1,59 @@
 <script lang="ts">
-export interface ItemsListCardProps {
-  title: string
-  checked?: boolean
-  icon: string
-  id: string
-  loading?: boolean
-  disabled?: boolean
-  ui?: {
-    icon?: string
-  }
-  iconVariant?: {
-    color?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info'
-  }
+export const iconColors = {
+  primary: 'text-primary',
+  secondary: 'text-gray-500',
+  success: 'text-green-500',
+  warning: 'text-yellow-500',
+  danger: 'text-red-500',
 }
 
-export const iconTheme = {
-  base: 'text-primary',
-  variants: {
-    color: {
-      primary: 'text-primary-500',
-      secondary: 'text-gray-500',
-      success: 'text-green-500',
-      warning: 'text-yellow-500',
-      danger: 'text-red-500',
-      info: 'text-blue-500',
-    },
-  },
-  defaultVariants: {
-    color: 'primary' as const,
-  },
+export interface ItemsListCardProps {
+  item: ItemRecord
+  icon: string
+  loading?: boolean
+  disabled?: boolean
+  iconColor?: keyof typeof iconColors
 }
 </script>
 
 <script lang="ts" setup>
-import { tv } from 'tailwind-variants'
-import type { BaseItemEmits } from './BaseItem.vue'
 import { computed } from 'vue'
+import type { ItemRecord } from '#pocketbase-imports'
 
-const props = defineProps<ItemsListCardProps>()
+const { item, iconColor = 'primary' } = defineProps<ItemsListCardProps>()
 
-const emits = defineEmits<BaseItemEmits>()
+const emits = defineEmits<{
+  'toggle-completed': [item: ItemRecord]
+}>()
 
 const iconClass = computed(() => {
-  const tvInstance = tv(iconTheme)
-  return tvInstance(props.iconVariant)
+  return iconColors[iconColor]
 })
+
+const title = computed(() => item?.frontmatter?.title || item?.frontmatter?.summary || item.slug)
+
+const checked = computed(() => {
+  return Boolean(item?.frontmatter?.completed)
+})
+
+function toggleItem(item: ItemRecord) {
+  const frontmatter = item.frontmatter || {}
+  if (frontmatter?.completed) {
+    frontmatter.completed = ''
+  }
+  else {
+    frontmatter.completed = new Date().toISOString().split('.')[0]!
+  }
+
+  return {
+    ...item,
+    frontmatter,
+  }
+}
+
+function handleToggleDone(item: ItemRecord) {
+  emits('toggle-completed', toggleItem(item))
+}
 </script>
 
 <template>
@@ -55,14 +64,16 @@ const iconClass = computed(() => {
           :loading="loading"
           :disabled="disabled || loading"
           :model-value="checked"
-          @update:model-value="emits('done', id)"
+          @update:model-value="handleToggleDone(item)"
         />
         <UIcon
           :name="icon"
-          :class="[iconClass, props.ui?.icon]"
+          :class="[
+            iconClass,
+          ]"
         />
         <ULink
-          :to="`/items/${id}`"
+          :to="`/items/${item.id}`"
           class="text-lg font-bold truncate"
         >
           {{ title }}

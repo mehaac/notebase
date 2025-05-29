@@ -10,9 +10,6 @@ const { item } = defineProps<{
 
 const emits = defineEmits<BaseItemEmits>()
 
-const checked = computed(() => {
-  return Boolean(item.frontmatter?.completed)
-})
 const completedItems = computed(() => {
   return item.frontmatter.checklist.filter(item => item.done).length
 })
@@ -20,17 +17,14 @@ const completedItems = computed(() => {
 const totalItems = computed(() => {
   return item.frontmatter.checklist.length
 })
-const title = computed(() => item.frontmatter.title || item.frontmatter.summary || 'None')
 </script>
 
 <template>
   <ItemsListCard
-    :id="item.id"
-    :title="title"
+    :item="item"
     :icon="'i-lucide-shopping-cart'"
-    :checked="checked"
     :loading="loading"
-    @done="emits('done', item.id)"
+    @toggle-completed="emits('updateFrontmatter', item)"
   >
     <template #actions>
       <UBadge

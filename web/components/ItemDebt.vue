@@ -1,8 +1,9 @@
 <script lang="ts">
 import { z } from 'zod/v4-mini'
-import type { BaseItemEmits } from './BaseItem.vue'
 import { computed } from 'vue'
 import { clamp } from '@vueuse/core'
+import type { ItemRecord, DebtFrontmatter } from '#pocketbase-imports'
+import type { BaseItemEmits } from './BaseItem.vue'
 
 export const formSchema = z.object({
   date: z.optional(z.iso.datetime({ local: true })),
@@ -23,9 +24,7 @@ export type DebtData = {
 export type DebtProps = { item: ItemRecord & { frontmatter: DebtFrontmatter }, compact?: boolean }
 </script>
 
-<script setup lang="ts" generic="T extends ItemRecord & { frontmatter: DebtFrontmatter }">
-import type { ItemRecord, DebtFrontmatter } from '#pocketbase-imports'
-
+<script setup lang="ts">
 const { item, compact } = defineProps<DebtProps>()
 
 const emits = defineEmits<BaseItemEmits>()
@@ -58,12 +57,12 @@ const debtData = computed<DebtData>(() => {
     v-if="compact"
     :item="item"
     :debt-data="debtData"
-    @done="emits('done', item.id)"
+    @toggle-completed="emits('updateFrontmatter', item)"
   />
   <DebtDetailed
     v-else
     :item="item"
     :debt-data="debtData"
-    @done="emits('done', item.id)"
+    @toggle-completed="emits('updateFrontmatter', item)"
   />
 </template>

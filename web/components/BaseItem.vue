@@ -1,9 +1,6 @@
 <script lang="ts">
 export type BaseItemEmits = {
-  done: [id: string]
-  change: [payload: { key: string, n: number }]
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  action: [payload: { action: string, id: string, data?: any }]
+  updateFrontmatter: [payload: ItemRecord]
 }
 
 export interface BaseItemProps {
@@ -17,14 +14,13 @@ export interface BaseItemProps {
 <script lang="ts" setup>
 import { computed, resolveDynamicComponent } from 'vue'
 import type { ItemRecord } from '#pocketbase-imports'
+import { useActivitiesUpdateItemMutation } from '~/composables/queries'
 
 const props = withDefaults(defineProps<BaseItemProps>(), {
   compact: false,
   loading: false,
   disabled: false,
 })
-
-const emits = defineEmits<BaseItemEmits>()
 
 const itemType = computed(() => {
   return props.item?.frontmatter?.type ?? 'none'
@@ -45,17 +41,10 @@ const hasValidItem = computed(() => {
   return props.item && props.item.id && props.item.frontmatter
 })
 
-const handleDone = (id: string) => {
-  emits('done', id)
-}
+const { mutateAsync, asyncStatus } = useActivitiesUpdateItemMutation()
 
-const handleChange = (payload: { key: string, n: number }) => {
-  emits('change', payload)
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const handleAction = (payload: { action: string, id: string, data?: any }) => {
-  emits('action', payload)
+async function updateFrontmatter(payload: ItemRecord) {
+  await mutateAsync(payload)
 }
 </script>
 
@@ -63,6 +52,9 @@ const handleAction = (payload: { action: string, id: string, data?: any }) => {
   <ItemEmpty
     v-if="!hasValidItem"
     :item="item"
+    :loading="loading || asyncStatus === 'loading'"
+    :disabled="disabled || asyncStatus === 'loading'"
+    @update-frontmatter="updateFrontmatter"
   />
 
   <component
@@ -70,10 +62,8 @@ const handleAction = (payload: { action: string, id: string, data?: any }) => {
     v-else
     :item="item"
     :compact="compact"
-    :loading="loading"
-    :disabled="disabled"
-    @done="handleDone"
-    @change="handleChange"
-    @action="handleAction"
+    :loading="loading || asyncStatus === 'loading'"
+    :disabled="disabled || asyncStatus === 'loading'"
+    @update-frontmatter="updateFrontmatter"
   />
 </template>
