@@ -18,12 +18,12 @@ export const iconTheme = {
   base: 'text-primary',
   variants: {
     color: {
-      primary: 'text-primary',
-      secondary: 'text-gray',
-      success: 'text-green',
-      warning: 'text-yellow',
-      danger: 'text-red',
-      info: 'text-blue',
+      primary: 'text-primary-500',
+      secondary: 'text-gray-500',
+      success: 'text-green-500',
+      warning: 'text-yellow-500',
+      danger: 'text-red-500',
+      info: 'text-blue-500',
     },
   },
   defaultVariants: {
