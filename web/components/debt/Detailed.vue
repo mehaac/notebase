@@ -52,10 +52,32 @@ async function handleSuccess(payload: FormState) {
     :loading="loading"
     @toggle-completed="(payload) => emits('updateFrontmatter', payload)"
   >
-    <div>
-      <h5>Всего: {{ formatCurrency(debtData.total) }}</h5>
-      <h5>Возвращено: {{ formatCurrency(debtData.returned) }}</h5>
-      <h5>Осталось: {{ formatCurrency(debtData.left) }}</h5>
+    <div class="flex flex-col gap-2">
+      <UProgress
+        :model-value="debtData.progress"
+        status
+        class="pb-4"
+      />
+      <div class="flex flex-col space-y-3 max-w-sm">
+        <div class="flex items-center justify-between py-2 px-1 border-b border-(--ui-border)">
+          <span class="text-sm font-medium">Total</span>
+          <span class="text-base font-semibold">
+            {{ formatCurrency(debtData.total) }}
+          </span>
+        </div>
+        <div class="flex items-center justify-between py-2 px-1 border-b border-(--ui-border)">
+          <span class="text-sm font-medium">Returned</span>
+          <span class="text-base font-semibold">
+            {{ formatCurrency(debtData.returned) }}
+          </span>
+        </div>
+        <div class="flex items-center justify-between py-2 px-1">
+          <span class="text-sm font-medium">Left</span>
+          <span class="text-base font-semibold">
+            {{ formatCurrency(debtData.left) }}
+          </span>
+        </div>
+      </div>
       <DebtAddEditForm @success="handleSuccess" />
     </div>
 
