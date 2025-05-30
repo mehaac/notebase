@@ -19,4 +19,4 @@ COPY --from=frontend /app/.output/public/ ./pb_public
 COPY ./example/ /tmp/example/
 EXPOSE 8080
 ENTRYPOINT ["./notebase"]
-CMD ["serve", "--http=0.0.0.0:8080"]
+CMD ["serve", "--http=0.0.0.0:8080", "--dev"]
