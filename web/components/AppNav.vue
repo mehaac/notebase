@@ -21,6 +21,6 @@ const items = ref<NavigationMenuItem[]>([
 <template>
   <UNavigationMenu
     :items="items"
-    class="w-full justify-center"
+    class="w-full justify-start py-2"
   />
 </template>
