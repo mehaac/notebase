@@ -81,7 +81,7 @@ onMounted(async () => {
           <h1 class="text-3xl font-bold  mb-2">
             Notebase
           </h1>
-          <p class="text-dimmed">
+          <p class="text-dimmed text-balance">
             Welcome back! Please sign in to continue.
           </p>
         </div>
@@ -155,7 +155,7 @@ onMounted(async () => {
           class="my-8"
         />
 
-        <p class="text-center text-dimmed text-xs mt-6">
+        <p class="text-center text-dimmed text-xs text-balance">
           By signing in, you agree to our
           <ULink
             href="#"
