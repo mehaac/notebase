@@ -152,8 +152,10 @@ onMounted(async () => {
             </template>
           </UButton>
         </UForm>
-
-        <div class="mt-8 pt-6 border-t border-gray-100 text-center">
+        <USeparator
+          class="my-8"
+        />
+        <div class=" text-center">
           <p class="text-dimmed text-sm">
             Don't have an account?
             <ULink
