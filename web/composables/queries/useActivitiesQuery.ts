@@ -19,11 +19,11 @@ export const useActivitiesListQuery = defineQuery(() => {
   const { state } = useQuery<ListResult<ItemRecord>>({
     key: () => ['activities', { filters: filtersStore.builtQuery, page: page.value, size: size.value }],
     query: async () => {
-      filtersStore.buildQuery()
       return await client.getList(page.value, size.value, filtersStore.builtQuery)
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
     gcTime: 1000 * 60 * 10, // 10 minutes
+    enabled: () => filtersStore.enabled,
   })
 
   return { state, page, size }

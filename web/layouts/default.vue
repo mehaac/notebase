@@ -1,6 +1,6 @@
 <template>
   <UContainer class="flex flex-col relative">
-    <AppNav />
+    <AppFilters />
     <AppSettings />
     <slot />
   </UContainer>

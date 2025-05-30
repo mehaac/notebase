@@ -1,17 +1,20 @@
 <script setup lang="ts">
-import { definePageMeta } from '#imports'
+import { definePageMeta, useNotebaseConfig } from '#imports'
 import { useActivitiesListQuery } from '~/composables/queries/'
 
 definePageMeta({
   middleware: ['auth'],
 })
-
+const notebaseConfig = useNotebaseConfig()
 const { state } = useActivitiesListQuery()
 </script>
 
 <template>
   <div class="flex flex-col gap-4">
-    <AppFilters />
+    <FilterForm v-if="notebaseConfig.config.value.showFilters" />
+    <div v-if="notebaseConfig.config.value.showExtra">
+      extra
+    </div>
     <div v-if="state.status !== 'success'">
       <!-- TODO: this can be a skeleton loader -->
       <UProgress indeterminate />
