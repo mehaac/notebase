@@ -154,30 +154,20 @@ onMounted(async () => {
         <USeparator
           class="my-8"
         />
-        <div class=" text-center">
-          <p class="text-dimmed text-sm">
-            Don't have an account?
-            <ULink
-              href="#"
-            >
-              Sign up here
-            </ULink>
-          </p>
-        </div>
-      </div>
 
-      <p class="text-center text-dimmed text-xs mt-6">
-        By signing in, you agree to our
-        <ULink
-          href="#"
-          class="underline hover:text-dimmed"
-        >Terms of Service</ULink>
-        and
-        <ULink
-          href="#"
-          class="underline hover:text-dimmed"
-        >Privacy Policy</ULink>
-      </p>
+        <p class="text-center text-dimmed text-xs mt-6">
+          By signing in, you agree to our
+          <ULink
+            href="#"
+            class="underline hover:text-dimmed"
+          >Terms of Service</ULink>
+          and
+          <ULink
+            href="#"
+            class="underline hover:text-dimmed"
+          >Privacy Policy</ULink>
+        </p>
+      </div>
     </div>
   </UContainer>
 </template>
