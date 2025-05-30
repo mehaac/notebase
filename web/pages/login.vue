@@ -159,12 +159,12 @@ onMounted(async () => {
           By signing in, you agree to our
           <ULink
             href="#"
-            class="underline hover:text-dimmed"
+            class="underline"
           >Terms of Service</ULink>
           and
           <ULink
             href="#"
-            class="underline hover:text-dimmed"
+            class="underline"
           >Privacy Policy</ULink>
         </p>
       </div>
