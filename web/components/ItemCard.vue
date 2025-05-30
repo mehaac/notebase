@@ -22,7 +22,12 @@ import { computed } from 'vue'
 import type { ItemRecord } from '#pocketbase-imports'
 import { toggleItem } from '#imports'
 
-const { item, iconColor = 'primary', icon = 'i-lucide-notebook-pen' } = defineProps<ItemCardProps>()
+const {
+  item,
+  iconColor = 'primary',
+  icon = 'i-lucide-notebook-pen',
+  compact,
+} = defineProps<ItemCardProps>()
 
 const emits = defineEmits<{
   'toggle-completed': [item: ItemRecord]
@@ -72,6 +77,12 @@ function handleToggleDone(item: ItemRecord) {
         </div>
       </div>
     </slot>
+    <p
+      v-if="!compact"
+      class="text-xs text-dimmed"
+    >
+      created: <span>12-12-2024</span>
+    </p>
     <div class="py-4">
       <slot />
     </div>

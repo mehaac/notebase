@@ -19,12 +19,6 @@ const formattedDate = computed(() => {
     ? formatDateShort(new Date(item.frontmatter.next_episode))
     : null
 })
-
-const formattedCreatedDate = computed(() => {
-  return item.frontmatter.created && typeof item.frontmatter.created === 'string'
-    ? formatDateShort(new Date(item.frontmatter.created))
-    : null
-})
 </script>
 
 <template>
@@ -34,73 +28,64 @@ const formattedCreatedDate = computed(() => {
     icon="i-lucide-tv-2"
     @toggle-completed="(payload) => emits('updateFrontmatter', payload)"
   >
-    <div class="flex-1">
-      <div class="mb-4 flex flex-wrap items-center gap-2">
-        <span
-          v-if="formattedCreatedDate"
-          class="text-xs"
-        >Added: {{ formattedCreatedDate }}</span>
+    <div class="flex flex-col gap-4 mb-6">
+      <div class="flex items-center">
+        <UIcon
+          name="i-lucide-play"
+          class="mr-2 text-primary-500"
+        />
+        <ULink
+          :to="item.frontmatter.url"
+          target="_blank"
+          external
+          class="hover:underline"
+        >
+          Watch Online
+        </ULink>
       </div>
 
-      <div class="flex flex-col gap-4 mb-6">
-        <div class="flex items-center">
-          <UIcon
-            name="i-lucide-play"
-            class="mr-2 text-primary-500"
-          />
-          <ULink
-            :to="item.frontmatter.url"
-            target="_blank"
-            external
-            class="hover:underline"
+      <div
+        v-if="formattedDate"
+        class="flex items-center"
+      >
+        <UIcon
+          name="i-lucide-calendar"
+          class="mr-2 text-primary-500"
+        />
+        <span class="text-sm">Next episode: {{ formattedDate }}</span>
+      </div>
+
+      <div
+        v-if="item.frontmatter.tags && item.frontmatter.tags.length"
+        class="flex items-start md:col-span-2"
+      >
+        <UIcon
+          name="i-lucide-tags"
+          class="mr-2 mt-0.5 text-primary-500"
+        />
+        <div class="flex flex-wrap gap-1">
+          <UBadge
+            v-for="tag in item.frontmatter.tags"
+            :key="tag"
+            color="neutral"
+            variant="subtle"
+            size="xs"
           >
-            Watch Online
-          </ULink>
+            {{ tag }}
+          </UBadge>
         </div>
+      </div>
 
-        <div
-          v-if="formattedDate"
-          class="flex items-center"
-        >
-          <UIcon
-            name="i-lucide-calendar"
-            class="mr-2 text-primary-500"
-          />
-          <span class="text-sm">Next episode: {{ formattedDate }}</span>
-        </div>
-
-        <div
-          v-if="item.frontmatter.tags && item.frontmatter.tags.length"
-          class="flex items-start md:col-span-2"
-        >
-          <UIcon
-            name="i-lucide-tags"
-            class="mr-2 mt-0.5 text-primary-500"
-          />
-          <div class="flex flex-wrap gap-1">
-            <UBadge
-              v-for="tag in item.frontmatter.tags"
-              :key="tag"
-              color="neutral"
-              variant="subtle"
-              size="xs"
-            >
-              {{ tag }}
-            </UBadge>
-          </div>
-        </div>
-
-        <div
-          v-if="item.frontmatter.rating"
-          class="flex items-center md:col-span-2"
-        >
-          <UIcon
-            name="i-lucide-star"
-            class="mr-2 text-primary-500"
-          />
-          <div class="flex items-center">
-            <span class="ml-2 text-sm">{{ item.frontmatter.rating }}</span>
-          </div>
+      <div
+        v-if="item.frontmatter.rating"
+        class="flex items-center md:col-span-2"
+      >
+        <UIcon
+          name="i-lucide-star"
+          class="mr-2 text-primary-500"
+        />
+        <div class="flex items-center">
+          <span class="ml-2 text-sm">{{ item.frontmatter.rating }}</span>
         </div>
       </div>
     </div>
