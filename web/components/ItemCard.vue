@@ -53,7 +53,7 @@ function handleToggleDone(item: ItemRecord) {
 </script>
 
 <template>
-  <UCard>
+  <UCard :class="compact ? '' : 'ring-0'">
     <slot name="header">
       <div class="flex items-center gap-2">
         <UCheckbox

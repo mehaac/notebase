@@ -3,13 +3,14 @@ import type { FormSubmitEvent } from '@nuxt/ui'
 import { onMounted, reactive } from '#imports'
 import { type FormState, formSchema } from './Detailed.vue'
 
-const { defaults, type = 'add' } = defineProps<{
+const { defaults, type = 'add', table } = defineProps<{
   defaults?: {
     date?: string
     amount?: number
     comment?: string
   }
   type?: 'add' | 'edit'
+  table?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -40,9 +41,9 @@ onMounted(() => {
     :state="state"
     :schema="formSchema"
     class="mt-2 flex gap-2 relative"
+    :class="table ? 'flex-col w-xs' : ''"
     @submit="onSubmit"
   >
-    <div class="absolute -top-5 text-xs z-20" />
     <UFormField
       v-if="type === 'edit'"
       name="date"
@@ -73,7 +74,12 @@ onMounted(() => {
       />
     </UFormField>
 
-    <UButton type="submit">
+    <UButton
+      type="submit"
+      class="max-w-16"
+      variant="soft"
+      block
+    >
       <slot name="submit">
         Add
       </slot>
