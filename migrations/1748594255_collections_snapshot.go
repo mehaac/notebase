@@ -945,6 +945,20 @@ func init() {
 						"type": "text"
 					},
 					{
+						"autogeneratePattern": "",
+						"hidden": false,
+						"id": "text3206337475",
+						"max": 0,
+						"min": 0,
+						"name": "version",
+						"pattern": "",
+						"presentable": false,
+						"primaryKey": false,
+						"required": false,
+						"system": false,
+						"type": "text"
+					},
+					{
 						"hidden": false,
 						"id": "autodate2990389176",
 						"name": "created",
@@ -966,7 +980,10 @@ func init() {
 					}
 				],
 				"id": "pbc_3446931122",
-				"indexes": [],
+				"indexes": [
+					"CREATE UNIQUE INDEX ` + "`" + `idx_wDzsmCUCia` + "`" + ` ON ` + "`" + `files` + "`" + ` (` + "`" + `slug` + "`" + `)",
+					"CREATE UNIQUE INDEX ` + "`" + `idx_ecPdYvusn7` + "`" + ` ON ` + "`" + `files` + "`" + ` (` + "`" + `path` + "`" + `)"
+				],
 				"listRule": null,
 				"name": "files",
 				"system": false,
@@ -1015,7 +1032,7 @@ func init() {
 					{
 						"autogeneratePattern": "",
 						"hidden": false,
-						"id": "_clone_8uc4",
+						"id": "_clone_tARO",
 						"max": 5000000,
 						"min": 0,
 						"name": "content",

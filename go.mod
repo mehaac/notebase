@@ -3,6 +3,7 @@ module github.com/biozz/wow/notebase
 go 1.24.1
 
 require (
+	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/gobwas/glob v0.2.3
 	github.com/goccy/go-yaml v1.17.1
 	github.com/pkg/xattr v0.4.10
@@ -19,7 +20,6 @@ require (
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.9 // indirect
 	github.com/ganigeorgiev/fexpr v0.5.0 // indirect
-	github.com/go-ozzo/ozzo-validation/v4 v4.3.0 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect

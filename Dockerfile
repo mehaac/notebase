@@ -13,10 +13,17 @@ RUN pnpm run generate-prod
 
 FROM alpine:3.19
 WORKDIR /app/
+
 ENV NOTES_ROOT=/tmp/example/notes
+ENV SUPERUSER_EMAIL=
+ENV SUPERUSER_PASSWORD=
+
 COPY --from=backend /app/bin/notebase .
 COPY --from=frontend /app/.output/public/ ./pb_public
 COPY ./example/ /tmp/example/
+
 EXPOSE 8080
+
 ENTRYPOINT ["./notebase"]
+
 CMD ["serve", "--http=0.0.0.0:8080", "--dev"]

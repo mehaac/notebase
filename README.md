@@ -16,10 +16,27 @@ Notebase is intented to run as a Docker container. You can try it out together w
 
 ```bash
 docker build -t notebase:latest .
-docker run -it -v $PWD/example/notes:/tmp/notes --env NOTES_ROOT=/tmp/notes -p 8080:8080 notesbase serve --http=0.0.0.0:8080
+docker run -it -p 8080:8080 notesbase
 ```
 
-PocketBase will prompt you to create a superuser account. After creating it, go to http://localhost:8080.
+You can further customize the container by setting environment variables:
+
+```bash
+docker run -it \
+  -p 8080:8080 \
+  -e SUPERUSER_EMAIL=admin@example.com \
+  -e SUPERUSER_PASSWORD=supersecret \
+  -e NOTES_ROOT=/tmp/notes \
+  -v $PWD/data:/tmp/example/notes \
+  notesbase \
+  serve --http=0.0.0.0:8080 --dev
+```
+
+- make sure to add `.notebase.yml` to your root. You can check out my current config in [/examples/biozz_notebase_config.yml](./examples/biozz_notebase_config.yml)
+- `SUPERUSER_EMAIL` and `SUPERUSER_PASSWORD` are optional, but if you don't set them, you will be prompted to create a superuser account
+- `--dev` is also optional, you can set it if want to see query and access logs
+
+After creating it, go to http://localhost:8080.
 
 ## Development
 
