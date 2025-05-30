@@ -1,5 +1,5 @@
 <template>
-  <UContainer>
+  <UContainer class="flex flex-col relative">
     <AppNav />
     <AppSettings />
     <slot />

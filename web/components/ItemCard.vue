@@ -20,7 +20,7 @@ export interface ItemCardProps {
 <script lang="ts" setup>
 import { computed } from 'vue'
 import type { ItemRecord } from '#pocketbase-imports'
-import { formatDateShort, toggleItem } from '#imports'
+import { toggleItem, useDateFormatter } from '#imports'
 
 const {
   item,
@@ -42,9 +42,10 @@ const title = computed(() => item?.frontmatter?.title || item?.frontmatter?.summ
 const checked = computed(() => {
   return Boolean(item?.frontmatter?.completed)
 })
+const { formatShortDate } = useDateFormatter()
 const formattedCreatedDate = computed(() => {
   return item.frontmatter?.created && typeof item.frontmatter.created === 'string'
-    ? formatDateShort(new Date(item.frontmatter.created))
+    ? formatShortDate(new Date(item.frontmatter.created))
     : null
 })
 function handleToggleDone(item: ItemRecord) {

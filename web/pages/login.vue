@@ -1,11 +1,16 @@
 <script lang="ts" setup>
 import { onMounted, reactive } from 'vue'
 import { navigateTo } from '#app'
-import { useClient, useToast } from '#imports'
+import { definePageMeta, useClient, useToast } from '#imports'
+
+definePageMeta({
+  layout: 'empty',
+})
 
 const state = reactive({
   email: '',
   password: '',
+  isLoading: false,
 })
 
 const pb = useClient()
@@ -27,12 +32,14 @@ const toast = useToast()
 const onSubmit = async () => {
   if (!state.email || !state.password) {
     toast.add({
-      title: 'Error',
-      description: 'Invalid email or password',
+      title: 'Authentication Required',
+      description: 'Please enter both email and password',
       color: 'error',
     })
     return
   }
+
+  state.isLoading = true
 
   try {
     await pb.authenticatedUser({ email: state.email, password: state.password })
@@ -41,12 +48,15 @@ const onSubmit = async () => {
       await navigateTo({ name: 'index' })
     }
   }
-  catch (error) {
+  catch {
     toast.add({
-      title: 'Error',
-      description: `${error}`,
+      title: 'Login Failed',
+      description: 'Invalid credentials. Please try again.',
       color: 'error',
     })
+  }
+  finally {
+    state.isLoading = false
   }
 }
 
@@ -58,30 +68,103 @@ onMounted(async () => {
 </script>
 
 <template>
-  <UForm
-    :state="state"
-    class="space-y-4"
-    @submit="onSubmit"
-  >
-    <UFormField
-      label="Email"
-      name="email"
-    >
-      <UInput v-model="state.email" />
-    </UFormField>
+  <UContainer class="min-h-dvh flex items-center justify-center p-4">
+    <div class="relative w-full max-w-md ">
+      <UCard class=" backdrop-blur-sm ring-1 ring-(--ui-border) shadow-purple-500/10 shadow-xl p-8">
+        <div class="text-center mb-8">
+          <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-4">
+            <UIcon
+              name="i-lucide-notebook"
+              class="w-8 h-8"
+            />
+          </div>
+          <h1 class="text-3xl font-bold  mb-2">
+            Notebase
+          </h1>
+          <p class="text-dimmed text-balance">
+            Welcome back! Please sign in to continue.
+          </p>
+        </div>
 
-    <UFormField
-      label="Password"
-      name="password"
-    >
-      <UInput
-        v-model="state.password"
-        type="password"
-      />
-    </UFormField>
+        <UForm
+          :state="state"
+          class="space-y-6"
+          @submit="onSubmit"
+        >
+          <UFormField
+            label="Email Address"
+            name="email"
+          >
+            <UInput
+              v-model="state.email"
+              type="email"
+              placeholder="Enter your email"
+              class="w-full"
+              size="lg"
+              :disabled="state.isLoading"
+            />
+          </UFormField>
 
-    <UButton type="submit">
-      Submit
-    </UButton>
-  </UForm>
+          <UFormField
+            label="Password"
+            name="password"
+          >
+            <UInput
+              v-model="state.password"
+              type="password"
+              placeholder="Enter your password"
+              class="w-full"
+              size="lg"
+              :disabled="state.isLoading"
+            />
+          </UFormField>
+
+          <div class="flex items-center justify-between text-sm">
+            <label class="flex items-center">
+              <UCheckbox
+                type="checkbox"
+              />
+              <span class="ml-2 text-dimmed">Remember me</span>
+            </label>
+            <ULink
+              href="#"
+            >
+              Forgot password?
+            </ULink>
+          </div>
+
+          <UButton
+            type="submit"
+            variant="solid"
+            color="primary"
+            size="lg"
+            block
+            :loading="state.isLoading"
+            :disabled="state.isLoading"
+            class="!bg-gradient-to-r !from-blue-500 !to-purple-600 hover:!from-blue-600 hover:!to-purple-700 !border-0 !shadow-lg hover:!shadow-xl transition-all duration-200"
+          >
+            <template v-if="!state.isLoading">
+              Sign In
+            </template>
+            <template v-else>
+              Signing In...
+            </template>
+          </UButton>
+        </UForm>
+      </UCard>
+
+      <p class="text-center text-dimmed text-xs text-balance pt-8">
+        By signing in, you agree to our
+        <ULink
+          href="#"
+          class="underline"
+        >Terms of Service</ULink>
+        and
+        <ULink
+          href="#"
+          class="underline"
+        >Privacy Policy</ULink>
+      </p>
+    </div>
+  </UContainer>
 </template>
