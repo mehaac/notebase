@@ -1,6 +1,10 @@
 <script lang="ts" setup>
 import { UButton, UContainer } from '#components'
-import { navigateTo, useClient, useUser, useNow, useDateFormatter, useNotebaseConfig } from '#imports'
+import { navigateTo, useClient, useUser, useNow, useDateFormatter, useNotebaseConfig, definePageMeta } from '#imports'
+
+definePageMeta({
+  middleware: 'auth',
+})
 
 const pb = useClient()
 const user = useUser()

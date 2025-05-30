@@ -1,7 +1,11 @@
 <script lang="ts" setup>
 import { onMounted, reactive } from 'vue'
 import { navigateTo } from '#app'
-import { useClient, useToast } from '#imports'
+import { definePageMeta, useClient, useToast } from '#imports'
+
+definePageMeta({
+  layout: 'empty',
+})
 
 const state = reactive({
   email: '',
@@ -58,30 +62,48 @@ onMounted(async () => {
 </script>
 
 <template>
-  <UForm
-    :state="state"
-    class="space-y-4"
-    @submit="onSubmit"
-  >
-    <UFormField
-      label="Email"
-      name="email"
-    >
-      <UInput v-model="state.email" />
-    </UFormField>
+  <UContainer class="w-full h-full flex">
+    <div class="m-auto">
+      <h2 class="text-2xl font-bold pb-6">
+        Notebase
+      </h2>
+      <UForm
+        :state="state"
+        @submit="onSubmit"
+      >
+        <UCard class="p-4">
+          <div class="flex flex-col gap-4">
+            <UFormField
+              label="Email"
+              name="email"
+            >
+              <UInput
+                v-model="state.email"
+              />
+            </UFormField>
 
-    <UFormField
-      label="Password"
-      name="password"
-    >
-      <UInput
-        v-model="state.password"
-        type="password"
-      />
-    </UFormField>
-
-    <UButton type="submit">
-      Submit
-    </UButton>
-  </UForm>
+            <UFormField
+              label="Password"
+              name="password"
+            >
+              <UInput
+                v-model="state.password"
+                type="password"
+              />
+            </UFormField>
+          </div>
+          <template #footer>
+            <UButton
+              type="submit"
+              variant="solid"
+              color="primary"
+              block
+            >
+              Login
+            </UButton>
+          </template>
+        </UCard>
+      </UForm>
+    </div>
+  </UContainer>
 </template>
