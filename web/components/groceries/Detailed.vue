@@ -3,7 +3,6 @@ import { computed, ref } from 'vue'
 import type { ItemRecord } from '#pocketbase-imports'
 import type { GroceriesFrontmatter } from '~/modules/pocketbase/types/schema'
 import type { BaseItemEmits } from '../BaseItem.vue'
-import { formatDateShort } from '#imports'
 
 const { item, loading = false } = defineProps<{
   item: ItemRecord & { frontmatter: GroceriesFrontmatter }
@@ -13,12 +12,6 @@ const { item, loading = false } = defineProps<{
 const emits = defineEmits<BaseItemEmits>()
 
 const newItem = ref('')
-
-const formattedCreatedDate = computed(() => {
-  return item.frontmatter.created && typeof item.frontmatter.created === 'string'
-    ? formatDateShort(new Date(item.frontmatter.created))
-    : ''
-})
 
 const doneItems = computed(() => {
   return item.frontmatter.checklist.filter(item => item.done)
@@ -73,13 +66,6 @@ async function removeItem(id: string) {
     @toggle-completed="(payload) => emits('updateFrontmatter', payload)"
   >
     <div class="flex-1">
-      <div class="mb-4 flex flex-wrap items-center gap-2">
-        <span
-          v-if="formattedCreatedDate"
-          class="text-xs"
-        >Created: {{ formattedCreatedDate }}</span>
-      </div>
-
       <!-- Add new item -->
       <div class="mb-6">
         <div class="flex gap-2">
