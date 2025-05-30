@@ -71,7 +71,7 @@ const columns: TableColumn<Transaction>[] = [
       })
     },
     cell: ({ row }) => {
-      return new Date(formatDateShort(row.getValue('date')))
+      return formatDateShort(new Date(row.getValue('date')))
     },
   },
   {
