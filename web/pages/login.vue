@@ -68,9 +68,9 @@ onMounted(async () => {
 </script>
 
 <template>
-  <UContainer class="min-h-screen flex items-center justify-center p-4">
+  <UContainer class="min-h-dvh flex items-center justify-center p-4">
     <div class="relative w-full max-w-md ">
-      <div class=" backdrop-blur-sm ring-1 ring-(--ui-border) rounded-2xl shadow-purple-500/10 shadow-xl p-8">
+      <UCard class=" backdrop-blur-sm ring-1 ring-(--ui-border) shadow-purple-500/10 shadow-xl p-8">
         <div class="text-center mb-8">
           <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-4">
             <UIcon
@@ -151,23 +151,20 @@ onMounted(async () => {
             </template>
           </UButton>
         </UForm>
-        <USeparator
-          class="my-8"
-        />
+      </UCard>
 
-        <p class="text-center text-dimmed text-xs text-balance">
-          By signing in, you agree to our
-          <ULink
-            href="#"
-            class="underline"
-          >Terms of Service</ULink>
-          and
-          <ULink
-            href="#"
-            class="underline"
-          >Privacy Policy</ULink>
-        </p>
-      </div>
+      <p class="text-center text-dimmed text-xs text-balance pt-8">
+        By signing in, you agree to our
+        <ULink
+          href="#"
+          class="underline"
+        >Terms of Service</ULink>
+        and
+        <ULink
+          href="#"
+          class="underline"
+        >Privacy Policy</ULink>
+      </p>
     </div>
   </UContainer>
 </template>
