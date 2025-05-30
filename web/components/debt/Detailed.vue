@@ -1,6 +1,6 @@
 <script lang="ts">
 import { z } from 'zod/v4-mini'
-import { formatDateShort, computed, h, parseDate, ref, resolveComponent } from '#imports'
+import { computed, h, parseDate, ref, resolveComponent, useDateFormatter } from '#imports'
 
 export const formSchema = z.object({
   date: z.optional(z.iso.datetime({ local: true })),
@@ -50,6 +50,7 @@ const transactions = computed(() => {
   }) ?? []
 })
 
+const { formatShortDate } = useDateFormatter()
 const columns: TableColumn<Transaction>[] = [
   {
     accessorKey: 'date',
@@ -71,7 +72,7 @@ const columns: TableColumn<Transaction>[] = [
       })
     },
     cell: ({ row }) => {
-      return formatDateShort(new Date(row.getValue('date')))
+      return formatShortDate(new Date(row.getValue('date')))
     },
   },
   {
