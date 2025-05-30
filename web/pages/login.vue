@@ -121,10 +121,9 @@ onMounted(async () => {
 
           <div class="flex items-center justify-between text-sm">
             <label class="flex items-center">
-              <input
+              <UCheckbox
                 type="checkbox"
-                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              >
+              />
               <span class="ml-2 text-dimmed">Remember me</span>
             </label>
             <ULink
