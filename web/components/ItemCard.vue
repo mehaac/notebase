@@ -20,7 +20,7 @@ export interface ItemCardProps {
 <script lang="ts" setup>
 import { computed } from 'vue'
 import type { ItemRecord } from '#pocketbase-imports'
-import { toggleItem } from '#imports'
+import { formatDateShort, toggleItem } from '#imports'
 
 const {
   item,
@@ -42,7 +42,11 @@ const title = computed(() => item?.frontmatter?.title || item?.frontmatter?.summ
 const checked = computed(() => {
   return Boolean(item?.frontmatter?.completed)
 })
-
+const formattedCreatedDate = computed(() => {
+  return item.frontmatter?.created && typeof item.frontmatter.created === 'string'
+    ? formatDateShort(new Date(item.frontmatter.created))
+    : null
+})
 function handleToggleDone(item: ItemRecord) {
   emits('toggle-completed', toggleItem(item))
 }
@@ -78,10 +82,10 @@ function handleToggleDone(item: ItemRecord) {
       </div>
     </slot>
     <p
-      v-if="!compact"
+      v-if="!compact || (formattedCreatedDate && !compact)"
       class="text-xs text-dimmed"
     >
-      created: <span>12-12-2024</span>
+      created: <span>{{ formattedCreatedDate }}</span>
     </p>
     <div class="py-4">
       <slot />
