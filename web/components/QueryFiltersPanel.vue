@@ -26,6 +26,15 @@ const selectedFilters = useSelectedFilters()
         label="Remove"
         icon="i-lucide-trash"
       />
+      <UButton
+        color="neutral"
+        variant="soft"
+        size="lg"
+        label="Clear"
+        icon="i-lucide-circle-x"
+        class="ml-auto"
+        @click="selectedFilters.clear()"
+      />
     </div>
   </div>
 </template>

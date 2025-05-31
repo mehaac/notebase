@@ -73,6 +73,7 @@ const handleChange = (id: string) => {
               color="neutral"
               size="lg"
               class="w-full"
+              :model-value="selectedFilters.has(filter.id)"
               @change="handleChange(filter.id)"
             />
           </UButtonGroup>
