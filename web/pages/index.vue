@@ -11,7 +11,7 @@ const { state } = useActivitiesListQuery()
 
 <template>
   <div class="flex flex-col gap-4">
-    <FilterForm v-if="notebaseConfig.config.value.showFilters" />
+    <QueryFilterForm v-if="notebaseConfig.config.value.showFilters" />
     <div v-if="notebaseConfig.config.value.showExtra">
       extra
     </div>
@@ -21,5 +21,6 @@ const { state } = useActivitiesListQuery()
     </div>
 
     <ItemsList :items="state.data?.items ?? []" />
+    <QueryFilterSlideover />
   </div>
 </template>

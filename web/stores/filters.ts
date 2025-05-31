@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { useLocalStorage, useStorage, watchDebounced } from '@vueuse/core'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useState } from '#imports'
 
 interface Filter {
   id: string
@@ -11,9 +12,15 @@ interface Filter {
   typeFilter: string
   pathFilterEnabled: boolean
   typeFilterEnabled: boolean
+  used: number
 }
 
-const useFiltersLocalStorage = () => useLocalStorage<Filter[]>('notebase-filters', () => [])
+export const useNewFilterSlideover = () => useState('new-filter-slideover', () => false)
+
+const useFiltersLocalStorage = () => useLocalStorage<Filter[]>(
+  'notebase-saved-filters',
+  () => [],
+)
 
 export const useFiltersStore = defineStore('filters', () => {
   const localFilters = useFiltersLocalStorage()
@@ -29,7 +36,8 @@ export const useFiltersStore = defineStore('filters', () => {
 
   const builtQuery = ref('')
 
-  const createdFilterLabel = ref<string>()
+  const saveFilterLabel = ref<string>('')
+  const searchFiltersLabel = ref<string>('')
 
   const enabled = ref(false)
 
@@ -54,21 +62,27 @@ export const useFiltersStore = defineStore('filters', () => {
 
   function saveFilter() {
     const id = crypto.randomUUID()
-    if (!createdFilterLabel.value) {
+    if (!saveFilterLabel.value) {
       return
     }
     const filter: Filter = {
       id,
-      label: createdFilterLabel.value,
+      label: saveFilterLabel.value,
       query: query.value,
       queryType: queryType.value,
       pathFilter: pathFilter.value,
       typeFilter: typeFilter.value,
       pathFilterEnabled: pathFilterEnabled.value,
       typeFilterEnabled: typeFilterEnabled.value,
+      used: 0,
     }
     localFilters.value.push(filter)
+    clearForm()
     return filter
+  }
+
+  function clearForm() {
+    saveFilterLabel.value = ''
   }
 
   function applyFilter(id: string) {
@@ -80,7 +94,7 @@ export const useFiltersStore = defineStore('filters', () => {
     }
 
     appliedFilterId.value = id
-    createdFilterLabel.value = filter.label
+    saveFilterLabel.value = filter.label
     query.value = filter.query
     queryType.value = filter.queryType
     pathFilter.value = filter.pathFilter
@@ -88,11 +102,12 @@ export const useFiltersStore = defineStore('filters', () => {
     pathFilterEnabled.value = filter.pathFilterEnabled
     typeFilterEnabled.value = filter.typeFilterEnabled
 
+    filter.used = typeof filter.used === 'number' ? filter.used + 1 : 1
     return true
   }
 
   function clearFilters() {
-    createdFilterLabel.value = ''
+    saveFilterLabel.value = ''
     query.value = ''
     pathFilter.value = ''
     typeFilter.value = ''
@@ -101,21 +116,29 @@ export const useFiltersStore = defineStore('filters', () => {
     appliedFilterId.value = undefined
   }
 
-  function deleteFilter() {
-    const index = localFilters.value.findIndex(f => f.id === appliedFilterId.value)
+  function deleteFilter(id: string) {
+    const index = localFilters.value.findIndex(f => f.id === id)
     if (index !== -1) {
       localFilters.value.splice(index, 1)
       clearFilters()
     }
   }
 
+  const sortFilters = computed(() => {
+    return localFilters.value.sort((a, b) => b.used - a.used)
+  })
+
   function searchFilters(labelQuery: string, limit: number = 5): Filter[] {
-    if (!labelQuery.trim()) return []
+    if (!labelQuery.trim()) return sortFilters.value
     const q = labelQuery.toLowerCase()
-    return localFilters.value
+    return sortFilters.value
       .filter(f => f.label.toLowerCase().includes(q))
       .slice(0, limit)
   }
+
+  const filteredQueryFilters = computed(() => {
+    return searchFilters(searchFiltersLabel.value)
+  })
 
   watchDebounced(
     [query, pathFilter, typeFilter, pathFilterEnabled, typeFilterEnabled],
@@ -129,6 +152,7 @@ export const useFiltersStore = defineStore('filters', () => {
   )
 
   return {
+    // refs
     query,
     queryType,
     pathFilter,
@@ -137,8 +161,14 @@ export const useFiltersStore = defineStore('filters', () => {
     typeFilterEnabled,
     builtQuery,
     enabled,
-    createdFilterLabel,
+    saveFilterLabel,
     appliedFilterId,
+    searchFiltersLabel,
+
+    // computed
+    filteredQueryFilters,
+
+    // functions
     buildQuery,
     saveFilter,
     applyFilter,
@@ -146,6 +176,7 @@ export const useFiltersStore = defineStore('filters', () => {
     deleteFilter,
     searchFilters,
 
+    // local storage
     localFilters,
   }
 })
