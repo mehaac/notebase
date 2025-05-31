@@ -1,9 +1,16 @@
 <script lang="ts" setup>
-import { ref, useNotebaseConfig } from '#imports'
+import { navigateTo, ref, useClient, useNotebaseConfig, useUser } from '#imports'
 
 const notebaseConfig = useNotebaseConfig()
 
 const open = ref(false)
+const pb = useClient()
+const user = useUser()
+const onLogout = async () => {
+  await pb.clearAuth()
+  user.value.isAuthenticated = false
+  await navigateTo({ name: 'login' })
+}
 
 const navigationItems = ref([
   {
@@ -91,6 +98,7 @@ const navigationItems = ref([
           variant="ghost"
           label="Logout"
           icon="i-lucide-log-out"
+          @click="onLogout"
         />
       </div>
     </template>
