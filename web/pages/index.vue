@@ -12,6 +12,7 @@ const { state } = useActivitiesListQuery()
 <template>
   <div class="flex flex-col gap-4">
     <QueryFilterForm v-if="notebaseConfig.config.value.showFilters" />
+    <QueryFiltersTabs />
     <div v-if="notebaseConfig.config.value.showExtra">
       extra
     </div>

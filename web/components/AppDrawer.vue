@@ -1,10 +1,9 @@
 <script lang="ts" setup>
-import { navigateTo, useClient, useFiltersStore, useNewFilterSlideover, useNotebaseConfig, useUser } from '#imports'
+import { navigateTo, useClient, useNewFilterSlideover, useNotebaseConfig, useUser } from '#imports'
 
 import { ref } from 'vue'
 
 const notebaseConfig = useNotebaseConfig()
-const filtersStore = useFiltersStore()
 const newFilterSlideover = useNewFilterSlideover()
 
 const open = ref(false)
@@ -86,44 +85,7 @@ const navigationItems = ref([
           :items="navigationItems"
           orientation="vertical"
         />
-        <USeparator class="my-2" />
-        <div class="flex flex-col gap-2">
-          <h2 class="font-medium">
-            Saved filters
-          </h2>
-          <UInput
-            v-model="filtersStore.searchFiltersLabel"
-            placeholder="Search filters"
-            type="text"
-            size="lg"
-            class="w-full"
-          />
-          <div class="flex flex-col gap-2 max-h-[180px] overflow-y-auto">
-            <div
-              v-for="filter in filtersStore.filteredQueryFilters"
-              :key="filter.id"
-              class="flex gap-2"
-            >
-              <UButton
-                color="neutral"
-                variant="soft"
-                size="lg"
-                :label="filter.label"
-                class="w-full"
-                @click="filtersStore.applyFilter(filter.id)"
-              />
-              <UButton
-                icon="i-lucide-trash"
-                color="error"
-                variant="soft"
-                size="lg"
-                block
-                class="w-12"
-                @click="filtersStore.deleteFilter(filter.id)"
-              />
-            </div>
-          </div>
-        </div>
+
         <USeparator class="my-2" />
         <div class="flex flex-col gap-2">
           <UButton
@@ -135,16 +97,6 @@ const navigationItems = ref([
             @click="newFilterSlideover = true"
           >
             Add new filter
-          </UButton>
-          <UButton
-            icon="i-lucide-x"
-            color="warning"
-            variant="soft"
-            block
-            size="lg"
-            @click="filtersStore.clearFilters"
-          >
-            Clear filters
           </UButton>
         </div>
         <div class="flex flex-col gap-2 mt-auto">
