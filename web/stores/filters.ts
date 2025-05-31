@@ -14,7 +14,8 @@ interface Filter {
   typeFilterEnabled: boolean
   used: number
 }
-
+export const useShowEditFilterPanel = () => useState('show-edit-filter-panel', () => false)
+export const useSelectedFilters = () => useState<Set<string>>('selected-filters', () => new Set())
 export const useNewFilterSlideover = () => useState('new-filter-slideover', () => false)
 
 const useFiltersLocalStorage = () => useLocalStorage<Filter[]>(
@@ -124,14 +125,17 @@ export const useFiltersStore = defineStore('filters', () => {
     }
   }
 
-  const sortFilters = computed(() => {
-    return localFilters.value.sort((a, b) => b.used - a.used)
+  const sortedFilters = computed(() => {
+    return localFilters.value.sort((a, b) => b.used - a.used).map(f => ({
+      ...f,
+      slot: f.label,
+    }))
   })
 
   function searchFilters(labelQuery: string, limit: number = 5): Filter[] {
-    if (!labelQuery.trim()) return sortFilters.value
+    if (!labelQuery.trim()) return sortedFilters.value
     const q = labelQuery.toLowerCase()
-    return sortFilters.value
+    return sortedFilters.value
       .filter(f => f.label.toLowerCase().includes(q))
       .slice(0, limit)
   }
