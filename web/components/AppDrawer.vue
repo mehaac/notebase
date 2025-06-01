@@ -1,10 +1,9 @@
 <script lang="ts" setup>
-import { navigateTo, useClient, useNewFilterSlideover, useNotebaseConfig, useUser } from '#imports'
+import { navigateTo, useClient, useNotebaseConfig, useUser } from '#imports'
 
 import { ref } from 'vue'
 
 const notebaseConfig = useNotebaseConfig()
-const newFilterSlideover = useNewFilterSlideover()
 
 const open = ref(false)
 
@@ -87,23 +86,8 @@ const navigationItems = ref([
         />
 
         <USeparator class="my-2" />
-        <div class="flex flex-col gap-2">
-          <UButton
-            icon="i-lucide-plus"
-            color="neutral"
-            variant="soft"
-            block
-            size="lg"
-            @click="newFilterSlideover = true"
-          >
-            Add new filter
-          </UButton>
-        </div>
+
         <div class="flex flex-col gap-2 mt-auto">
-          <UCheckbox
-            v-model="notebaseConfig.config.value.showFilters"
-            label="Show filters"
-          />
           <UCheckbox
             v-model="notebaseConfig.config.value.showExtra"
             label="Show extra"

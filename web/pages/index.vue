@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { UCollapsible } from '#components'
 import { definePageMeta, useNotebaseConfig } from '#imports'
 import { useActivitiesListQuery } from '~/composables/queries/'
 
@@ -10,9 +11,16 @@ const { state } = useActivitiesListQuery()
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
-    <QueryFilterForm v-if="notebaseConfig.config.value.showFilters" />
+  <div class="flex flex-col">
     <QueryFiltersTabs />
+    <UCollapsible
+      class="py-2"
+      :open="notebaseConfig.config.value.showFilters"
+    >
+      <template #content>
+        <QueryFilterForm />
+      </template>
+    </UCollapsible>
     <div v-if="notebaseConfig.config.value.showExtra">
       extra
     </div>
@@ -20,8 +28,8 @@ const { state } = useActivitiesListQuery()
       <!-- TODO: this can be a skeleton loader -->
       <UProgress indeterminate />
     </div>
-
-    <ItemsList :items="state.data?.items ?? []" />
-    <QueryFilterSlideover />
+    <div class="py-2">
+      <ItemsList :items="state.data?.items ?? []" />
+    </div>
   </div>
 </template>

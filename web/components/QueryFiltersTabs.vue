@@ -1,13 +1,11 @@
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
-import { useFiltersStore, useSelectedFilters } from '~/stores/filters'
-
-// const noFilter = {
-//   label: 'All',
-//   class: 'sticky left-0',
-// }
+import { useNotebaseConfig } from '#imports'
+import type { DropdownMenuItem } from '@nuxt/ui'
+import { computed, ref, watch } from 'vue'
+import { useFiltersStore } from '~/stores/filters'
 
 const filtersStore = useFiltersStore()
+const notebaseConfig = useNotebaseConfig()
 const selectedFilterIndx = ref(0)
 const isLoading = ref(false)
 watch(selectedFilterIndx, (newVal) => {
@@ -21,102 +19,124 @@ watch(selectedFilterIndx, (newVal) => {
   }
 })
 
-const selectedFilters = useSelectedFilters()
+const items = computed<DropdownMenuItem[]>(() => {
+  return [
+    {
+      slot: 'edit',
+    },
+    {
+      slot: 'remove',
+    },
+  ]
+})
 
-const handleChange = (id: string) => {
-  if (selectedFilters.value.has(id)) {
-    selectedFilters.value.delete(id)
-  }
-  else {
-    selectedFilters.value.add(id)
-  }
+function toggleFilters() {
+  notebaseConfig.setShowFilters(!notebaseConfig.config.value.showFilters)
 }
 </script>
 
 <template>
-  <div class="flex flex-col gap-2">
-    <div class="flex items-center">
-      <div>
-        <UButton
-          color="neutral"
-          :variant="
-            !filtersStore.appliedFilterId || !filtersStore.builtQuery
-              ? 'soft'
-              : 'ghost'
-          "
-          size="lg"
-          label="All"
-          class="w-full"
-          @click="filtersStore.clearFilters()"
-        />
-      </div>
-      <div class="scrollable w-full overflow-x-auto py-2 relative">
-        <div class="flex gap-2">
-          <UButtonGroup
-            v-for="filter in filtersStore.filteredQueryFilters"
-            :key="filter.id"
-            class="flex items-center gap-0.5"
-          >
-            <UButton
-              :label="filter.label"
-              color="neutral"
-              :variant="
-                filtersStore.appliedFilterId === filter.id ? 'soft' : 'ghost'
-              "
-              size="lg"
-              class="w-full"
-              @click="filtersStore.applyFilter(filter.id)"
+  <div class="flex flex-col">
+    <div class="flex items-center relative min-h-12">
+      <div class="scrollable flex items-center w-full overflow-x-auto py-2">
+        <div class="flex gap-1 sticky left-0 z-10 items-center bg-(--ui-bg)">
+          <UButton
+            color="neutral"
+            :variant="
+              !filtersStore.appliedFilterId || !filtersStore.builtQuery
+                ? 'soft'
+                : 'outline'
+            "
+            class="h-10 w-12"
+            label="All"
+            block
+
+            @click="filtersStore.clearFilters()"
+          />
+          <UButton
+            color="neutral"
+            variant="outline"
+            class="h-10 w-12"
+            block
+            :icon="notebaseConfig.config.value.showFilters ? 'i-lucide-minus' : 'i-lucide-plus'"
+            @click="toggleFilters"
+          />
+        </div>
+        <div class="flex gap-2 pl-2">
+          <template v-if="filtersStore.filteredQueryFilters.length > 0">
+            <UButtonGroup
+              v-for="filter in filtersStore.filteredQueryFilters"
+              :key="filter.id"
+              class="flex items-center gap-1 ring-1 transition-all duration-200 ring-(--ui-border) rounded-lg"
+              :class="filtersStore.appliedFilterId === filter.id ? 'ring-primary' : ''"
             >
-              {{ filter.label }}
-            </UButton>
-            <UCheckbox
-              color="neutral"
-              size="lg"
-              class="w-full"
-              :model-value="selectedFilters.has(filter.id)"
-              @change="handleChange(filter.id)"
-            />
-          </UButtonGroup>
+              <UButton
+                :label="filter.label"
+                color="neutral"
+                :variant="
+                  filtersStore.appliedFilterId === filter.id ? 'soft' : 'ghost'
+                "
+                class="w-full truncate"
+                @click="filtersStore.applyFilter(filter.id)"
+              >
+                {{ filter.label }}
+              </UButton>
+              <UDropdownMenu
+                :items="items"
+                arrow
+                external-icon="i-lucide-chevron-down"
+              >
+                <UButton
+                  color="neutral"
+                  variant="ghost"
+                  icon="i-lucide-chevron-down"
+                />
+                <template
+                  v-if="!notebaseConfig.config.value.showFilters"
+                  #edit
+                >
+                  <UButton
+                    color="primary"
+                    variant="ghost"
+                    size="xs"
+                    class="w-full"
+                    label="Edit"
+                    icon="i-lucide-pen"
+                    @click="notebaseConfig.setShowFilters(true)"
+                  />
+                </template>
+                <template #remove>
+                  <UButton
+                    color="error"
+                    variant="ghost"
+                    size="xs"
+                    class="w-full"
+                    label="Remove"
+                    icon="i-lucide-trash"
+                    @click="filtersStore.deleteFilter(filter.id)"
+                  />
+                </template>
+              </UDropdownMenu>
+            </UButtonGroup>
+          </template>
+          <template v-else>
+            <span class="text-xs text-dimmed">
+              No filters
+            </span>
+          </template>
         </div>
       </div>
-      <div>
-        <UButton
-          color="neutral"
-          variant="ghost"
-          size="lg"
-          label="Add"
-          icon="i-lucide-plus"
-          class="w-full"
-        />
-      </div>
-      <!-- <UTabs
-        v-model="selectedFilterIndx"
-        :items="[noFilter, ...filtersStore.filteredQueryFilters]"
-        variant="link"
-        class="w-max"
-        activation-mode="manual"
-        :ui="{ trigger: 'grow' }"
-      >
-        <template
-          v-for="filter in filtersStore.filteredQueryFilters"
-          :key="filter.id"
-          #[`${filter.label}-content`]
-        >
-          <UIcon name="i-lucide-trash" />
-        </template>
-      </UTabs> -->
     </div>
   </div>
 </template>
 
 <style scoped>
 .scrollable {
-  scrollbar-width: none;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scroll-snap-align: start;
 }
 
-.scrollable::-webkit-scrollbar {
-  display: none;
-}
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s ease;

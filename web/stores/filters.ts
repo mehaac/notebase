@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import { useLocalStorage, useStorage, watchDebounced } from '@vueuse/core'
 import { ref, computed } from 'vue'
-import { useState } from '#imports'
 
 interface Filter {
   id: string
@@ -14,9 +13,6 @@ interface Filter {
   typeFilterEnabled: boolean
   used: number
 }
-export const useShowEditFilterPanel = () => useState('show-edit-filter-panel', () => false)
-export const useSelectedFilters = () => useState<Set<string>>('selected-filters', () => new Set())
-export const useNewFilterSlideover = () => useState('new-filter-slideover', () => false)
 
 const useFiltersLocalStorage = () => useLocalStorage<Filter[]>(
   'notebase-saved-filters',
@@ -77,8 +73,16 @@ export const useFiltersStore = defineStore('filters', () => {
       typeFilterEnabled: typeFilterEnabled.value,
       used: 0,
     }
-    localFilters.value.push(filter)
-    clearForm()
+    if (appliedFilterId.value) {
+      const appliedFilterIndex = localFilters.value.findIndex(f => f.id === appliedFilterId.value)
+      if (appliedFilterIndex !== -1) {
+        localFilters.value[appliedFilterIndex] = { ...filter, id: appliedFilterId.value, used: (localFilters.value[appliedFilterIndex]?.used ?? 0) + 1 }
+      }
+    }
+    else {
+      localFilters.value.push(filter)
+      clearForm()
+    }
     return filter
   }
 

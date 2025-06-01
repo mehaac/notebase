@@ -6,8 +6,8 @@ const filtersStore = useFiltersStore()
 </script>
 
 <template>
-  <div class="flex flex-col gap-2">
-    <UButtonGroup class="mr-2">
+  <div class="flex flex-col gap-2 w-full">
+    <UButtonGroup>
       <UBadge
         color="neutral"
         variant="outline"
@@ -24,6 +24,7 @@ const filtersStore = useFiltersStore()
         placeholder="inbox/activities/%"
         autocapitalize="none"
         autocorrect="off"
+        class="w-full"
       />
     </UButtonGroup>
 
@@ -44,6 +45,22 @@ const filtersStore = useFiltersStore()
         placeholder="debt"
         autocapitalize="none"
         autocorrect="off"
+        class="w-full"
+      />
+    </UButtonGroup>
+    <UButtonGroup>
+      <UInput
+        v-model="filtersStore.saveFilterLabel"
+        placeholder="Filter label"
+        type="text"
+        class="w-full"
+      />
+      <UButton
+        label="Save"
+        variant="soft"
+        icon="i-lucide-save"
+        :disabled="!filtersStore.saveFilterLabel"
+        @click="filtersStore.saveFilter()"
       />
     </UButtonGroup>
   </div>
