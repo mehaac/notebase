@@ -29,7 +29,16 @@ const { state } = useActivitiesListQuery()
       <UProgress indeterminate />
     </div>
     <div class="py-2">
-      <ItemsList :items="state.data?.items ?? []" />
+      <template v-if="state.data?.items?.length">
+        <ItemsList :items="state.data?.items" />
+      </template>
+      <template v-else>
+        <div class="flex flex-col items-center justify-center h-full">
+          <p class="text-sm text-dimmed">
+            No items found
+          </p>
+        </div>
+      </template>
     </div>
   </div>
 </template>

@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import { useNotebaseConfig } from '#imports'
-import { ref, watch } from 'vue'
+import { ref, watch, nextTick } from 'vue'
 import { useFiltersStore } from '~/stores/filters'
 
 const filtersStore = useFiltersStore()
 const notebaseConfig = useNotebaseConfig()
 const selectedFilterIndx = ref(0)
 const isLoading = ref(false)
+const scrollContainer = ref<HTMLElement>()
 watch(selectedFilterIndx, (newVal) => {
   newVal = typeof newVal === 'string' ? parseInt(newVal) : newVal
   isLoading.value = true
@@ -23,17 +24,15 @@ function handleFilterMenu(filterId: string) {
   const isMenuOpen = notebaseConfig.config.value.showFilters
 
   if (isFilterSelected && isMenuOpen) {
-    // Filter selected and menu open -> close menu
     notebaseConfig.setShowFilters(false)
   }
   else {
-    // All other cases -> select filter and open menu
     filtersStore.applyFilter(filterId)
     notebaseConfig.setShowFilters(true)
   }
 }
 
-function handleAddFilter() {
+async function handleAddFilter() {
   if (filtersStore.appliedFilterId) {
     filtersStore.clearFilters()
   }
@@ -44,6 +43,21 @@ function handleAddFilter() {
   }
   filtersStore.applyFilter(newFilter.id)
   notebaseConfig.setShowFilters(true)
+
+  await nextTick()
+  if (scrollContainer.value) {
+    const filterElement = scrollContainer.value.querySelector(`[data-filter-id="${newFilter.id}"]`)
+    if (filterElement) {
+      const containerRect = scrollContainer.value.getBoundingClientRect()
+      const elementRect = filterElement.getBoundingClientRect()
+      const scrollLeft = scrollContainer.value.scrollLeft + (elementRect.left - containerRect.left) - (containerRect.width / 2) + (elementRect.width / 2)
+
+      scrollContainer.value.scrollTo({
+        left: scrollLeft,
+        behavior: 'smooth',
+      })
+    }
+  }
 }
 function handleClearFilters() {
   filtersStore.clearFilters()
@@ -54,7 +68,10 @@ function handleClearFilters() {
 <template>
   <div class="flex flex-col">
     <div class="flex items-center relative min-h-12">
-      <div class="scrollable flex items-center w-full overflow-x-auto py-2">
+      <div
+        ref="scrollContainer"
+        class="scrollable flex items-center w-full overflow-x-auto py-2"
+      >
         <div class="flex gap-1 sticky left-0 z-10 items-center bg-(--ui-bg)">
           <UButton
             color="neutral"
@@ -82,6 +99,7 @@ function handleClearFilters() {
             <UButtonGroup
               v-for="filter in filtersStore.filteredQueryFilters"
               :key="filter.id"
+              :data-filter-id="filter.id"
               class="flex items-center gap-1 ring-1 transition-all duration-200 ring-(--ui-border) rounded-none"
               :class="filtersStore.appliedFilterId === filter.id ? 'ring-primary' : ''"
             >

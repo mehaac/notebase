@@ -1,8 +1,16 @@
 <script lang="ts" setup>
 import { UBadge, UButtonGroup, UCheckbox, UInput } from '#components'
-import { useFiltersStore } from '#imports'
+import { ref, useFiltersStore } from '#imports'
 
 const filtersStore = useFiltersStore()
+const deleteModal = ref(false)
+function handleDeleteFilter() {
+  const success = filtersStore.deleteFilter(filtersStore.appliedFilterId!)
+  if (!success) {
+    return
+  }
+  deleteModal.value = false
+}
 </script>
 
 <template>
@@ -66,9 +74,38 @@ const filtersStore = useFiltersStore()
         label="Delete"
         variant="soft"
         color="error"
+        :disabled="!filtersStore.appliedFilterId"
         icon="i-lucide-trash"
-        @click="filtersStore.deleteFilter(filtersStore.appliedFilterId!)"
+        @click="deleteModal = true"
       />
     </UButtonGroup>
+    <UModal
+      v-model:open="deleteModal"
+      :dismissible="false"
+    >
+      <template #title>
+        Delete filter
+      </template>
+      <template #description>
+        Are you sure you want to delete this filter?
+      </template>
+      <template #footer>
+        <div class="flex gap-2">
+          <UButton
+            color="neutral"
+            variant="soft"
+            @click="deleteModal = false"
+          >
+            Cancel
+          </UButton>
+          <UButton
+            color="error"
+            @click="handleDeleteFilter"
+          >
+            Delete
+          </UButton>
+        </div>
+      </template>
+    </UModal>
   </div>
 </template>

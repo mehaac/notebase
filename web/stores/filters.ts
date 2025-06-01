@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { useLocalStorage, useStorage, watchDebounced } from '@vueuse/core'
 import { ref, computed } from 'vue'
+import { useNotebaseConfig } from '#imports'
 
 interface Filter {
   id: string
@@ -20,6 +21,8 @@ const useFiltersLocalStorage = () => useLocalStorage<Filter[]>(
 )
 
 export const useFiltersStore = defineStore('filters', () => {
+  const notebaseConfig = useNotebaseConfig()
+
   const localFilters = useFiltersLocalStorage()
 
   const query = useStorage('query', '', localStorage)
@@ -122,7 +125,10 @@ export const useFiltersStore = defineStore('filters', () => {
     if (index !== -1) {
       localFilters.value.splice(index, 1)
       clearFilters()
+      notebaseConfig.setShowFilters(false)
+      return true
     }
+    return false
   }
 
   const sortedFilters = computed(() => {
