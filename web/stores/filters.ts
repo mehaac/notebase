@@ -93,10 +93,6 @@ export const useFiltersStore = defineStore('filters', () => {
   function applyFilter(id: string) {
     const filter = localFilters.value.find(f => f.id === id)
     if (!filter) return false
-    if (appliedFilterId.value === id) {
-      clearFilters()
-      return true
-    }
 
     appliedFilterId.value = id
     saveFilterLabel.value = filter.label

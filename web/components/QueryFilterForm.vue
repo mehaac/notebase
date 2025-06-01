@@ -62,6 +62,13 @@ const filtersStore = useFiltersStore()
         :disabled="!filtersStore.saveFilterLabel"
         @click="filtersStore.saveFilter()"
       />
+      <UButton
+        label="Delete"
+        variant="soft"
+        color="error"
+        icon="i-lucide-trash"
+        @click="filtersStore.deleteFilter(filtersStore.appliedFilterId!)"
+      />
     </UButtonGroup>
   </div>
 </template>

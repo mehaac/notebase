@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { useNotebaseConfig } from '#imports'
-import type { DropdownMenuItem } from '@nuxt/ui'
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useFiltersStore } from '~/stores/filters'
 
 const filtersStore = useFiltersStore()
@@ -19,19 +18,36 @@ watch(selectedFilterIndx, (newVal) => {
   }
 })
 
-const items = computed<DropdownMenuItem[]>(() => {
-  return [
-    {
-      slot: 'edit',
-    },
-    {
-      slot: 'remove',
-    },
-  ]
-})
+function handleFilterMenu(filterId: string) {
+  const isFilterSelected = filtersStore.appliedFilterId === filterId
+  const isMenuOpen = notebaseConfig.config.value.showFilters
 
-function toggleFilters() {
-  notebaseConfig.setShowFilters(!notebaseConfig.config.value.showFilters)
+  if (isFilterSelected && isMenuOpen) {
+    // Filter selected and menu open -> close menu
+    notebaseConfig.setShowFilters(false)
+  }
+  else {
+    // All other cases -> select filter and open menu
+    filtersStore.applyFilter(filterId)
+    notebaseConfig.setShowFilters(true)
+  }
+}
+
+function handleAddFilter() {
+  if (filtersStore.appliedFilterId) {
+    filtersStore.clearFilters()
+  }
+  filtersStore.saveFilterLabel = `New ${filtersStore.filteredQueryFilters.length + 1}`
+  const newFilter = filtersStore.saveFilter()
+  if (!newFilter) {
+    return
+  }
+  filtersStore.applyFilter(newFilter.id)
+  notebaseConfig.setShowFilters(true)
+}
+function handleClearFilters() {
+  filtersStore.clearFilters()
+  notebaseConfig.setShowFilters(false)
 }
 </script>
 
@@ -48,18 +64,17 @@ function toggleFilters() {
                 : 'outline'
             "
             class="h-10 w-12"
-            label="All"
+            icon="i-lucide-filter-x"
             block
-
-            @click="filtersStore.clearFilters()"
+            @click="handleClearFilters"
           />
           <UButton
             color="neutral"
             variant="outline"
             class="h-10 w-12"
             block
-            :icon="notebaseConfig.config.value.showFilters ? 'i-lucide-minus' : 'i-lucide-plus'"
-            @click="toggleFilters"
+            icon="i-lucide-plus"
+            @click="handleAddFilter"
           />
         </div>
         <div class="flex gap-2 pl-2">
@@ -67,7 +82,7 @@ function toggleFilters() {
             <UButtonGroup
               v-for="filter in filtersStore.filteredQueryFilters"
               :key="filter.id"
-              class="flex items-center gap-1 ring-1 transition-all duration-200 ring-(--ui-border) rounded-lg"
+              class="flex items-center gap-1 ring-1 transition-all duration-200 ring-(--ui-border) rounded-none"
               :class="filtersStore.appliedFilterId === filter.id ? 'ring-primary' : ''"
             >
               <UButton
@@ -81,42 +96,12 @@ function toggleFilters() {
               >
                 {{ filter.label }}
               </UButton>
-              <UDropdownMenu
-                :items="items"
-                arrow
-                external-icon="i-lucide-chevron-down"
-              >
-                <UButton
-                  color="neutral"
-                  variant="ghost"
-                  icon="i-lucide-chevron-down"
-                />
-                <template
-                  v-if="!notebaseConfig.config.value.showFilters"
-                  #edit
-                >
-                  <UButton
-                    color="primary"
-                    variant="ghost"
-                    size="xs"
-                    class="w-full"
-                    label="Edit"
-                    icon="i-lucide-pen"
-                    @click="notebaseConfig.setShowFilters(true)"
-                  />
-                </template>
-                <template #remove>
-                  <UButton
-                    color="error"
-                    variant="ghost"
-                    size="xs"
-                    class="w-full"
-                    label="Remove"
-                    icon="i-lucide-trash"
-                    @click="filtersStore.deleteFilter(filter.id)"
-                  />
-                </template>
-              </UDropdownMenu>
+              <UButton
+                color="neutral"
+                variant="ghost"
+                :icon="notebaseConfig.config.value.showFilters && filtersStore.appliedFilterId === filter.id ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
+                @click="handleFilterMenu(filter.id)"
+              />
             </UButtonGroup>
           </template>
           <template v-else>
