@@ -781,6 +781,289 @@ func init() {
 					"duration": 259200
 				},
 				"viewRule": "id = @request.auth.id"
+			},
+			{
+				"createRule": null,
+				"deleteRule": null,
+				"fields": [
+					{
+						"autogeneratePattern": "[a-z0-9]{15}",
+						"hidden": false,
+						"id": "text3208210256",
+						"max": 15,
+						"min": 15,
+						"name": "id",
+						"pattern": "^[a-z0-9]+$",
+						"presentable": false,
+						"primaryKey": true,
+						"required": true,
+						"system": true,
+						"type": "text"
+					},
+					{
+						"autogeneratePattern": "",
+						"hidden": false,
+						"id": "text2324736937",
+						"max": 0,
+						"min": 0,
+						"name": "key",
+						"pattern": "",
+						"presentable": false,
+						"primaryKey": false,
+						"required": false,
+						"system": false,
+						"type": "text"
+					},
+					{
+						"autogeneratePattern": "",
+						"hidden": false,
+						"id": "text494360628",
+						"max": 0,
+						"min": 0,
+						"name": "value",
+						"pattern": "",
+						"presentable": false,
+						"primaryKey": false,
+						"required": false,
+						"system": false,
+						"type": "text"
+					},
+					{
+						"autogeneratePattern": "",
+						"hidden": false,
+						"id": "text2490651244",
+						"max": 0,
+						"min": 0,
+						"name": "comment",
+						"pattern": "",
+						"presentable": false,
+						"primaryKey": false,
+						"required": false,
+						"system": false,
+						"type": "text"
+					},
+					{
+						"hidden": false,
+						"id": "autodate2990389176",
+						"name": "created",
+						"onCreate": true,
+						"onUpdate": false,
+						"presentable": false,
+						"system": false,
+						"type": "autodate"
+					},
+					{
+						"hidden": false,
+						"id": "autodate3332085495",
+						"name": "updated",
+						"onCreate": true,
+						"onUpdate": true,
+						"presentable": false,
+						"system": false,
+						"type": "autodate"
+					}
+				],
+				"id": "pbc_2769025244",
+				"indexes": [
+					"CREATE UNIQUE INDEX ` + "`" + `idx_unique_key` + "`" + ` ON ` + "`" + `settings` + "`" + ` (` + "`" + `key` + "`" + `)"
+				],
+				"listRule": null,
+				"name": "settings",
+				"system": false,
+				"type": "base",
+				"updateRule": null,
+				"viewRule": null
+			},
+			{
+				"createRule": null,
+				"deleteRule": null,
+				"fields": [
+					{
+						"autogeneratePattern": "[a-z0-9]{15}",
+						"hidden": false,
+						"id": "text3208210256",
+						"max": 15,
+						"min": 15,
+						"name": "id",
+						"pattern": "^[a-z0-9]+$",
+						"presentable": false,
+						"primaryKey": true,
+						"required": true,
+						"system": true,
+						"type": "text"
+					},
+					{
+						"autogeneratePattern": "",
+						"hidden": false,
+						"id": "text190089999",
+						"max": 0,
+						"min": 0,
+						"name": "path",
+						"pattern": "",
+						"presentable": false,
+						"primaryKey": false,
+						"required": false,
+						"system": false,
+						"type": "text"
+					},
+					{
+						"autogeneratePattern": "",
+						"hidden": false,
+						"id": "text2560465762",
+						"max": 0,
+						"min": 0,
+						"name": "slug",
+						"pattern": "",
+						"presentable": false,
+						"primaryKey": false,
+						"required": false,
+						"system": false,
+						"type": "text"
+					},
+					{
+						"hidden": false,
+						"id": "json2128251450",
+						"maxSize": 0,
+						"name": "frontmatter",
+						"presentable": false,
+						"required": false,
+						"system": false,
+						"type": "json"
+					},
+					{
+						"autogeneratePattern": "",
+						"hidden": false,
+						"id": "text4274335913",
+						"max": 5000000,
+						"min": 0,
+						"name": "content",
+						"pattern": "",
+						"presentable": false,
+						"primaryKey": false,
+						"required": false,
+						"system": false,
+						"type": "text"
+					},
+					{
+						"autogeneratePattern": "",
+						"hidden": false,
+						"id": "text3206337475",
+						"max": 0,
+						"min": 0,
+						"name": "version",
+						"pattern": "",
+						"presentable": false,
+						"primaryKey": false,
+						"required": false,
+						"system": false,
+						"type": "text"
+					},
+					{
+						"hidden": false,
+						"id": "date3946532403",
+						"max": "",
+						"min": "",
+						"name": "deleted",
+						"presentable": false,
+						"required": false,
+						"system": false,
+						"type": "date"
+					},
+					{
+						"hidden": false,
+						"id": "autodate2990389176",
+						"name": "created",
+						"onCreate": true,
+						"onUpdate": false,
+						"presentable": false,
+						"system": false,
+						"type": "autodate"
+					},
+					{
+						"hidden": false,
+						"id": "autodate3332085495",
+						"name": "updated",
+						"onCreate": true,
+						"onUpdate": true,
+						"presentable": false,
+						"system": false,
+						"type": "autodate"
+					}
+				],
+				"id": "pbc_3446931122",
+				"indexes": [
+					"CREATE UNIQUE INDEX ` + "`" + `idx_wDzsmCUCia` + "`" + ` ON ` + "`" + `files` + "`" + ` (\n  ` + "`" + `slug` + "`" + `,\n  ` + "`" + `deleted` + "`" + `\n)",
+					"CREATE UNIQUE INDEX ` + "`" + `idx_ecPdYvusn7` + "`" + ` ON ` + "`" + `files` + "`" + ` (\n  ` + "`" + `path` + "`" + `,\n  ` + "`" + `deleted` + "`" + `\n)"
+				],
+				"listRule": null,
+				"name": "files",
+				"system": false,
+				"type": "base",
+				"updateRule": null,
+				"viewRule": null
+			},
+			{
+				"createRule": null,
+				"deleteRule": null,
+				"fields": [
+					{
+						"autogeneratePattern": "",
+						"hidden": false,
+						"id": "text3208210256",
+						"max": 0,
+						"min": 0,
+						"name": "id",
+						"pattern": "^[a-z0-9]+$",
+						"presentable": false,
+						"primaryKey": true,
+						"required": true,
+						"system": true,
+						"type": "text"
+					},
+					{
+						"hidden": false,
+						"id": "json3458754147",
+						"maxSize": 1,
+						"name": "summary",
+						"presentable": false,
+						"required": false,
+						"system": false,
+						"type": "json"
+					},
+					{
+						"hidden": false,
+						"id": "json3742343818",
+						"maxSize": 1,
+						"name": "due",
+						"presentable": false,
+						"required": false,
+						"system": false,
+						"type": "json"
+					},
+					{
+						"autogeneratePattern": "",
+						"hidden": false,
+						"id": "_clone_hxE3",
+						"max": 5000000,
+						"min": 0,
+						"name": "content",
+						"pattern": "",
+						"presentable": false,
+						"primaryKey": false,
+						"required": false,
+						"system": false,
+						"type": "text"
+					}
+				],
+				"id": "pbc_4089960912",
+				"indexes": [],
+				"listRule": null,
+				"name": "tasks",
+				"system": false,
+				"type": "view",
+				"updateRule": null,
+				"viewQuery": "SELECT\n  id,\n  json(frontmatter)->'summary' as summary,\n  json(frontmatter)->'due' as due,\n  content\nFROM files\nWHERE path LIKE 'todo/tasks/%'",
+				"viewRule": null
 			}
 		]`
 
