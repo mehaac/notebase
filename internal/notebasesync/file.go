@@ -9,7 +9,6 @@ import (
 	"github.com/biozz/wow/notebase/internal/utils"
 	"github.com/gobwas/glob"
 	"github.com/goccy/go-yaml"
-	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/syncthing/notify"
 )
@@ -109,7 +108,7 @@ func (h *SyncHandler) handleFSNotifyEvent(event notify.EventInfo) {
 				return
 			}
 
-			if err := createFile(h.app, data); err != nil {
+			if err := h.createFile(data); err != nil {
 				h.app.Logger().Error("unable to create file", err)
 			}
 			return
@@ -121,14 +120,14 @@ func (h *SyncHandler) handleFSNotifyEvent(event notify.EventInfo) {
 			return
 		}
 	case notify.Rename, notify.Remove:
-		if err := h.deleteFile(event.Path()); err != nil {
+		if err := h.softDeleteFile(event.Path()); err != nil {
 			h.app.Logger().Error("unable to delete file", err)
 		}
 	}
 }
 
-func createFile(app *pocketbase.PocketBase, data File) error {
-	filesCol, err := app.FindCollectionByNameOrId("files")
+func (h *SyncHandler) createFile(data File) error {
+	filesCol, err := h.app.FindCollectionByNameOrId("files")
 	if err != nil {
 		return err
 	}
@@ -139,8 +138,13 @@ func createFile(app *pocketbase.PocketBase, data File) error {
 	data.Version = version
 	fillFileRecFromData(fileRec, data)
 
-	if err := app.Save(fileRec); err != nil {
-		app.Logger().Error("Error saving file record", "error", err)
+	// Remove deleted timestamp if we are restoring the file
+	// (important for docker volume changes tracking,
+	// where the file is remove and recreated and not updated)
+	fileRec.Set("deleted", nil)
+
+	if err := h.app.Save(fileRec); err != nil {
+		h.app.Logger().Error("Error saving file record", "error", err)
 		return err
 	}
 
@@ -198,12 +202,14 @@ func (h *SyncHandler) updateFile(data File) error {
 	return nil
 }
 
-func (h *SyncHandler) deleteFile(path string) error {
-	fileRec, err := h.app.FindFirstRecordByData("files", "path", path)
+func (h *SyncHandler) softDeleteFile(path string) error {
+	relPath, _ := filepath.Rel(h.root, path)
+	fileRec, err := h.app.FindFirstRecordByData("files", "path", relPath)
 	if err != nil {
 		return err
 	}
-	if err := h.app.Delete(fileRec); err != nil {
+	fileRec.Set("deleted", time.Now())
+	if err := h.app.Save(fileRec); err != nil {
 		h.app.Logger().Error("Error deleting file record", "error", err)
 		return err
 	}

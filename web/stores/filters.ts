@@ -13,7 +13,9 @@ export const useFiltersStore = defineStore('filters', () => {
   const builtQuery = ref('')
 
   function buildQuery() {
-    const filterParts: string[] = []
+    // `deleted` is a soft-delete indicator
+    // this will avoid duplicates on frontend
+    const filterParts: string[] = ['deleted = null']
     if (typeFilterEnabled.value && typeFilter.value.length > 0) {
       filterParts.push(`frontmatter.type = '${typeFilter.value}'`)
     }
