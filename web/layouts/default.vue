@@ -1,6 +1,9 @@
+<script setup lang="ts">
+</script>
+
 <template>
-  <UContainer>
-    <AppNav />
+  <UContainer class="flex flex-col relative overflow-x-hidden">
+    <AppFilters />
     <AppSettings />
     <slot />
   </UContainer>

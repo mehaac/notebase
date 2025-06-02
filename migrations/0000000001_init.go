@@ -960,6 +960,17 @@ func init() {
 					},
 					{
 						"hidden": false,
+						"id": "date3946532403",
+						"max": "",
+						"min": "",
+						"name": "deleted",
+						"presentable": false,
+						"required": false,
+						"system": false,
+						"type": "date"
+					},
+					{
+						"hidden": false,
 						"id": "autodate2990389176",
 						"name": "created",
 						"onCreate": true,
@@ -981,8 +992,8 @@ func init() {
 				],
 				"id": "pbc_3446931122",
 				"indexes": [
-					"CREATE UNIQUE INDEX ` + "`" + `idx_wDzsmCUCia` + "`" + ` ON ` + "`" + `files` + "`" + ` (` + "`" + `slug` + "`" + `)",
-					"CREATE UNIQUE INDEX ` + "`" + `idx_ecPdYvusn7` + "`" + ` ON ` + "`" + `files` + "`" + ` (` + "`" + `path` + "`" + `)"
+					"CREATE UNIQUE INDEX ` + "`" + `idx_wDzsmCUCia` + "`" + ` ON ` + "`" + `files` + "`" + ` (\n  ` + "`" + `slug` + "`" + `,\n  ` + "`" + `deleted` + "`" + `\n)",
+					"CREATE UNIQUE INDEX ` + "`" + `idx_ecPdYvusn7` + "`" + ` ON ` + "`" + `files` + "`" + ` (\n  ` + "`" + `path` + "`" + `,\n  ` + "`" + `deleted` + "`" + `\n)"
 				],
 				"listRule": null,
 				"name": "files",
@@ -1032,7 +1043,7 @@ func init() {
 					{
 						"autogeneratePattern": "",
 						"hidden": false,
-						"id": "_clone_tARO",
+						"id": "_clone_hxE3",
 						"max": 5000000,
 						"min": 0,
 						"name": "content",
