@@ -32,7 +32,10 @@ const { state } = useActivitiesListQuery()
     <div v-if="notebaseConfig.config.value.showExtra">
       extra
     </div>
-    <div v-if="state.status !== 'success'">
+    <div
+      v-if="state.status !== 'success'"
+      class="py-2"
+    >
       <!-- TODO: this can be a skeleton loader -->
       <UProgress indeterminate />
     </div>
