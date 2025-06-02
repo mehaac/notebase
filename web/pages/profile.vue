@@ -4,6 +4,7 @@ import { navigateTo, useClient, useUser, useNow, useDateFormatter, useNotebaseCo
 
 definePageMeta({
   middleware: 'auth',
+  layout: 'profile',
 })
 
 const pb = useClient()
@@ -28,7 +29,7 @@ const now = useNow()
 </script>
 
 <template>
-  <UContainer class="flex flex-col">
+  <UContainer class="flex flex-col relative overflow-x-hidden">
     <UCard class="ring-0">
       <div class="flex flex-col">
         <div class="flex justify-between items-center pb-5">
