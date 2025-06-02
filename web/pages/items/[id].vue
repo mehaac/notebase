@@ -11,7 +11,9 @@ import { useActivitiesItemQuery } from '~/composables/queries/'
 
 definePageMeta({
   middleware: ['auth'],
+  layout: 'activity',
 })
+
 const route = useRoute()
 const parseMd = useMarkdownParser()
 const contentAst = ref<MDCParserResult | null>(null)
@@ -43,8 +45,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div>
-    <ULink to="/">back</ULink>
+  <UContainer class="flex flex-col relative overflow-x-hidden">
     <template v-if="state.status === 'pending'">
       <h1>Loading...</h1>
     </template>
@@ -107,5 +108,5 @@ onUnmounted(() => {
     <template v-else-if="error || state.status === 'error'">
       <h1>{{ error || state.error }}</h1>
     </template>
-  </div>
+  </UContainer>
 </template>
