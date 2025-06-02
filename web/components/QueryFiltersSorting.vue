@@ -11,18 +11,23 @@ useSortable(sortableRef, filtersStore.localFilters, {
 </script>
 
 <template>
-  <div
-    ref="sortableRef"
-    class="flex flex-wrap gap-2"
-  >
-    <UBadge
-      v-for="filter in filtersStore.localFilters"
-      :key="filter.id"
-      color="neutral"
-      variant="soft"
-      class="cursor-grab select-none"
+  <div class="flex flex-col gap-2">
+    <h3 class="text-sm font-medium">
+      Sorting
+    </h3>
+    <div
+      ref="sortableRef"
+      class="flex flex-wrap gap-2"
     >
-      {{ filter.label }}
-    </UBadge>
+      <UBadge
+        v-for="filter in filtersStore.localFilters"
+        :key="filter.id"
+        color="neutral"
+        variant="soft"
+        class="cursor-grab select-none"
+      >
+        {{ filter.label }}
+      </UBadge>
+    </div>
   </div>
 </template>

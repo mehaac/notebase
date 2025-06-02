@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import { useNotebaseConfig } from '#imports'
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick, useTemplateRef } from 'vue'
 import { useFiltersStore } from '~/stores/filters'
 
 const filtersStore = useFiltersStore()
 const notebaseConfig = useNotebaseConfig()
 const selectedFilterIndx = ref(0)
 const isLoading = ref(false)
-const sortableContainer = ref<HTMLElement>()
+const sortableContainer = useTemplateRef<HTMLElement>('sortableContainer')
 watch(selectedFilterIndx, (newVal) => {
   newVal = typeof newVal === 'string' ? parseInt(newVal) : newVal
   isLoading.value = true
@@ -69,18 +69,17 @@ function handleClearFilters() {
   <div class="flex flex-col">
     <div class="flex items-center relative min-h-12">
       <div
+        ref="sortableContainer"
         class="scrollable flex items-center w-full overflow-x-auto"
       >
-        <div class="absolute right-0 -top-4 z-20">
+        <div class="flex gap-1 sticky left-0 z-10 items-center bg-(--ui-bg)">
           <UButton
             color="neutral"
             variant="link"
             size="xs"
-            icon="i-lucide-stretch-horizontal"
+            icon="i-lucide-arrow-down-up"
             @click="notebaseConfig.setShowTabsSorting(!notebaseConfig.config.value.showTabsSorting)"
           />
-        </div>
-        <div class="flex gap-1 sticky left-0 z-10 items-center bg-(--ui-bg)">
           <UButton
             color="neutral"
             :variant="
@@ -93,18 +92,8 @@ function handleClearFilters() {
             block
             @click="handleClearFilters"
           />
-          <UButton
-            color="neutral"
-            variant="outline"
-            class="h-10 w-12"
-            block
-            icon="i-lucide-plus"
-            @click="handleAddFilter"
-          />
         </div>
-        <div
-          class="flex gap-2 pl-2"
-        >
+        <div class="flex gap-2 pl-2">
           <template v-if="filtersStore.localFilters.length > 0">
             <UButtonGroup
               v-for="filter in filtersStore.localFilters"
@@ -138,6 +127,16 @@ function handleClearFilters() {
             </span>
           </template>
         </div>
+      </div>
+      <div class="flex items-center gap-0.5">
+        <UButton
+          color="neutral"
+          variant="outline"
+          class="h-10 w-12"
+          block
+          icon="i-lucide-plus"
+          @click="handleAddFilter"
+        />
       </div>
     </div>
   </div>
