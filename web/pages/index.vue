@@ -7,7 +7,7 @@ definePageMeta({
   middleware: ['auth'],
 })
 const notebaseConfig = useNotebaseConfig()
-const { state } = useActivitiesListQuery()
+const { state, error } = useActivitiesListQuery()
 </script>
 
 <template>
@@ -39,9 +39,12 @@ const { state } = useActivitiesListQuery()
       <!-- TODO: this can be a skeleton loader -->
       <UProgress indeterminate />
     </div>
-    <div class="py-2">
-      <template v-if="state.data?.items?.length">
-        <ItemsList :items="state.data?.items" />
+    <div
+      v-else-if="state.status === 'success'"
+      class="py-2"
+    >
+      <template v-if="state.data.items.length">
+        <ItemsList :items="state.data.items" />
       </template>
       <template v-else>
         <div class="flex flex-col items-center justify-center h-full">
@@ -50,6 +53,14 @@ const { state } = useActivitiesListQuery()
           </p>
         </div>
       </template>
+    </div>
+    <div
+      v-else
+      class="py-2"
+    >
+      <p class="text-sm text-dimmed">
+        Error loading items: {{ error }}
+      </p>
     </div>
   </div>
 </template>
