@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { useLocalStorage, useStorage, watchDebounced } from '@vueuse/core'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useNotebaseConfig } from '#imports'
 
 interface Filter {
@@ -12,7 +12,6 @@ interface Filter {
   typeFilter: string
   pathFilterEnabled: boolean
   typeFilterEnabled: boolean
-  used: number
 }
 
 const useFiltersLocalStorage = () => useLocalStorage<Filter[]>(
@@ -37,7 +36,6 @@ export const useFiltersStore = defineStore('filters', () => {
   const builtQuery = ref('')
 
   const saveFilterLabel = ref<string>('')
-  const searchFiltersLabel = ref<string>('')
 
   const enabled = ref(false)
 
@@ -74,12 +72,11 @@ export const useFiltersStore = defineStore('filters', () => {
       typeFilter: typeFilter.value,
       pathFilterEnabled: pathFilterEnabled.value,
       typeFilterEnabled: typeFilterEnabled.value,
-      used: 0,
     }
     if (appliedFilterId.value) {
       const appliedFilterIndex = localFilters.value.findIndex(f => f.id === appliedFilterId.value)
       if (appliedFilterIndex !== -1) {
-        localFilters.value[appliedFilterIndex] = { ...filter, id: appliedFilterId.value, used: (localFilters.value[appliedFilterIndex]?.used ?? 0) + 1 }
+        localFilters.value[appliedFilterIndex] = { ...filter, id: appliedFilterId.value }
       }
     }
     else {
@@ -106,7 +103,6 @@ export const useFiltersStore = defineStore('filters', () => {
     pathFilterEnabled.value = filter.pathFilterEnabled
     typeFilterEnabled.value = filter.typeFilterEnabled
 
-    filter.used = typeof filter.used === 'number' ? filter.used + 1 : 1
     return true
   }
 
@@ -131,25 +127,6 @@ export const useFiltersStore = defineStore('filters', () => {
     return false
   }
 
-  const sortedFilters = computed(() => {
-    return localFilters.value.sort((a, b) => b.used - a.used).map(f => ({
-      ...f,
-      slot: f.label,
-    }))
-  })
-
-  function searchFilters(labelQuery: string, limit: number = 5): Filter[] {
-    if (!labelQuery.trim()) return sortedFilters.value
-    const q = labelQuery.toLowerCase()
-    return sortedFilters.value
-      .filter(f => f.label.toLowerCase().includes(q))
-      .slice(0, limit)
-  }
-
-  const filteredQueryFilters = computed(() => {
-    return searchFilters(searchFiltersLabel.value)
-  })
-
   watchDebounced(
     [query, pathFilter, typeFilter, pathFilterEnabled, typeFilterEnabled],
     () => {
@@ -173,10 +150,6 @@ export const useFiltersStore = defineStore('filters', () => {
     enabled,
     saveFilterLabel,
     appliedFilterId,
-    searchFiltersLabel,
-
-    // computed
-    filteredQueryFilters,
 
     // functions
     buildQuery,
@@ -184,7 +157,6 @@ export const useFiltersStore = defineStore('filters', () => {
     applyFilter,
     clearFilters,
     deleteFilter,
-    searchFilters,
 
     // local storage
     localFilters,

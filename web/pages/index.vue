@@ -13,14 +13,22 @@ const { state } = useActivitiesListQuery()
 <template>
   <div class="flex flex-col">
     <QueryFiltersTabs />
-    <UCollapsible
-      class="py-2"
-      :open="notebaseConfig.config.value.showFilters"
-    >
-      <template #content>
-        <QueryFilterForm />
-      </template>
-    </UCollapsible>
+    <div class="pt-2 flex flex-col gap-2">
+      <UCollapsible
+        :open="notebaseConfig.config.value.showTabsSorting"
+      >
+        <template #content>
+          <QueryFiltersSorting />
+        </template>
+      </UCollapsible>
+      <UCollapsible
+        :open="notebaseConfig.config.value.showFilters"
+      >
+        <template #content>
+          <QueryFilterForm />
+        </template>
+      </UCollapsible>
+    </div>
     <div v-if="notebaseConfig.config.value.showExtra">
       extra
     </div>
