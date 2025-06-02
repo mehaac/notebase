@@ -68,45 +68,44 @@ function handleClearFilters() {
 <template>
   <div class="flex flex-col">
     <div class="flex items-center relative min-h-12">
+      <div class="flex gap-1 items-center bg-(--ui-bg)">
+        <UButton
+          color="neutral"
+          variant="link"
+          size="xs"
+          icon="i-lucide-arrow-down-up"
+          @click="notebaseConfig.setShowTabsSorting(!notebaseConfig.config.value.showTabsSorting)"
+        />
+        <UButton
+          color="neutral"
+          :variant="
+            !filtersStore.appliedFilterId || !filtersStore.builtQuery
+              ? 'soft'
+              : 'outline'
+          "
+          icon="i-lucide-filter-x"
+          block
+          @click="handleClearFilters"
+        />
+      </div>
       <div
         ref="sortableContainer"
         class="scrollable flex items-center w-full overflow-x-auto"
       >
-        <div class="flex gap-1 sticky left-0 z-10 items-center bg-(--ui-bg)">
-          <UButton
-            color="neutral"
-            variant="link"
-            size="xs"
-            icon="i-lucide-arrow-down-up"
-            @click="notebaseConfig.setShowTabsSorting(!notebaseConfig.config.value.showTabsSorting)"
-          />
-          <UButton
-            color="neutral"
-            :variant="
-              !filtersStore.appliedFilterId || !filtersStore.builtQuery
-                ? 'soft'
-                : 'outline'
-            "
-            class="h-10 w-12"
-            icon="i-lucide-filter-x"
-            block
-            @click="handleClearFilters"
-          />
-        </div>
-        <div class="flex gap-2 pl-2">
+        <div class="flex gap-2 pl-2 py-1">
           <template v-if="filtersStore.localFilters.length > 0">
             <UButtonGroup
               v-for="filter in filtersStore.localFilters"
               :key="filter.id"
               :data-filter-id="filter.id"
-              class="flex items-center gap-1 ring-1 transition-all duration-200 ring-(--ui-border) rounded-none"
-              :class="filtersStore.appliedFilterId === filter.id ? 'ring-primary' : ''"
+              class="rounded-md"
+              :class="filtersStore.appliedFilterId === filter.id ? 'ring-1 ring-primary' : 'ring-inset ring-(--ui-border)'"
             >
               <UButton
                 :label="filter.label"
                 color="neutral"
                 :variant="
-                  filtersStore.appliedFilterId === filter.id ? 'soft' : 'ghost'
+                  filtersStore.appliedFilterId === filter.id ? 'outline' : 'ghost'
                 "
                 class="w-full truncate"
                 @click="filtersStore.applyFilter(filter.id)"
@@ -132,7 +131,6 @@ function handleClearFilters() {
         <UButton
           color="neutral"
           variant="outline"
-          class="h-10 w-12"
           block
           icon="i-lucide-plus"
           @click="handleAddFilter"
