@@ -54,7 +54,13 @@ function handleToggleDone(item: ItemRecord) {
 </script>
 
 <template>
-  <UCard :class="compact ? '' : 'ring-0'">
+  <UCard
+    class="rounded-none"
+    :class="{
+      'ring-0': !compact,
+      'rounded-md': compact,
+    }"
+  >
     <slot name="header">
       <div class="flex items-center gap-2">
         <UCheckbox
