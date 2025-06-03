@@ -74,4 +74,10 @@ func (h *SyncHandler) Routes(se *core.ServeEvent) {
 		h.controlCh <- false
 		return nil
 	})
+	syncGroup.GET("/restart", func(e *core.RequestEvent) error {
+		h.controlCh <- false
+		h.InitialSync()
+		h.controlCh <- true
+		return nil
+	})
 }
