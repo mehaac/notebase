@@ -20,10 +20,11 @@ import { itemTypes } from '~/modules/pocketbase/types/schema'
 const props = defineProps<BaseItemProps>()
 
 const itemType = computed(() => {
-  if (Object.keys(itemTypes).includes(props.item?.frontmatter?.type ?? 'none')) {
-    return props.item?.frontmatter?.type
-  }
-  return itemTypes.none
+  const frontmatterType = props.item?.frontmatter?.type
+
+  return frontmatterType && Object.keys(itemTypes).includes(frontmatterType)
+    ? frontmatterType
+    : itemTypes.none
 })
 
 const itemComponent = computed(() => {
