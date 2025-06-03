@@ -4,6 +4,8 @@ export const itemTypes = {
   track: 'track',
   debt: 'debt',
   task: 'task',
+  groceries: 'groceries',
+
   none: 'none',
 } as const
 
