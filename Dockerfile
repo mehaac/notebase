@@ -29,6 +29,6 @@ RUN chmod +x /app/entrypoint.sh
 
 EXPOSE 8080
 
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/app/entrypoint.sh"]
 
 CMD ["serve", "--http=0.0.0.0:8080", "--dev"]
