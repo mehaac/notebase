@@ -9,6 +9,11 @@ import (
 )
 
 func (h *SyncHandler) OnRecordUpdate(record *core.Record) {
+	deleted := record.GetString("deleted")
+	if deleted != "" {
+		h.app.Logger().Debug("file was soft deleted, no need to proceed")
+		return
+	}
 	path := filepath.Join(h.root, record.GetString("path"))
 	xattrs, _ := utils.GetXAttrs(path)
 
