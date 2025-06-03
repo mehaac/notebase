@@ -64,25 +64,23 @@ function handleDeleteFilter() {
         class="w-full"
       />
       <UButton
-        label="Copy"
         variant="soft"
         icon="i-lucide-copy"
+        size="lg"
         :disabled="!filtersStore.appliedFilterId"
         @click="filtersStore.copyFilter()"
-      >
-        Copy
-      </UButton>
+      />
       <UButton
-        label="Save"
         variant="soft"
         icon="i-lucide-save"
+        size="lg"
         :disabled="!filtersStore.saveFilterLabel"
         @click="filtersStore.saveFilter()"
       />
       <UButton
-        label="Delete"
         variant="soft"
         color="error"
+        size="lg"
         :disabled="!filtersStore.appliedFilterId"
         icon="i-lucide-trash"
         @click="deleteModal = true"
