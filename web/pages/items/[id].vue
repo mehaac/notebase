@@ -21,7 +21,7 @@ const frontmatterAst = ref<MDCParserResult | null>(null)
 
 const error = shallowRef<string>()
 
-const { state, id } = useActivitiesItemQuery()
+const { state, id, asyncStatus } = useActivitiesItemQuery()
 
 watch(() => state.value.status, async (status) => {
   if (status === 'success') {
@@ -46,8 +46,8 @@ onUnmounted(() => {
 
 <template>
   <UContainer class="flex flex-col relative overflow-x-hidden">
-    <template v-if="state.status === 'pending'">
-      <h1>Loading...</h1>
+    <template v-if="state.status === 'pending' || asyncStatus === 'loading'">
+      <ItemSkeleton />
     </template>
     <template v-else-if="state.status === 'success'">
       <BaseItem

@@ -7,7 +7,7 @@ definePageMeta({
   middleware: ['auth'],
 })
 const notebaseConfig = useNotebaseConfig()
-const { state, error } = useActivitiesListQuery()
+const { state, error, asyncStatus } = useActivitiesListQuery()
 </script>
 
 <template>
@@ -32,12 +32,12 @@ const { state, error } = useActivitiesListQuery()
     <div v-if="notebaseConfig.config.value.showExtra">
       extra
     </div>
+
     <div
-      v-if="state.status !== 'success'"
+      v-if="state.status !== 'success' || asyncStatus === 'loading'"
       class="py-2"
     >
-      <!-- TODO: this can be a skeleton loader -->
-      <UProgress indeterminate />
+      <ItemsListSkeleton />
     </div>
     <div
       v-else-if="state.status === 'success'"
