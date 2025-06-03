@@ -6,3 +6,4 @@ exclude:
   - ".trash/**"
   - "attachments/**"
   - ".obsidian/**"
+  - "*sync-conflict*"

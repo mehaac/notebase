@@ -104,15 +104,11 @@ func ExtractFrontMatter(content string) ExtractFrontMatterResult {
 	return extracted
 }
 
-func SaveToDisk(filePath string, content string, frontmatterJSON string) error {
-	yamlFrontmatter := JsonToYaml(frontmatterJSON)
-	if yamlFrontmatter == "" {
-		yamlFrontmatter = ""
-	}
+func SaveToDisk(filePath string, content string, rawFrontmatter string) error {
 	var b strings.Builder
-	if yamlFrontmatter != "" {
+	if rawFrontmatter != "" {
 		b.WriteString("---\n")
-		b.WriteString(yamlFrontmatter)
+		b.WriteString(rawFrontmatter)
 		b.WriteString("---\n")
 	}
 	b.WriteString(content)
@@ -175,13 +171,13 @@ func SetFileXAttrs(filePath string, xattrs XAttrs) {
 	_ = xattr.Set(filePath, "user.notebase.origin", []byte(xattrs.Origin))
 }
 
-func GetDBHash(frontmatter, content string) string {
-	yamlFM := JsonToYaml(frontmatter)
+func GetDBHash(rawFrontmatter, content string) string {
 	h := sha256.New()
-	h.Write([]byte("---\n"))
-	h.Write([]byte(yamlFM))
-	h.Write([]byte("---\n"))
-	// h.Write([]byte("\n"))
+	if rawFrontmatter != "" {
+		h.Write([]byte("---\n"))
+		h.Write([]byte(rawFrontmatter))
+		h.Write([]byte("---\n"))
+	}
 	h.Write([]byte(content))
 	return hex.EncodeToString(h.Sum(nil))
 }

@@ -4,5 +4,6 @@ exclude:
   - "templates/"
   - ".DS_Store"
   - ".trash/"
+  - "*sync-conflict*"
 sync_workers: 5
 sync_batch_size: 200

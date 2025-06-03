@@ -14,8 +14,8 @@ import (
 )
 
 type File struct {
-	FrontMatter     yaml.MapSlice
-	FrontMatterJSON string
+	JSONFrontmatter string
+	RawFrontmatter  string
 	Content         string
 	AbsPath         string
 	RelPath         string
@@ -36,28 +36,26 @@ func parse(rootPath string, curPath string) (File, error) {
 	}
 
 	contentStr := string(content)
-
+	extracted := utils.ExtractFrontMatter(contentStr)
 	xattrs, _ := utils.GetXAttrs(curPath)
 
 	data := File{
-		AbsPath:     curPath,
-		RelPath:     relPath,
-		Slug:        slug,
-		FrontMatter: yaml.MapSlice{},
-		Version:     xattrs.Version,
-		Origin:      xattrs.Origin,
+		AbsPath:         curPath,
+		RelPath:         relPath,
+		Content:         extracted.MainContent,
+		Slug:            slug,
+		JSONFrontmatter: "{}",
+		RawFrontmatter:  extracted.FrontMatter,
+		Version:         xattrs.Version,
+		Origin:          xattrs.Origin,
 	}
 
-	// Extract frontmatter
-	extracted := utils.ExtractFrontMatter(contentStr)
-
 	if len(extracted.FrontMatter) > 0 {
-		yaml.Unmarshal([]byte(extracted.FrontMatter), &data.FrontMatter)
-		jsonBytes, err := yaml.MarshalWithOptions(data.FrontMatter, yaml.JSON())
-		if err != nil {
-			data.FrontMatterJSON = "{}"
-		} else {
-			data.FrontMatterJSON = string(jsonBytes)
+		yamlFrontmatter := yaml.MapSlice{}
+		yaml.Unmarshal([]byte(extracted.FrontMatter), &yamlFrontmatter)
+		jsonBytes, err := yaml.MarshalWithOptions(yamlFrontmatter, yaml.JSON())
+		if err == nil {
+			data.JSONFrontmatter = string(jsonBytes)
 		}
 	}
 
@@ -155,12 +153,13 @@ func (h *SyncHandler) createFile(data File) error {
 
 func fillFileRecFromData(fileRec *core.Record, data File) {
 	fileRec.Load(map[string]any{
-		"path":        data.RelPath,
-		"slug":        data.Slug,
-		"content":     data.Content,
-		"frontmatter": data.FrontMatterJSON,
-		"origin":      data.Origin,
-		"version":     data.Version,
+		"path":            data.RelPath,
+		"slug":            data.Slug,
+		"content":         data.Content,
+		"frontmatter":     data.JSONFrontmatter,
+		"raw_frontmatter": data.RawFrontmatter,
+		"origin":          data.Origin,
+		"version":         data.Version,
 	})
 }
 
@@ -178,7 +177,7 @@ func (h *SyncHandler) updateFile(data File) error {
 	fsHash := utils.GetFSHash(data.AbsPath)
 
 	if dbHash == fsHash {
-		// h.app.Logger().Debug("file hash is not changed, skipping update", "path", data.RelPath)
+		h.app.Logger().Debug("file hash is not changed, skipping update", "path", data.RelPath)
 		return nil
 	}
 
