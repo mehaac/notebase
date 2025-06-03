@@ -64,6 +64,15 @@ function handleDeleteFilter() {
         class="w-full"
       />
       <UButton
+        label="Copy"
+        variant="soft"
+        icon="i-lucide-copy"
+        :disabled="!filtersStore.appliedFilterId"
+        @click="filtersStore.copyFilter()"
+      >
+        Copy
+      </UButton>
+      <UButton
         label="Save"
         variant="soft"
         icon="i-lucide-save"

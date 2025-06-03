@@ -88,6 +88,36 @@ export const useFiltersStore = defineStore('filters', () => {
     return filter
   }
 
+  function copyFilter() {
+    if (!appliedFilterId.value) {
+      return false
+    }
+
+    const currentFilter = localFilters.value.find(f => f.id === appliedFilterId.value)
+    if (!currentFilter) {
+      return false
+    }
+
+    const id = crypto.randomUUID()
+    const copiedFilter: Filter = {
+      id,
+      label: `${currentFilter.label} (Copy)`,
+      query: query.value,
+      queryType: queryType.value,
+      pathFilter: pathFilter.value,
+      typeFilter: typeFilter.value,
+      pathFilterEnabled: pathFilterEnabled.value,
+      typeFilterEnabled: typeFilterEnabled.value,
+    }
+
+    localFilters.value.push(copiedFilter)
+
+    appliedFilterId.value = id
+    saveFilterLabel.value = copiedFilter.label
+
+    return copiedFilter
+  }
+
   function clearForm() {
     saveFilterLabel.value = ''
   }
@@ -156,6 +186,7 @@ export const useFiltersStore = defineStore('filters', () => {
     // functions
     buildQuery,
     saveFilter,
+    copyFilter,
     applyFilter,
     clearFilters,
     deleteFilter,
