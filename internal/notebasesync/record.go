@@ -20,9 +20,21 @@ func (h *SyncHandler) OnRecordUpdate(record *core.Record) {
 	dbVersion, _ := time.Parse(time.RFC3339Nano, record.GetString("version"))
 	fsVersion, _ := time.Parse(time.RFC3339Nano, xattrs.Version)
 
-	rawFrontmatter := record.GetString("raw_frontmatter")
+	frontmatterJSON := record.GetString("frontmatter")
+	newFrontmatter := utils.JsonToYaml(frontmatterJSON)
+	frontmatter := record.GetString("raw_frontmatter")
+	if newFrontmatter != frontmatter {
+		h.app.Logger().Debug("frontmatter changed, updating it and exiting")
+		frontmatter = newFrontmatter
+		record.Set("raw_frontmatter", frontmatter)
+		if err := h.app.Save(record); err != nil {
+			h.app.Logger().Error("error saving record", "error", err)
+			return
+		}
+		return
+	}
 	content := record.GetString("content")
-	dbHash := utils.GetDBHash(rawFrontmatter, content)
+	dbHash := utils.GetDBHash(frontmatter, content)
 	fsHash := utils.GetFSHash(path)
 
 	h.app.Logger().Debug("record update", "path", path, "dbVersion", dbVersion, "fsVersion", fsVersion, "dbHash", dbHash, "fsHash", fsHash)
@@ -32,7 +44,7 @@ func (h *SyncHandler) OnRecordUpdate(record *core.Record) {
 		return
 	}
 
-	err := utils.SaveToDisk(path, content, rawFrontmatter)
+	err := utils.SaveToDisk(path, content, frontmatter)
 	if err != nil {
 		h.app.Logger().Error("error saving file from DB", "path", path, "error", err)
 		return
