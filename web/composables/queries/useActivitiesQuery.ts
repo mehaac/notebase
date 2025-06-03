@@ -16,7 +16,7 @@ export const useActivitiesListQuery = defineQuery(() => {
   const page = ref(1)
   const size = ref(20)
 
-  const { state, error } = useQuery<ListResult<ItemRecord>>({
+  const { state, error, asyncStatus } = useQuery<ListResult<ItemRecord>>({
     key: () => ['activities', { filters: filtersStore.builtQuery, page: page.value, size: size.value }],
     query: async () => {
       return await client.getList(page.value, size.value, filtersStore.builtQuery)
@@ -26,7 +26,7 @@ export const useActivitiesListQuery = defineQuery(() => {
     enabled: () => filtersStore.enabled,
   })
 
-  return { state, page, size, error }
+  return { state, page, size, error, asyncStatus }
 })
 
 export const useActivitiesItemQuery = defineQuery(() => {
