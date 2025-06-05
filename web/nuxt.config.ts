@@ -18,7 +18,7 @@ export default defineNuxtConfig({
   app: {
     head: {
       title: 'Notebase',
-      viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
+      viewport: 'width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover',
       htmlAttrs: {
         lang: 'en-US',
       },
@@ -27,6 +27,8 @@ export default defineNuxtConfig({
       ],
       meta: [
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
+        { name: 'mobile-web-app-capable', content: 'yes' },
+        { name: 'apple-mobile-web-app-capable', content: 'yes' },
       ],
     },
   },
@@ -64,6 +66,15 @@ export default defineNuxtConfig({
     provider: 'none',
     clientBundle: {
       scan: true,
+    },
+  },
+  pwa: {
+    manifest: {
+      name: 'Notebase',
+      short_name: 'NB',
+      background_color: '#18181b',
+      theme_color: '#51a2ff',
+      display: 'fullscreen',
     },
   },
 })
