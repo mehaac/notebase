@@ -8,6 +8,7 @@ export default defineNuxtConfig({
     '~/modules/pocketbase/module',
     '@pinia/colada-nuxt',
     '@nuxt/icon',
+    '@vite-pwa/nuxt',
   ],
   ssr: false,
   imports: {
