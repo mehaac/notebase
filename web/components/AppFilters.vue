@@ -13,7 +13,7 @@ defineShortcuts({
 </script>
 
 <template>
-  <div class="flex py-4 sticky top-0 z-10 bg-(--ui-bg)">
+  <div>
     <UButtonGroup class="w-full">
       <AppDrawer />
       <UInput
